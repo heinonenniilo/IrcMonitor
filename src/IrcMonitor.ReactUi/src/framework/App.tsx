@@ -1,7 +1,10 @@
 import { Menu as MenuIcon } from "@mui/icons-material";
-import { AppBar, Box, Button, Container, Grid, IconButton, Typography } from "@mui/material";
-import React from "react";
+import { AppBar, Container, IconButton, Typography } from "@mui/material";
+import { gapi } from "gapi-script";
+import React, { useEffect } from "react";
+import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from "react-google-login";
 import styled from "styled-components";
+import config from "../config.json";
 
 const PageContainer = styled.div`
   width: "100";
@@ -26,6 +29,17 @@ const MenuArea = styled.div`
 `;
 
 export const App: React.FC<AppProps> = (props) => {
+  useEffect(() => {
+    function start() {
+      gapi.client.init({
+        clientId: config.GOOGLE_CLIENT_ID,
+        scope: ""
+      });
+    }
+
+    gapi.load("client:auth2", start);
+  }, []);
+
   return (
     <Container>
       <AppBar position="static">
@@ -40,7 +54,23 @@ export const App: React.FC<AppProps> = (props) => {
           </MenuArea>
 
           <MenuArea>
-            <Button color="inherit">Login</Button>
+            <GoogleLogin
+              clientId={config.GOOGLE_CLIENT_ID}
+              buttonText="Google Login"
+              redirectUri="https://localhost:3000/"
+              onSuccess={(response: GoogleLoginResponse | GoogleLoginResponseOffline) => {
+                console.log("Success", response);
+              }}
+              onFailure={(response) => {
+                console.log("Failure", response);
+              }}
+              onAutoLoadFinished={(res) => {
+                console.log("auto load", res);
+              }}
+              onScriptLoadFailure={(res) => {
+                console.log("Script load failure", res);
+              }}
+            />
           </MenuArea>
         </MenuItemsContainer>
       </AppBar>
