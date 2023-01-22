@@ -5,9 +5,12 @@ namespace IrcMonitor.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<TodoList> TodoLists { get; }
+    DbSet<IrcRow> IrcRows { get; }
 
-    DbSet<TodoItem> TodoItems { get; }
+    DbSet<IrcChannel> IrcChannels { get;  }
+
+    DbSet<User> Users { get; }
+    DbSet<UserRole> UserRoles { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

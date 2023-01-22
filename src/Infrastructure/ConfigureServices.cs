@@ -3,7 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Models;
-using IrcMonitor.Infrastructure.Files;
 using IrcMonitor.Infrastructure.Identity;
 using IrcMonitor.Infrastructure.Persistence;
 using IrcMonitor.Infrastructure.Persistence.Interceptors;
@@ -40,7 +39,6 @@ public static class ConfigureServices
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
-        services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
         services.AddScoped<IJwtGenerator, JwtGenerator>();
 
         // Add some settings

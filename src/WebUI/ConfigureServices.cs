@@ -6,6 +6,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +33,11 @@ public static class ConfigureServices
         
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
-        
+
+
+        // Add some settings stuff
+
+
 
         services.AddOpenApiDocument(configure =>
         {

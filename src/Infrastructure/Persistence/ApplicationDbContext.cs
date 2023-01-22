@@ -22,9 +22,11 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
+    public DbSet<IrcRow> IrcRows => Set<IrcRow>();
+    public DbSet<IrcChannel> IrcChannels => Set<IrcChannel>();
 
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

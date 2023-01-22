@@ -2,7 +2,6 @@
 using AutoMapper;
 using IrcMonitor.Application.Common.Mappings;
 using IrcMonitor.Application.Common.Models;
-using IrcMonitor.Application.TodoLists.Queries.GetTodos;
 using IrcMonitor.Domain.Entities;
 using NUnit.Framework;
 
@@ -27,9 +26,8 @@ public class MappingTests
         _configuration.AssertConfigurationIsValid();
     }
 
+    // TODO FIX
     [Test]
-    [TestCase(typeof(TodoList), typeof(TodoListDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
     [TestCase(typeof(TodoList), typeof(LookupDto))]
     [TestCase(typeof(TodoItem), typeof(LookupDto))]
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)

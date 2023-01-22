@@ -19,7 +19,6 @@ if (app.Environment.IsDevelopment())
     {
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
         await initialiser.InitialiseAsync();
-        await initialiser.SeedAsync();
     }
 }
 else
@@ -44,9 +43,7 @@ app.UseRouting();
 
 app.UseOpenApi();
 
-
 app.UseAuthentication();
-app.UseIdentityServer();
 app.UseAuthorization();
 
 app.MapControllerRoute(
