@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "esModuleInterop": true,
+      "jsx": "react",
+      "baseUrl": "./src",
+      "downlevelIteration": true,
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+    
+    },
+    "include": ["src"],
+
+  }

@@ -29,8 +29,10 @@ public static class ConfigureServices
         services.AddRazorPages();
 
         // Customise default API behaviour
+        
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
+        
 
         services.AddOpenApiDocument(configure =>
         {
@@ -45,6 +47,7 @@ public static class ConfigureServices
 
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         });
+
 
         return services;
     }

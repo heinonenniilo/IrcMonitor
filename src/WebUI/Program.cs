@@ -32,13 +32,18 @@ app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+/*
 app.UseSwaggerUi3(settings =>
 {
     settings.Path = "/api";
     settings.DocumentPath = "/api/specification.json";
 });
-
+*/
+app.UseSwaggerUi3();
 app.UseRouting();
+
+app.UseOpenApi();
+
 
 app.UseAuthentication();
 app.UseIdentityServer();
@@ -50,6 +55,5 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-app.MapFallbackToFile("index.html"); ;
 
 app.Run();
