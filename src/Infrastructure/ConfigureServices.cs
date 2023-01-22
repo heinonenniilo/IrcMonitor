@@ -1,13 +1,17 @@
-﻿using IrcMonitor.Application.Common.Interfaces;
+﻿using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Files;
 using IrcMonitor.Infrastructure.Identity;
 using IrcMonitor.Infrastructure.Persistence;
 using IrcMonitor.Infrastructure.Persistence.Interceptors;
 using IrcMonitor.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -33,20 +37,41 @@ public static class ConfigureServices
 
         services.AddScoped<ApplicationDbContextInitialiser>();
 
-        services
-            .AddDefaultIdentity<ApplicationUser>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
-
-        services.AddIdentityServer()
-            .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
+        services.AddScoped<IJwtGenerator, JwtGenerator>();
+
+        // Add some settings
+
+        var authSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>();
+
+        services.AddSingleton(authSettings);
+
+        RSA rsa = RSA.Create();
+        rsa.ImportRSAPublicKey(Convert.FromBase64String(authSettings.JwtPublicKey), out _);
 
         services.AddAuthentication()
-            .AddIdentityServerJwt();
+            .AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+
+                cfg.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new RsaSecurityKey(rsa),
+                    ValidateIssuer = true,
+                    ValidIssuer = "IrcMonitor",
+                    ValidateAudience = true,
+                    ValidAudience = "IrcMonitor",
+                    CryptoProviderFactory = new CryptoProviderFactory()
+                    {
+                        CacheSignatureProviders = false
+                    }
+                };
+            });
 
         services.AddAuthorization(options =>
             options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
