@@ -35,7 +35,6 @@ public static class ConfigureServices
             options.SuppressModelStateInvalidFilter = true);
 
 
-        // Add some settings stuff
 
 
 
