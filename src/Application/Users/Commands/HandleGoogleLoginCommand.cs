@@ -2,16 +2,14 @@
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Models;
 using MediatR;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IrcMonitor.Application.Users.Commands;
-public class HandleGoogleLoginCommand: IRequest<string>
+public class HandleGoogleLoginCommand: IRequest<UserVm>
 {
     public string TokenId { get; set; }
-    public string GoogleId { get; set; }
 }
 
-public class HandleGoogleLoginCommandHandler : IRequestHandler<HandleGoogleLoginCommand, string>
+public class HandleGoogleLoginCommandHandler : IRequestHandler<HandleGoogleLoginCommand, UserVm>
 {
 
     private readonly AuthenticationSettings _authenticationSettings;
@@ -22,12 +20,16 @@ public class HandleGoogleLoginCommandHandler : IRequestHandler<HandleGoogleLogin
         _jwtGenerator = jwtGenerator;
     }
 
-    public async Task<string> Handle(HandleGoogleLoginCommand request, CancellationToken cancellationToken)
+    public async Task<UserVm> Handle(HandleGoogleLoginCommand request, CancellationToken cancellationToken)
     {
-
         var settings = new GoogleJsonWebSignature.ValidationSettings();
         settings.Audience = new List<string>() { _authenticationSettings.GoogleAuth.ClientId };
         var payload = GoogleJsonWebSignature.ValidateAsync(request.TokenId, settings).Result;
-        return _jwtGenerator.CreateUserAuthToken(payload.Email);
+        var tokenForApi = _jwtGenerator.CreateUserAuthToken(payload.Email);
+        return new UserVm
+        {
+            AccessToken = tokenForApi,
+            Email = payload.Email
+        };
     }
 }

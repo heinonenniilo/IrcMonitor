@@ -9,9 +9,8 @@ public class AuthController: ApiControllerBase
 {
 
     [HttpPost(template:"google")]
-    public async Task<string> GoogleAuth([FromBody] HandleGoogleLoginCommand command)
+    public async Task<UserVm> GoogleAuth([FromBody] HandleGoogleLoginCommand command)
     {
         return await Mediator.Send(command);
     }
-
 }
