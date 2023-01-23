@@ -32,6 +32,24 @@ export interface GetIrcRowsVm {
      * @memberof GetIrcRowsVm
      */
     rows: Array<IrcRowDto>;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetIrcRowsVm
+     */
+    fromRow: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetIrcRowsVm
+     */
+    toRow: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof GetIrcRowsVm
+     */
+    totalRows?: number | null;
 }
 
 /**
@@ -40,6 +58,8 @@ export interface GetIrcRowsVm {
 export function instanceOfGetIrcRowsVm(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "rows" in value;
+    isInstance = isInstance && "fromRow" in value;
+    isInstance = isInstance && "toRow" in value;
 
     return isInstance;
 }
@@ -55,6 +75,9 @@ export function GetIrcRowsVmFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return {
         
         'rows': ((json['rows'] as Array<any>).map(IrcRowDtoFromJSON)),
+        'fromRow': json['fromRow'],
+        'toRow': json['toRow'],
+        'totalRows': !exists(json, 'totalRows') ? undefined : json['totalRows'],
     };
 }
 
@@ -68,6 +91,9 @@ export function GetIrcRowsVmToJSON(value?: GetIrcRowsVm | null): any {
     return {
         
         'rows': ((value.rows as Array<any>).map(IrcRowDtoToJSON)),
+        'fromRow': value.fromRow,
+        'toRow': value.toRow,
+        'totalRows': value.totalRows,
     };
 }
 

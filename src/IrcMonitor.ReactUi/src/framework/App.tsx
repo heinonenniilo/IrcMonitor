@@ -1,12 +1,12 @@
-import { Menu as MenuIcon } from "@mui/icons-material";
-import { AppBar, Container, IconButton, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { AuthApi } from "api";
-import { UserMenu } from "components/UserMenu";
+import { MenuBar } from "components/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
+import { useNavigate } from "react-router";
 import { getUserInfo } from "reducers/userReducer";
 import styled from "styled-components";
 import config from "../config.json";
@@ -22,20 +22,10 @@ interface AppProps {
   children: React.ReactNode;
 }
 
-const MenuItemsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-const MenuArea = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
+  const navigate = useNavigate();
 
   useEffect(() => {
     function start() {
@@ -47,7 +37,7 @@ export const App: React.FC<AppProps> = (props) => {
     gapi.load("client:auth2", start);
   }, []);
 
-  const handleGooleAuth = (response: CredentialResponse) => {
+  const handleGoogleAuth = (response: CredentialResponse) => {
     const api = new AuthApi();
     api
       .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: response.credential } })
@@ -60,35 +50,19 @@ export const App: React.FC<AppProps> = (props) => {
     dispatch(userActions.clearUserInfo());
   };
 
+  const handleNavigate = (route: string) => {
+    navigate(route);
+  };
+
   return (
     <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
       <Container maxWidth="lg">
-        <AppBar position="static">
-          <MenuItemsContainer>
-            <MenuArea>
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" component="div" marginTop={"auto"} marginBottom={"auto"}>
-                Home
-              </Typography>
-            </MenuArea>
-
-            <MenuArea>
-              <UserMenu
-                handleGoogleAuth={handleGooleAuth}
-                user={user}
-                handleLogOut={handleLogOut}
-              />
-            </MenuArea>
-          </MenuItemsContainer>
-        </AppBar>
+        <MenuBar
+          user={user}
+          handleGoogleAuth={handleGoogleAuth}
+          handleLogOut={handleLogOut}
+          handleNavigateTo={handleNavigate}
+        />
         <PageContainer>{props.children}</PageContainer>
       </Container>
     </GoogleOAuthProvider>

@@ -23,7 +23,14 @@ import {
 } from '../models';
 
 export interface IrcGetIrcRowsRequest {
-    channelId?: number;
+    criteriaFrom?: Date | null;
+    criteriaTo?: Date | null;
+    criteriaChannelId?: number;
+    criteriaPage?: number;
+    criteriaPageSize?: number;
+    criteriaSortColumn?: string | null;
+    criteriaIsAscendingOrder?: boolean;
+    criteriaSkipTotalRowCount?: boolean;
 }
 
 /**
@@ -36,8 +43,36 @@ export class IrcApi extends runtime.BaseAPI {
     async ircGetIrcRowsRaw(requestParameters: IrcGetIrcRowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetIrcRowsVm>> {
         const queryParameters: any = {};
 
-        if (requestParameters.channelId !== undefined) {
-            queryParameters['ChannelId'] = requestParameters.channelId;
+        if (requestParameters.criteriaFrom !== undefined) {
+            queryParameters['Criteria.From'] = (requestParameters.criteriaFrom as any).toISOString();
+        }
+
+        if (requestParameters.criteriaTo !== undefined) {
+            queryParameters['Criteria.To'] = (requestParameters.criteriaTo as any).toISOString();
+        }
+
+        if (requestParameters.criteriaChannelId !== undefined) {
+            queryParameters['Criteria.ChannelId'] = requestParameters.criteriaChannelId;
+        }
+
+        if (requestParameters.criteriaPage !== undefined) {
+            queryParameters['Criteria.Page'] = requestParameters.criteriaPage;
+        }
+
+        if (requestParameters.criteriaPageSize !== undefined) {
+            queryParameters['Criteria.PageSize'] = requestParameters.criteriaPageSize;
+        }
+
+        if (requestParameters.criteriaSortColumn !== undefined) {
+            queryParameters['Criteria.SortColumn'] = requestParameters.criteriaSortColumn;
+        }
+
+        if (requestParameters.criteriaIsAscendingOrder !== undefined) {
+            queryParameters['Criteria.IsAscendingOrder'] = requestParameters.criteriaIsAscendingOrder;
+        }
+
+        if (requestParameters.criteriaSkipTotalRowCount !== undefined) {
+            queryParameters['Criteria.SkipTotalRowCount'] = requestParameters.criteriaSkipTotalRowCount;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

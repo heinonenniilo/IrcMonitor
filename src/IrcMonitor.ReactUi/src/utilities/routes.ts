@@ -1,4 +1,4 @@
 export const routes = {
-    main: "/",
-    statistics: "/statistics"
-}
+  main: "/",
+  browse: "/browse"
+};
