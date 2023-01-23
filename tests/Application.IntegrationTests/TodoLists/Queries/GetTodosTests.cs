@@ -1,5 +1,4 @@
 ﻿using IrcMonitor.Domain.Entities;
-using IrcMonitor.Domain.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 

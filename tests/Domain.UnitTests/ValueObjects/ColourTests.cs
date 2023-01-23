@@ -1,5 +1,4 @@
 ﻿using IrcMonitor.Domain.Exceptions;
-using IrcMonitor.Domain.ValueObjects;
 using FluentAssertions;
 using NUnit.Framework;
 

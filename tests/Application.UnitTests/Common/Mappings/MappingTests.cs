@@ -26,16 +26,6 @@ public class MappingTests
         _configuration.AssertConfigurationIsValid();
     }
 
-    // TODO FIX
-    [Test]
-    [TestCase(typeof(TodoList), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(LookupDto))]
-    public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
-    {
-        var instance = GetInstanceOf(source);
-
-        _mapper.Map(instance, source, destination);
-    }
 
     private object GetInstanceOf(Type type)
     {

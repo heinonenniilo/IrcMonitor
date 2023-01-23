@@ -12,8 +12,8 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Application\Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+        <ProjectReference Include="..\IrcMonitor.Application\IrcMonitor.Application.csproj" />
+        <ProjectReference Include="..\IrcMonitor.Infrastructure\IrcMonitor.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
