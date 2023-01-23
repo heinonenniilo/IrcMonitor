@@ -16,41 +16,50 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface HandleGoogleLoginCommand
+ * @interface UserVm
  */
-export interface HandleGoogleLoginCommand {
+export interface UserVm {
     /**
      * 
      * @type {string}
-     * @memberof HandleGoogleLoginCommand
+     * @memberof UserVm
      */
-    tokenId?: string;
+    email: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserVm
+     */
+    accessToken: string;
 }
 
 /**
- * Check if a given object implements the HandleGoogleLoginCommand interface.
+ * Check if a given object implements the UserVm interface.
  */
-export function instanceOfHandleGoogleLoginCommand(value: object): boolean {
+export function instanceOfUserVm(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "email" in value;
+    isInstance = isInstance && "accessToken" in value;
 
     return isInstance;
 }
 
-export function HandleGoogleLoginCommandFromJSON(json: any): HandleGoogleLoginCommand {
-    return HandleGoogleLoginCommandFromJSONTyped(json, false);
+export function UserVmFromJSON(json: any): UserVm {
+    return UserVmFromJSONTyped(json, false);
 }
 
-export function HandleGoogleLoginCommandFromJSONTyped(json: any, ignoreDiscriminator: boolean): HandleGoogleLoginCommand {
+export function UserVmFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserVm {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'tokenId': !exists(json, 'tokenId') ? undefined : json['tokenId'],
+        'email': json['email'],
+        'accessToken': json['accessToken'],
     };
 }
 
-export function HandleGoogleLoginCommandToJSON(value?: HandleGoogleLoginCommand | null): any {
+export function UserVmToJSON(value?: UserVm | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -59,7 +68,8 @@ export function HandleGoogleLoginCommandToJSON(value?: HandleGoogleLoginCommand 
     }
     return {
         
-        'tokenId': value.tokenId,
+        'email': value.email,
+        'accessToken': value.accessToken,
     };
 }
 

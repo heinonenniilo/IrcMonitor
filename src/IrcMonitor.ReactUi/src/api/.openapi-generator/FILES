@@ -7,6 +7,7 @@ index.ts
 models/GetIrcRowsVm.ts
 models/HandleGoogleLoginCommand.ts
 models/IrcRowDto.ts
+models/UserVm.ts
 models/WeatherForecast.ts
 models/index.ts
 runtime.ts

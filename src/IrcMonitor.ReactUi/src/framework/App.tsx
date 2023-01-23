@@ -1,10 +1,11 @@
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { AppBar, Container, IconButton, Typography } from "@mui/material";
+import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { AuthApi } from "api";
+import { UserMenu } from "components/UserMenu";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
-import GoogleLogin, { GoogleLoginResponse } from "react-google-login";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { getUserInfo } from "reducers/userReducer";
 import styled from "styled-components";
@@ -34,8 +35,8 @@ const MenuArea = styled.div`
 
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
-
   const user = useSelector(getUserInfo);
+
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -43,57 +44,53 @@ export const App: React.FC<AppProps> = (props) => {
         scope: ""
       });
     }
-
     gapi.load("client:auth2", start);
   }, []);
 
-  const handleGooleAuth = (response: GoogleLoginResponse) => {
-    dispatch(userActions.storeGoogleAuthInfo(response));
-
+  const handleGooleAuth = (response: CredentialResponse) => {
     const api = new AuthApi();
-    api.authGoogleAuth({ handleGoogleLoginCommand: { tokenId: response.tokenId } }).then((res) => {
-      dispatch(userActions.storeAccessToken(res));
-    });
+    api
+      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: response.credential } })
+      .then((res) => {
+        dispatch(userActions.storeUserInfo(res));
+      });
   };
-  return (
-    <Container>
-      <AppBar position="static">
-        <MenuItemsContainer>
-          <MenuArea>
-            <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" marginTop={"auto"} marginBottom={"auto"}>
-              Home
-            </Typography>
-          </MenuArea>
 
-          <MenuArea>
-            {user && user.loggedIn ? (
-              <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
-                {`${user.firstName} ${user.lastName}`}
+  const handleLogOut = () => {
+    dispatch(userActions.clearUserInfo());
+  };
+
+  return (
+    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+      <Container maxWidth="lg">
+        <AppBar position="static">
+          <MenuItemsContainer>
+            <MenuArea>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" component="div" marginTop={"auto"} marginBottom={"auto"}>
+                Home
               </Typography>
-            ) : (
-              <GoogleLogin
-                clientId={config.GOOGLE_CLIENT_ID}
-                buttonText="Google Login"
-                redirectUri="https://localhost:3000/"
-                onSuccess={handleGooleAuth}
-                onFailure={(response) => {
-                  console.log("Failure", response);
-                }}
-                onAutoLoadFinished={(res) => {
-                  console.log("auto load", res);
-                }}
-                onScriptLoadFailure={(res) => {
-                  console.log("Script load failure", res);
-                }}
+            </MenuArea>
+
+            <MenuArea>
+              <UserMenu
+                handleGoogleAuth={handleGooleAuth}
+                user={user}
+                handleLogOut={handleLogOut}
               />
-            )}
-          </MenuArea>
-        </MenuItemsContainer>
-      </AppBar>
-      <PageContainer>{props.children}</PageContainer>
-    </Container>
+            </MenuArea>
+          </MenuItemsContainer>
+        </AppBar>
+        <PageContainer>{props.children}</PageContainer>
+      </Container>
+    </GoogleOAuthProvider>
   );
 };

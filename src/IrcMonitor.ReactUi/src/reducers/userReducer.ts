@@ -3,8 +3,7 @@ import { UserActions, UserActionTypes } from "actions/userActions";
 import produce from "immer";
 
 export interface User {
-  firstName: string;
-  lastName: string;
+  email: string;
   authenticationProvider: string;
   loggedIn: boolean;
   googleTokenInfo?: GoogleTokenInfo;
@@ -31,16 +30,15 @@ const defaultState: UserState = {
 
 export function userReducer(state: UserState = defaultState, action: UserActions): UserState {
   switch (action.type) {
-    case UserActionTypes.StoreGoogleAuthInfo:
+    case UserActionTypes.StoreUserInfo:
       state = produce(state, (draft) => {
         draft.user = {
-          firstName: action.loginInfo.profileObj.givenName,
-          lastName: action.loginInfo.profileObj.familyName,
+          email: action.userInfo.email,
           authenticationProvider: "google",
-          googleTokenInfo: {
-            accessToken: action.loginInfo.accessToken
-          },
-          loggedIn: false
+          loggedIn: true
+        };
+        draft.apiTokenInfo = {
+          accessToken: action.userInfo.accessToken
         };
         draft.logInInitiated = true;
       });
@@ -53,13 +51,15 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         }
       });
       break;
+    case UserActionTypes.ClearUserInfo:
+      state = produce(state, (draft) => {
+        draft.user = undefined;
+        draft.logInInitiated = false;
+        draft.apiTokenInfo = undefined;
+      });
+      break;
   }
   return state;
 }
 
 export const getUserInfo = (state: AppState): User | undefined => state.user.user;
-
-/*
-export const getAuthSettings = (state: AppState): AuthSettings | undefined =>
-  state.user.authSettings;
-*/
