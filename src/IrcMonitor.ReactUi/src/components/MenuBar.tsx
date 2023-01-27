@@ -1,4 +1,4 @@
-import { AppBar, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { AppBar, IconButton, MenuItem } from "@mui/material";
 import { CredentialResponse } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
@@ -39,32 +39,19 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
             <MenuIcon />
           </IconButton>
-          <MenuItem selected={true}>
-            <Typography
-              variant="h6"
-              component="div"
-              marginTop={"auto"}
-              marginBottom={"auto"}
-              onClick={() => {
-                handleNavigateTo(routes.main);
-              }}
-            >
-              Home
-            </Typography>
+          <MenuItem
+            onClick={() => {
+              handleNavigateTo(routes.main);
+            }}
+          >
+            Home
           </MenuItem>
-          <MenuItem>
-            <Typography
-              variant="h6"
-              component="div"
-              marginTop={"auto"}
-              marginBottom={"auto"}
-              marginLeft={"20px"}
-              onClick={() => {
-                handleNavigateTo(routes.browse);
-              }}
-            >
-              Browse
-            </Typography>
+          <MenuItem
+            onClick={() => {
+              handleNavigateTo(routes.browse);
+            }}
+          >
+            Browse
           </MenuItem>
         </MenuArea>
 

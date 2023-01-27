@@ -1,3 +1,4 @@
+import { IrcChannelDto } from "./../api/models/IrcChannelDto";
 import { AppState } from "./../setup/appRootReducer";
 import { UserActions, UserActionTypes } from "actions/userActions";
 import produce from "immer";
@@ -21,11 +22,13 @@ export interface UserState {
   user: User | undefined;
   logInInitiated: boolean;
   apiTokenInfo?: ApiTokenInfo;
+  channels: IrcChannelDto[];
 }
 
 const defaultState: UserState = {
   logInInitiated: false,
-  user: undefined
+  user: undefined,
+  channels: []
 };
 
 export function userReducer(state: UserState = defaultState, action: UserActions): UserState {
@@ -58,8 +61,16 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.apiTokenInfo = undefined;
       });
       break;
+    case UserActionTypes.StoreUserChannels:
+      state = produce(state, (draft) => {
+        draft.channels = action.channels;
+      });
+      break;
   }
   return state;
 }
 
 export const getUserInfo = (state: AppState): User | undefined => state.user.user;
+
+export const getAccessToken = (state: AppState): string | undefined =>
+  state.user.apiTokenInfo?.accessToken;

@@ -31,6 +31,12 @@ export interface UserVm {
      * @memberof UserVm
      */
     accessToken: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof UserVm
+     */
+    roles: Array<string>;
 }
 
 /**
@@ -40,6 +46,7 @@ export function instanceOfUserVm(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "accessToken" in value;
+    isInstance = isInstance && "roles" in value;
 
     return isInstance;
 }
@@ -56,6 +63,7 @@ export function UserVmFromJSONTyped(json: any, ignoreDiscriminator: boolean): Us
         
         'email': json['email'],
         'accessToken': json['accessToken'],
+        'roles': json['roles'],
     };
 }
 
@@ -70,6 +78,7 @@ export function UserVmToJSON(value?: UserVm | null): any {
         
         'email': value.email,
         'accessToken': value.accessToken,
+        'roles': value.roles,
     };
 }
 

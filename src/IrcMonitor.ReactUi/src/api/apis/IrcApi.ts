@@ -15,12 +15,19 @@
 
 import * as runtime from '../runtime';
 import type {
+  GetIrcChannelsVm,
   GetIrcRowsVm,
 } from '../models';
 import {
+    GetIrcChannelsVmFromJSON,
+    GetIrcChannelsVmToJSON,
     GetIrcRowsVmFromJSON,
     GetIrcRowsVmToJSON,
 } from '../models';
+
+export interface IrcGetIrcChannelsRequest {
+    exclude?: Array<string> | null;
+}
 
 export interface IrcGetIrcRowsRequest {
     criteriaFrom?: Date | null;
@@ -37,6 +44,38 @@ export interface IrcGetIrcRowsRequest {
  * 
  */
 export class IrcApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async ircGetIrcChannelsRaw(requestParameters: IrcGetIrcChannelsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetIrcChannelsVm>> {
+        const queryParameters: any = {};
+
+        if (requestParameters.exclude) {
+            queryParameters['Exclude'] = requestParameters.exclude;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/channels`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetIrcChannelsVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetIrcChannels(requestParameters: IrcGetIrcChannelsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetIrcChannelsVm> {
+        const response = await this.ircGetIrcChannelsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */
