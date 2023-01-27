@@ -17,6 +17,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Guid = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false)
                 },
                 constraints: table =>
@@ -30,7 +31,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,7 +45,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Message = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Nick = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Nick = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     TimeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ChannelId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -66,7 +67,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ChannelId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -86,9 +87,25 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_IrcChannels_Name",
+                table: "IrcChannels",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_IrcRows_ChannelId",
                 table: "IrcRows",
                 column: "ChannelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IrcRows_Nick",
+                table: "IrcRows",
+                column: "Nick");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IrcRows_TimeStamp",
+                table: "IrcRows",
+                column: "TimeStamp");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoles_ChannelId",
@@ -96,9 +113,24 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                 column: "ChannelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId",
+                name: "IX_UserRoles_UserId_Role",
                 table: "UserRoles",
-                column: "UserId");
+                columns: new[] { "UserId", "Role" },
+                unique: true,
+                filter: "[ChannelId] IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_UserId_Role_ChannelId",
+                table: "UserRoles",
+                columns: new[] { "UserId", "Role", "ChannelId" },
+                unique: true,
+                filter: "[ChannelId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />

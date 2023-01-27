@@ -25,11 +25,12 @@ public class HandleGoogleLoginCommandHandler : IRequestHandler<HandleGoogleLogin
         var settings = new GoogleJsonWebSignature.ValidationSettings();
         settings.Audience = new List<string>() { _authenticationSettings.GoogleAuth.ClientId };
         var payload = GoogleJsonWebSignature.ValidateAsync(request.TokenId, settings).Result;
-        var tokenForApi = _jwtGenerator.CreateUserAuthToken(payload.Email);
+        var res = await _jwtGenerator.CreateUserAuthToken(payload.Email);
         return new UserVm
         {
-            AccessToken = tokenForApi,
-            Email = payload.Email
+            AccessToken = res.AccessToken,
+            Email = payload.Email,
+            Roles = res.Roles
         };
     }
 }

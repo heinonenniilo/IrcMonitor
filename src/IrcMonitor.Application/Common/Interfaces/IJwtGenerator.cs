@@ -1,5 +1,7 @@
-﻿namespace IrcMonitor.Application.Common.Interfaces;
+﻿using IrcMonitor.Domain.Models;
+
+namespace IrcMonitor.Application.Common.Interfaces;
 public interface IJwtGenerator
 {
-    public string CreateUserAuthToken(string userId);
+    public Task<CreateUserAuthTokenReturnModel> CreateUserAuthToken(string userId);
 }

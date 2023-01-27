@@ -19,16 +19,16 @@ internal class JwtGenerator : IJwtGenerator
         _context = context;
     }
 
-    string IJwtGenerator.CreateUserAuthToken(string userId)
+    public async Task<CreateUserAuthTokenReturnModel> CreateUserAuthToken(string userId)
     {
         var privateRSA = RSA.Create();
         privateRSA.ImportRSAPrivateKey(Convert.FromBase64String(_authenticationSettings.JwtPrivateSigningKey), out _);
 
-
-        var userInDb = _context.Users.Include(x => x.Roles).FirstOrDefault(x => x.Email == userId);
-
+        var userInDb = await _context.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == userId);
         var isAdmin = userInDb?.Roles.Any(r => r.Role == RoleConstants.Admin) ?? false;
         var isViewer = userInDb?.Roles.Any(r => r.Role == RoleConstants.Viewer) ?? false;
+
+        var roles = new List<string>();
 
         var key = new RsaSecurityKey(privateRSA);
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -41,11 +41,13 @@ internal class JwtGenerator : IJwtGenerator
         if (isAdmin)
         {
             identity.AddClaim(new Claim(ClaimTypes.Role, RoleConstants.Admin));
+            roles.Add(RoleConstants.Admin);
         }
 
         if (isViewer)
         {
             identity.AddClaim(new Claim(ClaimTypes.Role, RoleConstants.Viewer));
+            roles.Add(RoleConstants.Viewer);
         }
 
         var readableChannels = userInDb?.Roles.Where(x => x.Role == RoleConstants.Viewer && x.ChannelId != null).Select(d => d.ChannelId).ToList();
@@ -64,6 +66,12 @@ internal class JwtGenerator : IJwtGenerator
             SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var tokenString = tokenHandler.WriteToken(token);
+
+        return new CreateUserAuthTokenReturnModel
+        {
+            AccessToken = tokenHandler.WriteToken(token),
+            Roles = roles
+        };
     }
 }
