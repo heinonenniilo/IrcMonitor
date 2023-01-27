@@ -11,6 +11,6 @@ public class IrcChannelDto : IMapFrom<IrcChannel>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<IrcChannelDto, IrcChannelDto>();
+        profile.CreateMap<IrcChannel, IrcChannelDto>();
     }
 }

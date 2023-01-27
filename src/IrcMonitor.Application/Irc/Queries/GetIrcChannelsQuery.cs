@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IrcMonitor.Application.Irc.Queries;
 public class GetIrcChannelsQuery : IRequest<GetIrcChannelsVm>
-{}
+{
+    public List<string> ?Exclude { get; set; }
+}
 
 public class GetIrcChannelsQueryHandler : IRequestHandler<GetIrcChannelsQuery, GetIrcChannelsVm>
 {
