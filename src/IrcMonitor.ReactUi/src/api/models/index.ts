@@ -8,3 +8,4 @@ export * from './IrcChannelDto';
 export * from './IrcRowDto';
 export * from './OverviewStatisticsVm';
 export * from './UserVm';
+export * from './YearlyStatisticsVm';

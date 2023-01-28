@@ -18,6 +18,7 @@ import type {
   GetIrcChannelsVm,
   GetIrcRowsVm,
   OverviewStatisticsVm,
+  YearlyStatisticsVm,
 } from '../models';
 import {
     GetIrcChannelsVmFromJSON,
@@ -26,6 +27,8 @@ import {
     GetIrcRowsVmToJSON,
     OverviewStatisticsVmFromJSON,
     OverviewStatisticsVmToJSON,
+    YearlyStatisticsVmFromJSON,
+    YearlyStatisticsVmToJSON,
 } from '../models';
 
 export interface IrcGetIrcChannelsRequest {
@@ -45,6 +48,11 @@ export interface IrcGetIrcRowsRequest {
 
 export interface IrcGetOverviewStatisticsRequest {
     channelId: string;
+}
+
+export interface IrcGetYearlyStatisticsRequest {
+    channelId: string;
+    year: number;
 }
 
 /**
@@ -173,6 +181,42 @@ export class IrcApi extends runtime.BaseAPI {
      */
     async ircGetOverviewStatistics(requestParameters: IrcGetOverviewStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OverviewStatisticsVm> {
         const response = await this.ircGetOverviewStatisticsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async ircGetYearlyStatisticsRaw(requestParameters: IrcGetYearlyStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<YearlyStatisticsVm>> {
+        if (requestParameters.channelId === null || requestParameters.channelId === undefined) {
+            throw new runtime.RequiredError('channelId','Required parameter requestParameters.channelId was null or undefined when calling ircGetYearlyStatistics.');
+        }
+
+        if (requestParameters.year === null || requestParameters.year === undefined) {
+            throw new runtime.RequiredError('year','Required parameter requestParameters.year was null or undefined when calling ircGetYearlyStatistics.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/statistics/{channelId}/{year}`.replace(`{${"channelId"}}`, encodeURIComponent(String(requestParameters.channelId))).replace(`{${"year"}}`, encodeURIComponent(String(requestParameters.year))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => YearlyStatisticsVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetYearlyStatistics(requestParameters: IrcGetYearlyStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<YearlyStatisticsVm> {
+        const response = await this.ircGetYearlyStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

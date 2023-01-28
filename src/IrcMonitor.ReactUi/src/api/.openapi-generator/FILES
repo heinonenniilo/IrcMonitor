@@ -11,5 +11,6 @@ models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/OverviewStatisticsVm.ts
 models/UserVm.ts
+models/YearlyStatisticsVm.ts
 models/index.ts
 runtime.ts

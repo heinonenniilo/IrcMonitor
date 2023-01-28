@@ -8,18 +8,22 @@ import {
 import { GetIrcRowsVm, IrcGetIrcRowsRequest } from "api";
 import { SelectDateFromToComponent } from "components/SelectDateFromToComponent";
 import { AppContentWrapper } from "framework/AppContentWrapper";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { getSelectecChannel } from "reducers/userReducer";
 import moment from "moment";
 import { useApiHook } from "hooks/useApiHook";
+import { useSearchParams } from "react-router-dom";
+import { dateFormat } from "utilities/dateUtils";
 
 export const BrowseView: React.FC = () => {
   const useApi = useApiHook();
   const channelId = useSelector(getSelectecChannel);
   const [rows, setRows] = useState<GridRowsProp>([]);
-
+  const [hasSearchedWithQueryParams, setHasSearchedWithQueryParams] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  let [searchParams] = useSearchParams();
 
   const pageSize = 50;
 
@@ -28,7 +32,9 @@ export const BrowseView: React.FC = () => {
       criteriaSortColumn: "timeStamp",
       criteriaIsAscendingOrder: false,
       criteriaPage: 0,
-      criteriaPageSize: pageSize
+      criteriaPageSize: pageSize,
+      criteriaFrom: moment().add(-10, "M").toDate(),
+      criteriaTo: moment().toDate()
     };
   }, []);
 
@@ -60,8 +66,30 @@ export const BrowseView: React.FC = () => {
           setIsLoading(false);
         });
     },
-    [useApi]
+    [useApi.ircApi]
   );
+
+  useEffect(() => {
+    if (hasSearchedWithQueryParams) {
+      return;
+    }
+
+    const startString = searchParams.get("start");
+    const endString = searchParams.get("end");
+
+    if (startString && endString && channelId && useApi.ircApi) {
+      const momentStart = moment(startString, dateFormat);
+      const momentEnd = moment(endString, dateFormat);
+      setHasSearchedWithQueryParams(true);
+      handleFetchRows({
+        ...defaultCriteria,
+        criteriaChannelId: channelId,
+        criteriaFrom: momentStart.toDate(),
+        criteriaTo: momentEnd.toDate()
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, channelId, hasSearchedWithQueryParams, handleFetchRows, useApi.ircApi]);
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "Id", width: 150, sortable: false },
@@ -91,6 +119,7 @@ export const BrowseView: React.FC = () => {
             criteriaPage: 0
           });
         }}
+        criteria={criteria}
       />
       <DataGrid
         rows={rows}

@@ -1,5 +1,6 @@
 export const routes = {
   main: "/",
   browse: "/browse",
-  statistics: "/statistics"
+  statistics: "/statistics",
+  yearlyStatistics: "/statistics/:year"
 };

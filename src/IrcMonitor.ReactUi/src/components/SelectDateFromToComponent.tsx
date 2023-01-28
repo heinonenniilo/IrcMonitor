@@ -2,23 +2,26 @@ import { Box, Button, TextField } from "@mui/material";
 import { DesktopDatePicker } from "@mui/x-date-pickers";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
+import { IrcGetIrcRowsRequest } from "api";
 
 export interface SelectDateFromToComponentProps {
   onSearch: (from: Date, to: Date, channelId: string) => void;
   channelId: string | undefined;
+  criteria: IrcGetIrcRowsRequest;
 }
 
 export const SelectDateFromToComponent: React.FC<SelectDateFromToComponentProps> = ({
   onSearch,
-  channelId
+  channelId,
+  criteria
 }) => {
   const [fromDate, setFromDate] = useState<moment.Moment>(moment().add(-5, "M"));
   const [toDate, setToDate] = useState<moment.Moment>(moment());
 
   useEffect(() => {
-    onSearch(fromDate.toDate(), toDate.toDate(), channelId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId]);
+    setFromDate(moment(criteria.criteriaFrom));
+    setToDate(moment(criteria.criteriaTo));
+  }, [criteria]);
 
   return (
     <Box
