@@ -36,7 +36,6 @@ export const OverViewStatisticsView: React.FC = () => {
   }, [selectedChannel, apiHook.ircApi]);
 
   const handleOnClick = (index: number) => {
-    console.log(index);
     if (!response) {
       return;
     }

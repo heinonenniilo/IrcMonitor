@@ -74,13 +74,9 @@ export const BrowseView: React.FC = () => {
       return;
     }
 
-    console.log("use");
     const startString = searchParams.get("start");
     const endString = searchParams.get("end");
 
-    console.log(startString);
-    console.log(endString);
-    console.log("channel", channelId);
     if (startString && endString && channelId && useApi.ircApi) {
       const momentStart = moment(startString, dateFormat);
       const momentEnd = moment(endString, dateFormat);

@@ -45,7 +45,6 @@ export const YearlyStatistics: React.FC = () => {
   const handleMonthClick = (index: number) => {
     const correspondingMonth = response?.monthlyRows[index];
 
-    console.log(correspondingMonth);
     if (correspondingMonth) {
       const startMoment = moment({
         year: response?.year,

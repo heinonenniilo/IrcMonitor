@@ -18,13 +18,6 @@ export const SelectDateFromToComponent: React.FC<SelectDateFromToComponentProps>
   const [fromDate, setFromDate] = useState<moment.Moment>(moment().add(-5, "M"));
   const [toDate, setToDate] = useState<moment.Moment>(moment());
 
-  /*
-  useEffect(() => {
-    onSearch(fromDate.toDate(), toDate.toDate(), channelId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId]);
-  */
-
   useEffect(() => {
     setFromDate(moment(criteria.criteriaFrom));
     setToDate(moment(criteria.criteriaTo));
