@@ -8,16 +8,10 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
 import { getAccessToken, getUserInfo } from "reducers/userReducer";
-import styled from "styled-components";
-import config from "../config.json";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 
-const PageContainer = styled.div`
-  width: 100;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 16px;
-`;
+import config from "../config.json";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 interface AppProps {
   children: React.ReactNode;
@@ -72,17 +66,28 @@ export const App: React.FC<AppProps> = (props) => {
 
   return (
     <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
-      <Container maxWidth={"xl"}>
-        <MenuBar
-          user={user}
-          handleGoogleAuth={handleGoogleAuth}
-          handleLogOut={handleLogOut}
-          handleNavigateTo={handleNavigate}
-        />
-        <Container maxWidth="xl">
-          <PageContainer>{props.children}</PageContainer>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <Container maxWidth={"xl"}>
+          <MenuBar
+            user={user}
+            handleGoogleAuth={handleGoogleAuth}
+            handleLogOut={handleLogOut}
+            handleNavigateTo={handleNavigate}
+          />
         </Container>
-      </Container>
+        <Container
+          maxWidth="xl"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            marginTop: 2
+          }}
+        >
+          {props.children}
+        </Container>
+      </LocalizationProvider>
     </GoogleOAuthProvider>
   );
 };

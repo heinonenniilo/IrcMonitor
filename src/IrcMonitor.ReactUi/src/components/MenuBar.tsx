@@ -68,7 +68,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         </MenuArea>
 
         <MenuArea>
-          <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+          <MenuItem>
+            <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+          </MenuItem>
           <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
         </MenuArea>
       </MenuItemsContainer>
