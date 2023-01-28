@@ -16,6 +16,8 @@ import { useApiHook } from "hooks/useApiHook";
 import { useSearchParams } from "react-router-dom";
 import { dateFormat } from "utilities/dateUtils";
 
+const defaultPageSize = 100;
+
 export const BrowseView: React.FC = () => {
   const useApi = useApiHook();
   const channelId = useSelector(getSelectecChannel);
@@ -23,16 +25,16 @@ export const BrowseView: React.FC = () => {
   const [hasSearchedWithQueryParams, setHasSearchedWithQueryParams] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  let [searchParams] = useSearchParams();
+  const [pageSize, setPageSize] = useState(defaultPageSize);
 
-  const pageSize = 50;
+  let [searchParams] = useSearchParams();
 
   const defaultCriteria: IrcGetIrcRowsRequest = useMemo(() => {
     return {
       criteriaSortColumn: "timeStamp",
       criteriaIsAscendingOrder: false,
       criteriaPage: 0,
-      criteriaPageSize: pageSize,
+      criteriaPageSize: defaultPageSize,
       criteriaFrom: moment().add(-10, "M").toDate(),
       criteriaTo: moment().toDate()
     };
@@ -125,7 +127,11 @@ export const BrowseView: React.FC = () => {
         rows={rows}
         rowCount={response?.totalRows ?? 0}
         page={criteria?.criteriaPage ?? 0}
-        rowsPerPageOptions={[pageSize]}
+        rowsPerPageOptions={[30, 50, 100]}
+        onPageSizeChange={(pageSize: number) => {
+          setPageSize(pageSize);
+          handleFetchRows({ ...criteria, criteriaPage: 0, criteriaPageSize: pageSize });
+        }}
         paginationMode="server"
         pageSize={pageSize}
         onSortModelChange={(model: GridSortModel) => {

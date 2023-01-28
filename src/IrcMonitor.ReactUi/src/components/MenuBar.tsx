@@ -1,7 +1,7 @@
 import { AppBar, IconButton, MenuItem } from "@mui/material";
-import { CredentialResponse } from "@react-oauth/google";
-import React from "react";
-import { getChannels, User } from "reducers/userReducer";
+import { CredentialResponse, useGoogleLogin } from "@react-oauth/google";
+import React, { useEffect } from "react";
+import { getApiAccessToken, getChannels, User } from "reducers/userReducer";
 import styled from "styled-components";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { UserMenu } from "./UserMenu";
@@ -11,6 +11,8 @@ import { SelectChannel } from "./SelectChannel";
 import { userActions } from "actions/userActions";
 import { AuthorizedComponent } from "framework/AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
+import moment from "moment";
+import jwt_decode from "jwt-decode";
 
 export interface MenuBarProps {
   handleGoogleAuth: (response: CredentialResponse) => void;
@@ -41,12 +43,50 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   // TODO Implement better handling of navigation.
 
   const channels = useSelector(getChannels);
+  const apiAccessToken = useSelector(getApiAccessToken);
+
+  const googleAuth = useGoogleLogin({
+    onSuccess: (credentialResponse) => {
+      console.log("RESP", credentialResponse);
+    },
+    onError: (err) => {
+      console.log("Login Failed", err);
+    },
+    onNonOAuthError: (err) => {
+      console.log("Non auth er", err);
+    }
+  });
 
   const dispatch = useDispatch();
 
   const handleSelectChannel = (channelId: string | undefined) => {
     dispatch(userActions.selectChannel(channelId));
   };
+
+  useEffect(() => {
+    try {
+      if (!apiAccessToken) {
+        return;
+      }
+      console.log(apiAccessToken);
+      const token = jwt_decode(apiAccessToken) as any;
+
+      const momentDate = moment.unix(token.exp);
+      const cur = moment();
+
+      var duration = moment.duration(momentDate.diff(cur)).asMinutes();
+
+      console.log(momentDate);
+      console.log("DURATION", duration);
+
+      if (duration < 40) {
+        console.log("Triggering google auth");
+        googleAuth();
+      }
+    } catch (err) {
+      //
+    }
+  }, [apiAccessToken]);
 
   return (
     <AppBar position="static">

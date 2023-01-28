@@ -7,7 +7,6 @@ export interface User {
   email: string;
   authenticationProvider: string;
   loggedIn: boolean;
-  googleTokenInfo?: GoogleTokenInfo;
   roles: string[];
 }
 
@@ -23,6 +22,7 @@ export interface UserState {
   user: User | undefined;
   logInInitiated: boolean;
   apiTokenInfo?: ApiTokenInfo;
+  googleTokenInfo?: GoogleTokenInfo;
   channels: IrcChannelDto[];
   selectedChannel: string | undefined;
 }
@@ -50,9 +50,16 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.logInInitiated = true;
       });
       break;
-    case UserActionTypes.StoreAccessToken:
+    case UserActionTypes.StoreGoogleAccessToken:
       state = produce(state, (draft) => {
-        draft.apiTokenInfo = { accessToken: action.accessToken };
+        draft.googleTokenInfo = {
+          accessToken: action.googleAccessToken
+        };
+      });
+      break;
+    case UserActionTypes.StoreApiAccessToken:
+      state = produce(state, (draft) => {
+        draft.apiTokenInfo = { accessToken: action.apiAccessToken };
         if (draft.user) {
           draft.user.loggedIn = true;
         }
@@ -63,6 +70,7 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.user = undefined;
         draft.logInInitiated = false;
         draft.apiTokenInfo = undefined;
+        draft.googleTokenInfo = undefined;
       });
       break;
     case UserActionTypes.StoreUserChannels:
@@ -81,8 +89,11 @@ export function userReducer(state: UserState = defaultState, action: UserActions
 
 export const getUserInfo = (state: AppState): User | undefined => state.user.user;
 
-export const getAccessToken = (state: AppState): string | undefined =>
+export const getApiAccessToken = (state: AppState): string | undefined =>
   state.user.apiTokenInfo?.accessToken;
+
+export const getGoogleAccessToken = (state: AppState): string | undefined =>
+  state.user.googleTokenInfo?.accessToken;
 
 export const getChannels = (state: AppState): IrcChannelDto[] => state.user.channels;
 
