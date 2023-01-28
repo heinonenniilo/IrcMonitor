@@ -1,13 +1,13 @@
 .openapi-generator-ignore
 apis/AuthApi.ts
 apis/IrcApi.ts
-apis/WeatherForecastApi.ts
 apis/index.ts
 index.ts
+models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
 models/HandleGoogleLoginCommand.ts
+models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/UserVm.ts
-models/WeatherForecast.ts
 models/index.ts
 runtime.ts

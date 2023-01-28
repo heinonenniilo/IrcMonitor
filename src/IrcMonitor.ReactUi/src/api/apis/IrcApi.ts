@@ -15,15 +15,29 @@
 
 import * as runtime from '../runtime';
 import type {
+  GetIrcChannelsVm,
   GetIrcRowsVm,
 } from '../models';
 import {
+    GetIrcChannelsVmFromJSON,
+    GetIrcChannelsVmToJSON,
     GetIrcRowsVmFromJSON,
     GetIrcRowsVmToJSON,
 } from '../models';
 
+export interface IrcGetIrcChannelsRequest {
+    exclude?: Array<string> | null;
+}
+
 export interface IrcGetIrcRowsRequest {
-    channelId?: number;
+    criteriaFrom?: Date | null;
+    criteriaTo?: Date | null;
+    criteriaChannelId?: string;
+    criteriaPage?: number;
+    criteriaPageSize?: number;
+    criteriaSortColumn?: string | null;
+    criteriaIsAscendingOrder?: boolean;
+    criteriaSkipTotalRowCount?: boolean;
 }
 
 /**
@@ -33,11 +47,71 @@ export class IrcApi extends runtime.BaseAPI {
 
     /**
      */
+    async ircGetIrcChannelsRaw(requestParameters: IrcGetIrcChannelsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetIrcChannelsVm>> {
+        const queryParameters: any = {};
+
+        if (requestParameters.exclude) {
+            queryParameters['Exclude'] = requestParameters.exclude;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/channels`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetIrcChannelsVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetIrcChannels(requestParameters: IrcGetIrcChannelsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetIrcChannelsVm> {
+        const response = await this.ircGetIrcChannelsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
     async ircGetIrcRowsRaw(requestParameters: IrcGetIrcRowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetIrcRowsVm>> {
         const queryParameters: any = {};
 
-        if (requestParameters.channelId !== undefined) {
-            queryParameters['ChannelId'] = requestParameters.channelId;
+        if (requestParameters.criteriaFrom !== undefined) {
+            queryParameters['Criteria.From'] = (requestParameters.criteriaFrom as any).toISOString();
+        }
+
+        if (requestParameters.criteriaTo !== undefined) {
+            queryParameters['Criteria.To'] = (requestParameters.criteriaTo as any).toISOString();
+        }
+
+        if (requestParameters.criteriaChannelId !== undefined) {
+            queryParameters['Criteria.ChannelId'] = requestParameters.criteriaChannelId;
+        }
+
+        if (requestParameters.criteriaPage !== undefined) {
+            queryParameters['Criteria.Page'] = requestParameters.criteriaPage;
+        }
+
+        if (requestParameters.criteriaPageSize !== undefined) {
+            queryParameters['Criteria.PageSize'] = requestParameters.criteriaPageSize;
+        }
+
+        if (requestParameters.criteriaSortColumn !== undefined) {
+            queryParameters['Criteria.SortColumn'] = requestParameters.criteriaSortColumn;
+        }
+
+        if (requestParameters.criteriaIsAscendingOrder !== undefined) {
+            queryParameters['Criteria.IsAscendingOrder'] = requestParameters.criteriaIsAscendingOrder;
+        }
+
+        if (requestParameters.criteriaSkipTotalRowCount !== undefined) {
+            queryParameters['Criteria.SkipTotalRowCount'] = requestParameters.criteriaSkipTotalRowCount;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};

@@ -13,4 +13,11 @@ public class IrcController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
+
+    [HttpGet(template: "channels")]
+    [Authorize]
+    public async Task<GetIrcChannelsVm> GetIrcChannels([FromQuery] GetIrcChannelsQuery query)
+    {
+        return await Mediator.Send(query);
+    }
 }

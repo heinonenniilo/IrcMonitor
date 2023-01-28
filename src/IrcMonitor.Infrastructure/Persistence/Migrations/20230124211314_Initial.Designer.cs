@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IrcMonitor.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230122161401_Initial")]
+    [Migration("20230124211314_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,12 +33,20 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("newid()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("IrcChannels");
                 });
@@ -61,8 +69,8 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Nick")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("TimeStamp")
                         .HasColumnType("datetime2");
@@ -70,6 +78,10 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChannelId");
+
+                    b.HasIndex("Nick");
+
+                    b.HasIndex("TimeStamp");
 
                     b.ToTable("IrcRows");
                 });
@@ -84,9 +96,12 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -104,7 +119,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -113,7 +128,13 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChannelId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "Role")
+                        .IsUnique()
+                        .HasFilter("[ChannelId] IS NULL");
+
+                    b.HasIndex("UserId", "Role", "ChannelId")
+                        .IsUnique()
+                        .HasFilter("[ChannelId] IS NOT NULL");
 
                     b.ToTable("UserRoles");
                 });

@@ -40,6 +40,7 @@ public static class ConfigureServices
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IJwtGenerator, JwtGenerator>();
+        services.AddScoped(typeof(IPaginationService<>), typeof(PaginationService<>)); // Todo Check?
 
         // Add some settings
 

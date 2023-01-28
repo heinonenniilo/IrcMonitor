@@ -56,6 +56,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ handleGoogleAuth, user, hand
             <Button
               color="inherit"
               onClick={() => {
+                handleClose();
                 handleLogOut();
                 googleLogout();
               }}

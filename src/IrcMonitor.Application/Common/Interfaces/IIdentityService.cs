@@ -10,4 +10,8 @@ public interface IIdentityService
     Task<string> GetUserNameAsync(string userId);
 
     Task<bool> HasAccessToChannel(int channelId);
+
+    bool HasRole(string role);
+
+    List<string> GetAccessibleChannels();
 }
