@@ -65,6 +65,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           <AuthorizedComponent requiredRole={RoleNames.Viewer}>
             <MenuItem
               onClick={() => {
+                handleNavigateTo(routes.statistics);
+              }}
+            >
+              Statistics
+            </MenuItem>
+          </AuthorizedComponent>
+          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+            <MenuItem
+              onClick={() => {
                 handleNavigateTo(routes.browse);
               }}
             >
