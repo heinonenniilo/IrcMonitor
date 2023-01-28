@@ -4,7 +4,9 @@ import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { getSelectecChannel } from "reducers/userReducer";
+import { routes } from "utilities/routes";
 
 export const OverViewStatisticsView: React.FC = () => {
   const selectedChannel = useSelector(getSelectecChannel);
@@ -12,6 +14,8 @@ export const OverViewStatisticsView: React.FC = () => {
   const [response, setResponse] = useState<OverviewStatisticsVm | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   const apiHook = useApiHook();
 
@@ -29,7 +33,20 @@ export const OverViewStatisticsView: React.FC = () => {
           alert("Error");
         });
     }
-  }, [selectedChannel]);
+  }, [selectedChannel, apiHook.ircApi]);
+
+  const handleOnClick = (index: number) => {
+    console.log(index);
+    if (!response) {
+      return;
+    }
+
+    const correspondingRow = response.rows[index];
+
+    if (correspondingRow) {
+      navigate(`${routes.statistics}/${correspondingRow.identifier}`);
+    }
+  };
 
   return (
     <AppContentWrapper title={`Overview statistics`} isLoading={isLoading}>
@@ -37,6 +54,8 @@ export const OverViewStatisticsView: React.FC = () => {
         rows={response?.rows ?? []}
         dataSetLabel={response?.channelName ?? ""}
         chartTitle="Rows per year"
+        onClick={handleOnClick}
+        showPointerOnHover
       />
     </AppContentWrapper>
   );

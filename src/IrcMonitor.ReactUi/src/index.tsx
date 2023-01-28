@@ -10,6 +10,7 @@ import { appStore } from "setup/appStore";
 import { HomeView } from "containers/HomeView";
 import { BrowseView } from "containers/BrowseView";
 import { OverViewStatisticsView } from "containers/OverviewStatisticsView";
+import { YearlyStatistics } from "containers/YearlyStatistics";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
@@ -21,6 +22,8 @@ root.render(
             <Route path={routes.main} element={<HomeView />} />
             <Route path={routes.statistics} element={<OverViewStatisticsView />} />
             <Route path={routes.browse} element={<BrowseView />} />
+
+            <Route path={routes.yearlyStatistics} element={<YearlyStatistics />} />
           </Routes>
         </App>
       </BrowserRouter>
