@@ -3,11 +3,13 @@ apis/AuthApi.ts
 apis/IrcApi.ts
 apis/index.ts
 index.ts
+models/BarChartRow.ts
 models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
 models/HandleGoogleLoginCommand.ts
 models/IrcChannelDto.ts
 models/IrcRowDto.ts
+models/OverviewStatisticsVm.ts
 models/UserVm.ts
 models/index.ts
 runtime.ts

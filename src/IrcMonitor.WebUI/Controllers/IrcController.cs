@@ -1,4 +1,5 @@
 ﻿using IrcMonitor.Application.Irc.Queries;
+using IrcMonitor.Application.Statistics.Queries;
 using IrcMonitor.WebUI.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ namespace WebUI.Controllers;
 
 public class IrcController : ApiControllerBase
 {
-    
+
     [HttpGet(template: "rows")]
     [Authorize]
     public async Task<GetIrcRowsVm> GetIrcRows([FromQuery] GetIrcRowsQuery query)
@@ -20,4 +21,12 @@ public class IrcController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
+
+    [HttpGet(template: "statistics/{channelId}")]
+    [Authorize]
+    public async Task<OverviewStatisticsVm> GetOverviewStatistics([FromRoute] Guid channelId)
+    {
+        return await Mediator.Send(new GetOverviewStatisticsQuery(channelId));
+    }
+
 }

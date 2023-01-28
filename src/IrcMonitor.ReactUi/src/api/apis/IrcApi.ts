@@ -17,12 +17,15 @@ import * as runtime from '../runtime';
 import type {
   GetIrcChannelsVm,
   GetIrcRowsVm,
+  OverviewStatisticsVm,
 } from '../models';
 import {
     GetIrcChannelsVmFromJSON,
     GetIrcChannelsVmToJSON,
     GetIrcRowsVmFromJSON,
     GetIrcRowsVmToJSON,
+    OverviewStatisticsVmFromJSON,
+    OverviewStatisticsVmToJSON,
 } from '../models';
 
 export interface IrcGetIrcChannelsRequest {
@@ -38,6 +41,10 @@ export interface IrcGetIrcRowsRequest {
     criteriaSortColumn?: string | null;
     criteriaIsAscendingOrder?: boolean;
     criteriaSkipTotalRowCount?: boolean;
+}
+
+export interface IrcGetOverviewStatisticsRequest {
+    channelId: string;
 }
 
 /**
@@ -134,6 +141,38 @@ export class IrcApi extends runtime.BaseAPI {
      */
     async ircGetIrcRows(requestParameters: IrcGetIrcRowsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetIrcRowsVm> {
         const response = await this.ircGetIrcRowsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async ircGetOverviewStatisticsRaw(requestParameters: IrcGetOverviewStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<OverviewStatisticsVm>> {
+        if (requestParameters.channelId === null || requestParameters.channelId === undefined) {
+            throw new runtime.RequiredError('channelId','Required parameter requestParameters.channelId was null or undefined when calling ircGetOverviewStatistics.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/statistics/{channelId}`.replace(`{${"channelId"}}`, encodeURIComponent(String(requestParameters.channelId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => OverviewStatisticsVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetOverviewStatistics(requestParameters: IrcGetOverviewStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OverviewStatisticsVm> {
+        const response = await this.ircGetOverviewStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -5,16 +5,17 @@ import {
   GridSortModel,
   GridValueGetterParams
 } from "@mui/x-data-grid";
-import { Configuration, GetIrcRowsVm, IrcApi, IrcGetIrcRowsRequest } from "api";
+import { GetIrcRowsVm, IrcGetIrcRowsRequest } from "api";
 import { SelectDateFromToComponent } from "components/SelectDateFromToComponent";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import React, { useCallback, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { getAccessToken, getSelectecChannel } from "reducers/userReducer";
+import { getSelectecChannel } from "reducers/userReducer";
 import moment from "moment";
+import { useApiHook } from "hooks/useApiHook";
 
 export const BrowseView: React.FC = () => {
-  const accessToken = useSelector(getAccessToken);
+  const useApi = useApiHook();
   const channelId = useSelector(getSelectecChannel);
   const [rows, setRows] = useState<GridRowsProp>([]);
 
@@ -39,8 +40,10 @@ export const BrowseView: React.FC = () => {
 
   const handleFetchRows = useCallback(
     (criteria: IrcGetIrcRowsRequest) => {
-      const api = new IrcApi(new Configuration({ apiKey: `Bearer ${accessToken}` }));
-
+      const api = useApi.ircApi;
+      if (!api) {
+        return;
+      }
       setCriteria(criteria);
 
       setIsLoading(true);
@@ -57,7 +60,7 @@ export const BrowseView: React.FC = () => {
           setIsLoading(false);
         });
     },
-    [accessToken]
+    [useApi]
   );
 
   const columns: GridColDef[] = [

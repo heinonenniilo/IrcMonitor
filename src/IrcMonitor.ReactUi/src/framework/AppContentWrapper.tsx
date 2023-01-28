@@ -1,10 +1,11 @@
-import { Typography } from "@mui/material";
+import { Backdrop, CircularProgress, Typography } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
 
 export interface AppContentWrapperProps {
   title: string;
   children: React.ReactNode;
+  isLoading?: boolean;
 }
 
 const Container = styled.div`
@@ -25,9 +26,17 @@ const OuterContainer = styled.div`
 
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   return (
-    <OuterContainer>
-      <Typography variant="h2">{props.title}</Typography>
-      <Container>{props.children}</Container>
-    </OuterContainer>
+    <>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={props.isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      <OuterContainer>
+        <Typography variant="h2">{props.title}</Typography>
+        <Container>{props.children}</Container>
+      </OuterContainer>
+    </>
   );
 };
