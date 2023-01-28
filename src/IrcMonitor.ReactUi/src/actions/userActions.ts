@@ -6,7 +6,8 @@ export enum UserActionTypes {
   StoreUserInfo = "User/StoreUserInfo",
   StoreAccessToken = "User/StoreAccessToken",
   ClearUserInfo = "User/ClearUserInfo",
-  StoreUserChannels = "User/StoreUserChannels"
+  StoreUserChannels = "User/StoreUserChannels",
+  SelectChannel = "User/SelectChannel"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -28,6 +29,11 @@ export interface StoreUserChannels extends Action {
   channels: IrcChannelDto[];
 }
 
+export interface SelectChannel extends Action {
+  type: UserActionTypes.SelectChannel;
+  channelId: string | undefined;
+}
+
 export const userActions = {
   storeUserInfo: (userInfo: UserVm): StoreGoogleAuthInfo => ({
     type: UserActionTypes.StoreUserInfo,
@@ -43,6 +49,10 @@ export const userActions = {
   storeUserChannels: (channels: IrcChannelDto[]): StoreUserChannels => ({
     type: UserActionTypes.StoreUserChannels,
     channels
+  }),
+  selectChannel: (channelId: string | undefined): SelectChannel => ({
+    type: UserActionTypes.SelectChannel,
+    channelId
   })
 };
 
@@ -50,4 +60,5 @@ export type UserActions =
   | StoreGoogleAuthInfo
   | StoreAccessToken
   | ClearUserInfo
-  | StoreUserChannels;
+  | StoreUserChannels
+  | SelectChannel;

@@ -1,4 +1,5 @@
 ﻿
+using System.Xml.Linq;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using IrcMonitor.Application.Common.Exceptions;
@@ -35,12 +36,20 @@ public class GetIrcRowsQueryHandler : IRequestHandler<GetIrcRowsQuery, GetIrcRow
         var criteria = request.Criteria;
 
 
-        if (! await _identityService.HasAccessToChannel(criteria.ChannelId ))
+        var channel = await _context.IrcChannels.FirstOrDefaultAsync(x => x.Guid == criteria.ChannelId, cancellationToken);
+
+
+        if (channel == null)
+        {
+            throw new NotFoundException();
+        }
+
+        if (! await _identityService.HasAccessToChannel(channel.Id))
         {
             throw new ForbiddenAccessException();
         }
 
-        var query = _context.IrcRows.Where(x => x.ChannelId == criteria.ChannelId);
+        var query = _context.IrcRows.Where(x => x.ChannelId == channel.Id);
 
         if (criteria.To.HasValue)
         {
@@ -54,11 +63,13 @@ public class GetIrcRowsQueryHandler : IRequestHandler<GetIrcRowsQuery, GetIrcRow
 
         var res = await _paginationService.CreateAsync(query, criteria);
         var rows = await res.Query.ProjectTo<IrcRowDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+
         return new GetIrcRowsVm { 
             Rows = rows ,
             FromRow = res.FromRow,
             ToRow = res.ToRow,
-            TotalRows = res.TotalCount
+            TotalRows = res.TotalCount,
+            IsLastPage = res.IsLastPage
         };
     }
 }

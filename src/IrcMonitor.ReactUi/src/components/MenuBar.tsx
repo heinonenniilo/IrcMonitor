@@ -1,11 +1,14 @@
 import { AppBar, IconButton, MenuItem } from "@mui/material";
 import { CredentialResponse } from "@react-oauth/google";
 import React from "react";
-import { User } from "reducers/userReducer";
+import { getChannels, User } from "reducers/userReducer";
 import styled from "styled-components";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { UserMenu } from "./UserMenu";
 import { routes } from "utilities/routes";
+import { useDispatch, useSelector } from "react-redux";
+import { SelectChannel } from "./SelectChannel";
+import { userActions } from "actions/userActions";
 
 export interface MenuBarProps {
   handleGoogleAuth: (response: CredentialResponse) => void;
@@ -32,6 +35,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   handleNavigateTo
 }) => {
   // TODO Implement better handling of navigation.
+
+  const channels = useSelector(getChannels);
+
+  const dispatch = useDispatch();
+
+  const handleSelectChannel = (channelId: string | undefined) => {
+    dispatch(userActions.selectChannel(channelId));
+  };
+
   return (
     <AppBar position="static">
       <MenuItemsContainer>
@@ -56,6 +68,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         </MenuArea>
 
         <MenuArea>
+          <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
           <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
         </MenuArea>
       </MenuItemsContainer>

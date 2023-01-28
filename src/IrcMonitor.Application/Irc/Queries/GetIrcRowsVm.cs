@@ -11,5 +11,7 @@ public class GetIrcRowsVm
     [Required]
     public int ToRow { get; set; }
 
+    public bool ?IsLastPage { get; set; }
+
     public int ?TotalRows { get; set; }
 }

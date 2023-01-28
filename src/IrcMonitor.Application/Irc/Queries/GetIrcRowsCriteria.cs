@@ -8,5 +8,5 @@ public class GetIrcRowsCriteria: CriteriaBase
     public DateTime? To { get; set; }
 
     [Required]
-    public int ChannelId { get; set; }
+    public Guid ChannelId { get; set; }
 }

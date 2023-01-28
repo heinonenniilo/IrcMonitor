@@ -46,6 +46,12 @@ export interface GetIrcRowsVm {
     toRow: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof GetIrcRowsVm
+     */
+    isLastPage?: boolean | null;
+    /**
+     * 
      * @type {number}
      * @memberof GetIrcRowsVm
      */
@@ -77,6 +83,7 @@ export function GetIrcRowsVmFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'rows': ((json['rows'] as Array<any>).map(IrcRowDtoFromJSON)),
         'fromRow': json['fromRow'],
         'toRow': json['toRow'],
+        'isLastPage': !exists(json, 'isLastPage') ? undefined : json['isLastPage'],
         'totalRows': !exists(json, 'totalRows') ? undefined : json['totalRows'],
     };
 }
@@ -93,6 +100,7 @@ export function GetIrcRowsVmToJSON(value?: GetIrcRowsVm | null): any {
         'rows': ((value.rows as Array<any>).map(IrcRowDtoToJSON)),
         'fromRow': value.fromRow,
         'toRow': value.toRow,
+        'isLastPage': value.isLastPage,
         'totalRows': value.totalRows,
     };
 }

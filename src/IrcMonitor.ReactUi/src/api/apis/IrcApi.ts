@@ -32,7 +32,7 @@ export interface IrcGetIrcChannelsRequest {
 export interface IrcGetIrcRowsRequest {
     criteriaFrom?: Date | null;
     criteriaTo?: Date | null;
-    criteriaChannelId?: number;
+    criteriaChannelId?: string;
     criteriaPage?: number;
     criteriaPageSize?: number;
     criteriaSortColumn?: string | null;

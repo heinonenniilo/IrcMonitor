@@ -23,12 +23,14 @@ export interface UserState {
   logInInitiated: boolean;
   apiTokenInfo?: ApiTokenInfo;
   channels: IrcChannelDto[];
+  selectedChannel: string | undefined;
 }
 
 const defaultState: UserState = {
   logInInitiated: false,
   user: undefined,
-  channels: []
+  channels: [],
+  selectedChannel: undefined
 };
 
 export function userReducer(state: UserState = defaultState, action: UserActions): UserState {
@@ -66,6 +68,11 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.channels = action.channels;
       });
       break;
+    case UserActionTypes.SelectChannel:
+      state = produce(state, (draft) => {
+        draft.selectedChannel = action.channelId;
+      });
+      break;
   }
   return state;
 }
@@ -74,3 +81,8 @@ export const getUserInfo = (state: AppState): User | undefined => state.user.use
 
 export const getAccessToken = (state: AppState): string | undefined =>
   state.user.apiTokenInfo?.accessToken;
+
+export const getChannels = (state: AppState): IrcChannelDto[] => state.user.channels;
+
+export const getSelectecChannel = (state: AppState): string | undefined =>
+  state.user.selectedChannel;
