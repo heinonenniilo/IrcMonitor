@@ -9,6 +9,8 @@ import { routes } from "utilities/routes";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectChannel } from "./SelectChannel";
 import { userActions } from "actions/userActions";
+import { AuthorizedComponent } from "framework/AuthorizedComponent";
+import { RoleNames } from "enums/RoleEnums";
 
 export interface MenuBarProps {
   handleGoogleAuth: (response: CredentialResponse) => void;
@@ -26,6 +28,8 @@ const MenuItemsContainer = styled.div`
 const MenuArea = styled.div`
   display: flex;
   flex-direction: row;
+  padding-top: 16px;
+  padding-bottom: 16px;
 `;
 
 export const MenuBar: React.FC<MenuBarProps> = ({
@@ -58,19 +62,23 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           >
             Home
           </MenuItem>
-          <MenuItem
-            onClick={() => {
-              handleNavigateTo(routes.browse);
-            }}
-          >
-            Browse
-          </MenuItem>
+          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+            <MenuItem
+              onClick={() => {
+                handleNavigateTo(routes.browse);
+              }}
+            >
+              Browse
+            </MenuItem>
+          </AuthorizedComponent>
         </MenuArea>
 
         <MenuArea>
-          <MenuItem>
-            <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
-          </MenuItem>
+          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+            <MenuItem>
+              <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+            </MenuItem>
+          </AuthorizedComponent>
           <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
         </MenuArea>
       </MenuItemsContainer>

@@ -16,9 +16,7 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
   const selectedChannel = useSelector(getSelectecChannel);
 
   return (
-    <Box
-      sx={{ minWidth: 300, display: "flex", flexDirection: "row", paddingTop: 2, paddingBottom: 2 }}
-    >
+    <Box sx={{ minWidth: 300, display: "flex", flexDirection: "row" }}>
       <FormControl fullWidth>
         <Box>
           <InputLabel id="channel-select-label">Channel</InputLabel>

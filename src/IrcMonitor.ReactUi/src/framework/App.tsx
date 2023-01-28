@@ -36,7 +36,6 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (accessToken) {
       // TODO implement properly
-      console.log("TOKEN", accessToken);
       const api = new IrcApi(new Configuration({ apiKey: `Bearer ${accessToken}` })); // Why isn't access token working?
 
       api.ircGetIrcChannels({ exclude: undefined }).then((res) => {

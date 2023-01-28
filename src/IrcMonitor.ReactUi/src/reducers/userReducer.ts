@@ -8,6 +8,7 @@ export interface User {
   authenticationProvider: string;
   loggedIn: boolean;
   googleTokenInfo?: GoogleTokenInfo;
+  roles: string[];
 }
 
 export interface GoogleTokenInfo {
@@ -40,7 +41,8 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.user = {
           email: action.userInfo.email,
           authenticationProvider: "google",
-          loggedIn: true
+          loggedIn: true,
+          roles: action.userInfo.roles
         };
         draft.apiTokenInfo = {
           accessToken: action.userInfo.accessToken
