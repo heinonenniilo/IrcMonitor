@@ -1,4 +1,4 @@
-import { AppBar, IconButton, MenuItem } from "@mui/material";
+import { AppBar, Container, IconButton, MenuItem } from "@mui/material";
 import { CredentialResponse } from "@react-oauth/google";
 import React, { useEffect } from "react";
 import { getApiAccessToken, getChannels, User } from "reducers/userReducer";
@@ -25,6 +25,8 @@ const MenuItemsContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
 `;
 
 const MenuArea = styled.div`
@@ -72,48 +74,50 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   }, [apiAccessToken]);
 
   return (
-    <AppBar position="static">
-      <MenuItemsContainer>
-        <MenuArea>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
-          <MenuItem
-            onClick={() => {
-              handleNavigateTo(routes.main);
-            }}
-          >
-            Home
-          </MenuItem>
-          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+    <AppBar position="fixed">
+      <Container maxWidth="xl">
+        <MenuItemsContainer>
+          <MenuArea>
+            <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
             <MenuItem
               onClick={() => {
-                handleNavigateTo(routes.statistics);
+                handleNavigateTo(routes.main);
               }}
             >
-              Statistics
+              Home
             </MenuItem>
-          </AuthorizedComponent>
-          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-            <MenuItem
-              onClick={() => {
-                handleNavigateTo(routes.browse);
-              }}
-            >
-              Browse
-            </MenuItem>
-          </AuthorizedComponent>
-        </MenuArea>
+            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+              <MenuItem
+                onClick={() => {
+                  handleNavigateTo(routes.statistics);
+                }}
+              >
+                Statistics
+              </MenuItem>
+            </AuthorizedComponent>
+            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+              <MenuItem
+                onClick={() => {
+                  handleNavigateTo(routes.browse);
+                }}
+              >
+                Browse
+              </MenuItem>
+            </AuthorizedComponent>
+          </MenuArea>
 
-        <MenuArea>
-          <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-            <MenuItem>
-              <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
-            </MenuItem>
-          </AuthorizedComponent>
-          <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
-        </MenuArea>
-      </MenuItemsContainer>
+          <MenuArea>
+            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+              <MenuItem>
+                <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+              </MenuItem>
+            </AuthorizedComponent>
+            <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
+          </MenuArea>
+        </MenuItemsContainer>
+      </Container>
     </AppBar>
   );
 };

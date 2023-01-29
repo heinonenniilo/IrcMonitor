@@ -80,7 +80,7 @@ export const BrowseView: React.FC = () => {
     const startString = searchParams.get("start");
     const endString = searchParams.get("end");
 
-    if (startString && endString && channelId && useApi.ircApi) {
+    if (startString && endString && channelId && useApi.ircApi && !hasSearchedWithQueryParams) {
       const momentStart = moment(startString, dateFormat).startOf("day");
       const momentEnd = moment(endString, dateFormat).endOf("day");
       setHasSearchedWithQueryParams(true);

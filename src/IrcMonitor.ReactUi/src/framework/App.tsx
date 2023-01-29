@@ -13,6 +13,7 @@ import config from "../config.json";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
 import { useApiHook } from "hooks/useApiHook";
+import { routes } from "utilities/routes";
 
 interface AppProps {
   children: React.ReactNode;
@@ -76,6 +77,7 @@ export const App: React.FC<AppProps> = (props) => {
   const handleLogOut = () => {
     setCookie(userInfoCookieName, undefined);
     dispatch(userActions.clearUserInfo());
+    handleNavigate(routes.main);
   };
 
   const handleNavigate = (route: string) => {
@@ -86,7 +88,7 @@ export const App: React.FC<AppProps> = (props) => {
     <CookiesProvider>
       <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
         <LocalizationProvider dateAdapter={AdapterMoment}>
-          <Container maxWidth={"xl"}>
+          <Container maxWidth={"xl"} sx={{ top: 0 }}>
             <MenuBar
               user={user}
               handleGoogleAuth={handleGoogleAuth}
@@ -101,7 +103,7 @@ export const App: React.FC<AppProps> = (props) => {
               flexDirection: "column",
               width: "100%",
               height: "100%",
-              marginTop: 2
+              marginTop: "124px"
             }}
           >
             {props.children}
