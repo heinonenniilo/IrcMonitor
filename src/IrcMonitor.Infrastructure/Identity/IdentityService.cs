@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using IrcMonitor.Application.Common.Interfaces;
-using IrcMonitor.Application.Common.Models;
 using IrcMonitor.Infrastructure.Constants;
 using Microsoft.AspNetCore.Http;
 
@@ -17,12 +16,8 @@ public class IdentityService : IIdentityService
     public bool IsAdmin =>
             _httpContextAccessor?.HttpContext?.User.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == RoleConstants.Admin ) ?? false;
 
-    public async Task<string> GetUserNameAsync(string userId)
-    {
-        return "";
-    }
 
-    public async Task<bool> HasAccessToChannel(int channelId)
+    public bool HasAccessToChannel(int channelId)
     {
         var claims = _httpContextAccessor.HttpContext?.User?.Claims.ToList() ?? new List<Claim>();
 

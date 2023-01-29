@@ -54,7 +54,7 @@ internal class JwtGenerator : IJwtGenerator
 
         if (readableChannels != null && readableChannels.Any())
         {
-            identity.AddClaims(readableChannels.Where(x => x.HasValue).Select(x => new Claim(CustomClaims.ChannelViewer, x.ToString())));
+            identity.AddClaims(readableChannels.Where(x => x.HasValue).Select(x => new Claim(CustomClaims.ChannelViewer, x.ToString() ?? "")));
         }
       
         var tokenDescriptor = new SecurityTokenDescriptor
