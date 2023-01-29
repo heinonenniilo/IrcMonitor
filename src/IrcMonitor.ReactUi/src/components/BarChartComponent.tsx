@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
-import { Box } from "@mui/material";
+import { Backdrop, Box, CircularProgress } from "@mui/material";
 
 export interface BarCharComponentProps {
   rows: Array<BarChartRow>;
@@ -20,6 +20,7 @@ export interface BarCharComponentProps {
   chartTitle: string;
   onClick?: (index: number) => void;
   showPointerOnHover?: boolean;
+  isLoading?: boolean;
 }
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -42,11 +43,15 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
   dataSetLabel,
   chartTitle,
   onClick,
-  showPointerOnHover
+  showPointerOnHover,
+  isLoading
 }) => {
   const labels = rows.map((r) => r.label);
   return (
     <Box display={"flex"} flexDirection={"column"} flex={1}>
+      <Backdrop sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Bar
         options={{
           onClick: (event, elements) => {

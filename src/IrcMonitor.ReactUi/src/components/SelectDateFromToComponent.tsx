@@ -38,7 +38,7 @@ export const SelectDateFromToComponent: React.FC<SelectDateFromToComponentProps>
         value={fromDate}
         onChange={(value) => {
           if (value) {
-            setFromDate(value as moment.Moment);
+            setFromDate((value as moment.Moment).utc(true).startOf("day"));
           }
         }}
         renderInput={(params) => <TextField {...params} />}
@@ -50,7 +50,7 @@ export const SelectDateFromToComponent: React.FC<SelectDateFromToComponentProps>
         value={toDate}
         onChange={(value) => {
           if (value) {
-            setToDate(value as moment.Moment);
+            setToDate((value as moment.Moment).utc(true).endOf("day"));
           }
         }}
         renderInput={(params) => <TextField {...params} />}

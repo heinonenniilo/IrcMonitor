@@ -10,6 +10,7 @@ models/HandleGoogleLoginCommand.ts
 models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/OverviewStatisticsVm.ts
+models/StatisticsVmBase.ts
 models/UserVm.ts
 models/YearlyStatisticsVm.ts
 models/index.ts

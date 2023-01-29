@@ -17,6 +17,7 @@ import { useSearchParams } from "react-router-dom";
 import { dateFormat } from "utilities/dateUtils";
 
 const defaultPageSize = 100;
+const timeStampColumn = "timeStamp";
 
 export const BrowseView: React.FC = () => {
   const useApi = useApiHook();
@@ -31,8 +32,8 @@ export const BrowseView: React.FC = () => {
 
   const defaultCriteria: IrcGetIrcRowsRequest = useMemo(() => {
     return {
-      criteriaSortColumn: "timeStamp",
-      criteriaIsAscendingOrder: false,
+      criteriaSortColumn: timeStampColumn,
+      criteriaIsAscendingOrder: true,
       criteriaPage: 0,
       criteriaPageSize: defaultPageSize,
       criteriaFrom: moment().add(-10, "M").toDate(),
@@ -80,21 +81,20 @@ export const BrowseView: React.FC = () => {
     const endString = searchParams.get("end");
 
     if (startString && endString && channelId && useApi.ircApi) {
-      const momentStart = moment(startString, dateFormat);
-      const momentEnd = moment(endString, dateFormat);
+      const momentStart = moment(startString, dateFormat).utc(true).startOf("day");
+      const momentEnd = moment(endString, dateFormat).utc(true).endOf("day");
       setHasSearchedWithQueryParams(true);
       handleFetchRows({
         ...defaultCriteria,
         criteriaChannelId: channelId,
-        criteriaFrom: momentStart.toDate(),
-        criteriaTo: momentEnd.toDate()
+        criteriaFrom: momentStart.startOf("day").toDate(),
+        criteriaTo: momentEnd.endOf("day").toDate()
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, channelId, hasSearchedWithQueryParams, handleFetchRows, useApi.ircApi]);
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "Id", width: 150, sortable: false },
     { field: "message", headerName: "Message", width: 150, sortable: false, flex: 1 },
     { field: "nick", headerName: "Nick", width: 150, sortable: false },
     {
@@ -103,7 +103,7 @@ export const BrowseView: React.FC = () => {
       width: 400,
       sortable: true,
       valueGetter: (params: GridValueGetterParams) => {
-        return moment(params.value).format("DD.MM.YYYY HH:MM:SS");
+        return moment(params.value).format("DD.MM.YYYY hh:mm:ss");
       }
     }
   ];
@@ -133,6 +133,11 @@ export const BrowseView: React.FC = () => {
           handleFetchRows({ ...criteria, criteriaPage: 0, criteriaPageSize: pageSize });
         }}
         paginationMode="server"
+        initialState={{
+          sorting: {
+            sortModel: [{ field: timeStampColumn, sort: "asc" }]
+          }
+        }}
         pageSize={pageSize}
         onSortModelChange={(model: GridSortModel) => {
           if (model.length === 1) {

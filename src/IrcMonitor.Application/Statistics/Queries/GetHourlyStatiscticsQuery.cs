@@ -61,9 +61,19 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
             Label = x.Key.ToString(),
             Value = x.Count() }).OrderBy(x => x.Identifier).ToListAsync(cancellationToken);
 
+
+        var hours = Enumerable.Range(0, 23);
+
+        retList.AddRange(hours.Where(x => !retList.Any(r => r.Identifier == x)).Select(x => new BarChartRow()
+        {
+            Identifier = x,
+            Label = x.ToString(),
+            Value = 0
+        }));
+
         return new StatisticsVmBase()
         {
-            Rows = retList
+            Rows = retList.OrderBy(x => x.Identifier).ToList(),
         };
 
     }

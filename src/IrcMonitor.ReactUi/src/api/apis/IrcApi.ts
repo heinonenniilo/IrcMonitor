@@ -18,6 +18,7 @@ import type {
   GetIrcChannelsVm,
   GetIrcRowsVm,
   OverviewStatisticsVm,
+  StatisticsVmBase,
   YearlyStatisticsVm,
 } from '../models';
 import {
@@ -27,9 +28,18 @@ import {
     GetIrcRowsVmToJSON,
     OverviewStatisticsVmFromJSON,
     OverviewStatisticsVmToJSON,
+    StatisticsVmBaseFromJSON,
+    StatisticsVmBaseToJSON,
     YearlyStatisticsVmFromJSON,
     YearlyStatisticsVmToJSON,
 } from '../models';
+
+export interface IrcGetHourlyStatisticsRequest {
+    channelId: string;
+    year?: number | null;
+    month?: number | null;
+    nick?: string | null;
+}
 
 export interface IrcGetIrcChannelsRequest {
     exclude?: Array<string> | null;
@@ -46,6 +56,12 @@ export interface IrcGetIrcRowsRequest {
     criteriaSkipTotalRowCount?: boolean;
 }
 
+export interface IrcGetNickBasedStatisticsRequest {
+    channelId: string;
+    year?: number | null;
+    month?: number | null;
+}
+
 export interface IrcGetOverviewStatisticsRequest {
     channelId: string;
 }
@@ -59,6 +75,50 @@ export interface IrcGetYearlyStatisticsRequest {
  * 
  */
 export class IrcApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async ircGetHourlyStatisticsRaw(requestParameters: IrcGetHourlyStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatisticsVmBase>> {
+        if (requestParameters.channelId === null || requestParameters.channelId === undefined) {
+            throw new runtime.RequiredError('channelId','Required parameter requestParameters.channelId was null or undefined when calling ircGetHourlyStatistics.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.year !== undefined) {
+            queryParameters['year'] = requestParameters.year;
+        }
+
+        if (requestParameters.month !== undefined) {
+            queryParameters['month'] = requestParameters.month;
+        }
+
+        if (requestParameters.nick !== undefined) {
+            queryParameters['nick'] = requestParameters.nick;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/statistics/hourly/{channelId}`.replace(`{${"channelId"}}`, encodeURIComponent(String(requestParameters.channelId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StatisticsVmBaseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetHourlyStatistics(requestParameters: IrcGetHourlyStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatisticsVmBase> {
+        const response = await this.ircGetHourlyStatisticsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */
@@ -149,6 +209,46 @@ export class IrcApi extends runtime.BaseAPI {
      */
     async ircGetIrcRows(requestParameters: IrcGetIrcRowsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetIrcRowsVm> {
         const response = await this.ircGetIrcRowsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async ircGetNickBasedStatisticsRaw(requestParameters: IrcGetNickBasedStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StatisticsVmBase>> {
+        if (requestParameters.channelId === null || requestParameters.channelId === undefined) {
+            throw new runtime.RequiredError('channelId','Required parameter requestParameters.channelId was null or undefined when calling ircGetNickBasedStatistics.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.year !== undefined) {
+            queryParameters['year'] = requestParameters.year;
+        }
+
+        if (requestParameters.month !== undefined) {
+            queryParameters['month'] = requestParameters.month;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Irc/statistics/nicks/{channelId}`.replace(`{${"channelId"}}`, encodeURIComponent(String(requestParameters.channelId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => StatisticsVmBaseFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async ircGetNickBasedStatistics(requestParameters: IrcGetNickBasedStatisticsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StatisticsVmBase> {
+        const response = await this.ircGetNickBasedStatisticsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

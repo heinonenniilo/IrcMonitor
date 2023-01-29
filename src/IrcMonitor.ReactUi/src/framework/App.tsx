@@ -33,7 +33,6 @@ export const App: React.FC<AppProps> = (props) => {
     const userInf = cookies.userInfo as UserVm;
 
     if (userInf !== undefined && userInf?.email) {
-      console.log("Storing from token", userInf);
       dispatch(userActions.storeUserInfo(userInf));
     }
   }, [cookies, dispatch]);
@@ -64,13 +63,13 @@ export const App: React.FC<AppProps> = (props) => {
     }
     const api = new AuthApi();
     api.authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } }).then((res) => {
-      console.log("Google auth handling");
       dispatch(userActions.storeUserInfo(res));
       setCookie(userInfoCookieName, res);
     });
   }, [googleIdToken, dispatch, setCookie]);
 
   const handleGoogleAuth = (response: CredentialResponse) => {
+    console.log(response);
     dispatch(userActions.storeGoogleAccessToken(response.credential));
   };
 

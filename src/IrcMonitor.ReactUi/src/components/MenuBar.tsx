@@ -1,5 +1,5 @@
 import { AppBar, IconButton, MenuItem } from "@mui/material";
-import { CredentialResponse, useGoogleLogin } from "@react-oauth/google";
+import { CredentialResponse } from "@react-oauth/google";
 import React, { useEffect } from "react";
 import { getApiAccessToken, getChannels, User } from "reducers/userReducer";
 import styled from "styled-components";
@@ -45,18 +45,6 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   const channels = useSelector(getChannels);
   const apiAccessToken = useSelector(getApiAccessToken);
 
-  const googleAuth = useGoogleLogin({
-    onSuccess: (credentialResponse) => {
-      console.log("RESP", credentialResponse);
-    },
-    onError: (err) => {
-      console.log("Login Failed", err);
-    },
-    onNonOAuthError: (err) => {
-      console.log("Non auth er", err);
-    }
-  });
-
   const dispatch = useDispatch();
 
   const handleSelectChannel = (channelId: string | undefined) => {
@@ -79,9 +67,8 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       console.log(momentDate);
       console.log("DURATION", duration);
 
-      if (duration < 40) {
-        console.log("Triggering google auth");
-        googleAuth();
+      if (duration < 55) {
+        //
       }
     } catch (err) {
       //

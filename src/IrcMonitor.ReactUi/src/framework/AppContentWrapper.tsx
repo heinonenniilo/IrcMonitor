@@ -13,8 +13,10 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  margin-top: 32px;
   flex-grow: 1;
   min-height: calc(100vh - 200px);
+  max-width: 1536px;
 `;
 
 const OuterContainer = styled.div`
