@@ -1,4 +1,5 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { IrcChannelDto } from "api";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -9,23 +10,50 @@ export interface SelectChannelProps {
   onSelectChannel: (channelId: string | undefined) => void;
 }
 
+const usePreStyles = makeStyles((theme?: any) => ({
+  formControl: {
+    minWidth: 120,
+    color: "white"
+  },
+  selectEmpty: {},
+  divcontrol: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    minWidth: "300px"
+  },
+  select: {
+    color: "white"
+  },
+  label: {
+    display: "flex",
+    color: "white"
+  },
+  labelContainer: {
+    paddingRight: 16
+  }
+}));
+
 export const SelectChannel: React.FC<SelectChannelProps> = ({
   channels,
   onSelectChannel
 }: SelectChannelProps) => {
   const selectedChannel = useSelector(getSelectecChannel);
 
+  const classes = usePreStyles();
   return (
-    <Box sx={{ minWidth: 300, display: "flex", flexDirection: "row" }}>
+    <div className={classes.divcontrol}>
+      <div className={classes.labelContainer}>
+        <InputLabel id="channel-select-label" className={classes.label}>
+          Channel
+        </InputLabel>
+      </div>
       <FormControl fullWidth>
-        <Box>
-          <InputLabel id="channel-select-label">Channel</InputLabel>
-        </Box>
         <Select
           labelId="channel-select-label"
           id="channel-select"
           value={selectedChannel ?? ""}
-          color="primary"
+          className={classes.select}
         >
           {channels.map((c) => (
             <MenuItem
@@ -39,6 +67,6 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
           ))}
         </Select>
       </FormControl>
-    </Box>
+    </div>
   );
 };

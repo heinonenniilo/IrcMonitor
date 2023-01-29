@@ -13,6 +13,7 @@ import config from "../config.json";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
 import { useApiHook } from "hooks/useApiHook";
+import { routes } from "utilities/routes";
 
 interface AppProps {
   children: React.ReactNode;
@@ -76,6 +77,7 @@ export const App: React.FC<AppProps> = (props) => {
   const handleLogOut = () => {
     setCookie(userInfoCookieName, undefined);
     dispatch(userActions.clearUserInfo());
+    handleNavigate(routes.main);
   };
 
   const handleNavigate = (route: string) => {

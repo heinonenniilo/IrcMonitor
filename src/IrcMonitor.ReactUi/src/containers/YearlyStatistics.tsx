@@ -13,7 +13,9 @@ import { getChannels, getSelectecChannel } from "reducers/userReducer";
 import { dateFormat } from "utilities/dateUtils";
 import { routes } from "utilities/routes";
 
-const years = [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022];
+const years = [
+  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+];
 
 export const YearlyStatisticsView: React.FC = () => {
   const { year } = useParams<{ year: string }>();
@@ -109,7 +111,7 @@ export const YearlyStatisticsView: React.FC = () => {
 
   return (
     <AppContentWrapper
-      title={`Statistics for year ${selectedYear} / channel ${matchingChannel?.name}`}
+      title={`Yearly statistics for ${matchingChannel?.name}`}
       isLoading={isLoadingYearlyData || isLoadingNickData}
     >
       <NickStatisticsDialog
