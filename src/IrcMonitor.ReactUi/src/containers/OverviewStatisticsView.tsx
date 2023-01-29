@@ -80,7 +80,10 @@ export const OverViewStatisticsView: React.FC = () => {
   };
 
   return (
-    <AppContentWrapper title={`Overview statistics ${response?.channelName ?? ""}`}>
+    <AppContentWrapper
+      isLoading={isLoadingOverViewData || isLoadingNickData}
+      title={`Overview statistics ${response?.channelName ?? ""}`}
+    >
       <NickStatisticsDialog
         isOpen={userStatisticsRequest !== undefined}
         onClose={() => {
@@ -94,14 +97,12 @@ export const OverViewStatisticsView: React.FC = () => {
         chartTitle="Rows per year"
         onClick={handleOnClickChannel}
         showPointerOnHover
-        isLoading={isLoadingOverViewData}
       />
 
       <BarChartComponent
         rows={nickResponse?.rows ?? []}
         dataSetLabel={response?.channelName ?? ""}
         chartTitle="Nick based statistics"
-        isLoading={isLoadingNickData}
         showPointerOnHover
         onClick={handleOnClickUser}
       />
