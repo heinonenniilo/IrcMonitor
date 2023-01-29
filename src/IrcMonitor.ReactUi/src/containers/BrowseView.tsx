@@ -103,7 +103,7 @@ export const BrowseView: React.FC = () => {
       width: 400,
       sortable: true,
       valueGetter: (params: GridValueGetterParams) => {
-        return moment(params.value).format("DD.MM.YYYY hh:mm:ss");
+        return moment(params.value).format("DD.MM.YYYY HH:mm:ss");
       }
     }
   ];

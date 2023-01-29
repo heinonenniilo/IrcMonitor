@@ -20,7 +20,6 @@ export interface BarCharComponentProps {
   chartTitle: string;
   onClick?: (index: number) => void;
   showPointerOnHover?: boolean;
-  isLoading?: boolean;
 }
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
