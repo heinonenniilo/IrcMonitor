@@ -81,8 +81,10 @@ export const BrowseView: React.FC = () => {
     const endString = searchParams.get("end");
 
     if (startString && endString && channelId && useApi.ircApi) {
-      const momentStart = moment(startString, dateFormat).utc(true).startOf("day");
-      const momentEnd = moment(endString, dateFormat).utc(true).endOf("day");
+      const momentStart = moment(startString, dateFormat).startOf("day");
+      const momentEnd = moment(endString, dateFormat).endOf("day");
+      console.log(momentStart);
+      console.log(momentEnd);
       setHasSearchedWithQueryParams(true);
       handleFetchRows({
         ...defaultCriteria,
