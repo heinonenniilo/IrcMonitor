@@ -33,7 +33,6 @@ export const YearlyStatisticsView: React.FC = () => {
 
   const apiHook = useApiHook();
   useEffect(() => {
-    console.log(year);
     if (year) {
       setSelectedYear(parseInt(year, 10));
     }

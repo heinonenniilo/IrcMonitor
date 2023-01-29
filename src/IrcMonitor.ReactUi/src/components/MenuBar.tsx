@@ -53,19 +53,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
   useEffect(() => {
     try {
+      // TODO handle token refresh
       if (!apiAccessToken) {
         return;
       }
-      console.log(apiAccessToken);
       const token = jwt_decode(apiAccessToken) as any;
 
       const momentDate = moment.unix(token.exp);
       const cur = moment();
-
       var duration = moment.duration(momentDate.diff(cur)).asMinutes();
-
-      console.log(momentDate);
-      console.log("DURATION", duration);
 
       if (duration < 55) {
         //
