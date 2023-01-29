@@ -2,9 +2,15 @@
 
 The purpose of the application is to show statistics from IRC channels but could be also be used with other sources. 
 
+## Backend
+
 Backend is based on https://github.com/jasontaylordev/CleanArchitecture
 
-## Backend
+Currently, Google IdToken is sent to the backend. The backend validates the token, and creates an API acces token of its own, with the user roles. Later, could possibly add other mechanism to authenticate than Google. Google authentication also requires some fine-tuning to be made.
+
+## Adding a new migration
+
+add-migration [migration name] -verbose -outputdir "Persistence/Migrations"
 
 ## UI
 
@@ -15,6 +21,14 @@ Using stuff such as:
 - Typescript
 - MaterialUI
 - Redux
+
+To update API definitions in the UI after making changes in the backend, run
+
+``generateTypedFetchAPIs.ps1``
+
+in src/IrcMonitor.ReactUI. The PowerShell script will update APIs / Models automatically based on the OpenApi doc.
+
+
 
 Currently, only supports authentication using a Google account. UI layout is a draft.
 
@@ -37,10 +51,9 @@ To assign yourselft with an admin role, add a row corresponding with your Google
 To insert some test data, ``TestDataInsert.sql`` in the SQL folder could be used.
 
 ## TODO
-- Improve UI styling
-- Implement proper mechanism for refetching the token.
+- Improve UI styling / CSS architecture in general, as it is currently a very draft version.
+- Redux could be used more to store data, like criterias etc.
+- Implement proper mechanism for refetching the token / validate the current implementation in general.
 - Readiness for publishing the application somewhere.
 
-## Adding a new migration
 
-add-migration [migration name] -verbose -outputdir "Persistence/Migrations"
