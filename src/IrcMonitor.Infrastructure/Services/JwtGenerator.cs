@@ -22,7 +22,7 @@ internal class JwtGenerator : IJwtGenerator
     public async Task<CreateUserAuthTokenReturnModel> CreateUserAuthToken(string userId)
     {
         var privateRSA = RSA.Create();
-        privateRSA.ImportRSAPrivateKey(Convert.FromBase64String(_authenticationSettings.JwtPrivateSigningKey), out _);
+        privateRSA.ImportPkcs8PrivateKey(Convert.FromBase64String(_authenticationSettings.JwtPrivateSigningKey), out _);
 
         var userInDb = await _context.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == userId);
         var isAdmin = userInDb?.Roles.Any(r => r.Role == RoleConstants.Admin) ?? false;
