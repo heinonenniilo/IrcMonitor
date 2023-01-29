@@ -16,9 +16,9 @@ Using stuff such as:
 - MaterialUI
 - Redux
 
-Currently, only supports authentication using a Google account. 
+Currently, only supports authentication using a Google account. UI layout is a draft.
 
-## Setting up
+## Setting up (Draft)
 
 1. Clone the project. 
 2. In appsettings (Web project), ConnectionStrings.DefaultConnection should point to a valid DB instance, so that migrations can be run.
@@ -26,6 +26,11 @@ Currently, only supports authentication using a Google account.
 4. Configure ClientId / ClientSecret in Web project appsettings. For local development client secrets could be used.
 5. Set GOOGLE_CLIENT_ID in src\IrcMonitor.ReactUi\src\config.json accordingly.
 6. SetupProxy.js (in IrcMonitor.ReactUi\src) should point to where the API is located locally, for example https://localhost:5001/api (TODO: Check this part)
+7. Generate private / public key, with OpenSSL for example (https://slproweb.com/products/Win32OpenSSL.html).
+    - ``openssl rsa -pubout -in private_key.pem -out public_key.pem`` will create the public key
+    - ``openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048`` will create the private key.
+    - The code currently expects the  keys to be in ```-----BEGIN PRIVATE KEY-----```/ ```-----BEGIN PUBLIC KEY-----``` format.
+8. Place the keys (without BEGIN / END part) in appsettings. (This part could be implemented better).
 
 To assign yourselft with an admin role, add a row corresponding with your Google email in Users-table. After that, check the ID of the user row and insert a role having "Admin" as value for "Role" column and your user's id as value for UserId column.
 
