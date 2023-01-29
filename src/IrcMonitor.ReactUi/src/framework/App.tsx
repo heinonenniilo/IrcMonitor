@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
 import { getGoogleAccessToken, getUserInfo } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import config from "../config.json";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
 import { useApiHook } from "hooks/useApiHook";
@@ -40,7 +39,7 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     function start() {
       gapi.client.init({
-        clientId: config.GOOGLE_CLIENT_ID,
+        clientId: process.env.REACT_APP_GOOGLE_APP_ID,
         scope: ""
       });
     }
@@ -86,7 +85,7 @@ export const App: React.FC<AppProps> = (props) => {
 
   return (
     <CookiesProvider>
-      <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_APP_ID}>
         <LocalizationProvider dateAdapter={AdapterMoment}>
           <Container maxWidth={"xl"} sx={{ top: 0 }}>
             <MenuBar
