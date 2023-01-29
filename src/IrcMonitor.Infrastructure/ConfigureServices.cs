@@ -44,9 +44,9 @@ public static class ConfigureServices
 
         // Add some settings
 
-        var authSettings = configuration.GetSection("AuthenticationSettings").Get<AuthenticationSettings>();
-
+        var authSettings = configuration.GetRequiredSection("AuthenticationSettings").Get<AuthenticationSettings>();
         services.AddSingleton(authSettings);
+        services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
         RSA rsa = RSA.Create();
         rsa.ImportRSAPublicKey(Convert.FromBase64String(authSettings.JwtPublicKey), out _);

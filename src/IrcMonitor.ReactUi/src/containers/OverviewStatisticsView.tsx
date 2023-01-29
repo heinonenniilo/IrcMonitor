@@ -1,5 +1,7 @@
+import { IrcGetHourlyStatisticsRequest, StatisticsVmBase } from "api";
 import { OverviewStatisticsVm } from "api/models/OverviewStatisticsVm";
 import { BarChartComponent } from "components/BarChartComponent";
+import { NickStatisticsDialog } from "components/NickStatisticsDialog";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import React, { useEffect, useState } from "react";
@@ -13,7 +15,13 @@ export const OverViewStatisticsView: React.FC = () => {
 
   const [response, setResponse] = useState<OverviewStatisticsVm | undefined>(undefined);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [nickResponse, setNickResponse] = useState<StatisticsVmBase | undefined>(undefined);
+
+  const [isLoadingOverViewData, setIsLoadingOverViewData] = useState<boolean>(false);
+  const [isLoadingNickData, setIsLoadingNickData] = useState(false);
+  const [userStatisticsRequest, setUserStatisticsRequest] = useState<
+    IrcGetHourlyStatisticsRequest | undefined
+  >(undefined);
 
   const navigate = useNavigate();
 
@@ -21,21 +29,35 @@ export const OverViewStatisticsView: React.FC = () => {
 
   useEffect(() => {
     if (selectedChannel && apiHook.ircApi) {
-      setIsLoading(true);
+      setIsLoadingOverViewData(true);
+
+      apiHook.ircApi
+        .ircGetNickBasedStatistics({
+          channelId: selectedChannel
+        })
+        .then((res) => {
+          setNickResponse(res);
+          setIsLoadingNickData(false);
+        })
+        .catch((er) => {
+          console.error(er);
+          setIsLoadingNickData(false);
+        });
+
       apiHook.ircApi
         .ircGetOverviewStatistics({ channelId: selectedChannel })
         .then((res) => {
           setResponse(res);
-          setIsLoading(false);
+          setIsLoadingOverViewData(false);
         })
         .catch((err) => {
-          setIsLoading(false);
+          setIsLoadingOverViewData(false);
           alert("Error");
         });
     }
   }, [selectedChannel, apiHook.ircApi]);
 
-  const handleOnClick = (index: number) => {
+  const handleOnClickChannel = (index: number) => {
     if (!response) {
       return;
     }
@@ -43,18 +65,45 @@ export const OverViewStatisticsView: React.FC = () => {
     const correspondingRow = response.rows[index];
 
     if (correspondingRow) {
-      navigate(`${routes.statistics}/${correspondingRow.identifier}`);
+      navigate(`${routes.statistics}/${correspondingRow.identifier}/${selectedChannel}`);
+    }
+  };
+
+  const handleOnClickUser = (index: number) => {
+    const correspondingUser = nickResponse?.rows[index];
+    if (correspondingUser) {
+      setUserStatisticsRequest({
+        channelId: selectedChannel,
+        nick: correspondingUser.label
+      });
     }
   };
 
   return (
-    <AppContentWrapper title={`Overview statistics`} isLoading={isLoading}>
+    <AppContentWrapper title={`Overview statistics ${response?.channelName ?? ""}`}>
+      <NickStatisticsDialog
+        isOpen={userStatisticsRequest !== undefined}
+        onClose={() => {
+          setUserStatisticsRequest(undefined);
+        }}
+        params={userStatisticsRequest}
+      />
       <BarChartComponent
         rows={response?.rows ?? []}
         dataSetLabel={response?.channelName ?? ""}
         chartTitle="Rows per year"
-        onClick={handleOnClick}
+        onClick={handleOnClickChannel}
         showPointerOnHover
+        isLoading={isLoadingOverViewData}
+      />
+
+      <BarChartComponent
+        rows={nickResponse?.rows ?? []}
+        dataSetLabel={response?.channelName ?? ""}
+        chartTitle="Nick based statistics"
+        isLoading={isLoadingNickData}
+        showPointerOnHover
+        onClick={handleOnClickUser}
       />
     </AppContentWrapper>
   );

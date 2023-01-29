@@ -1,4 +1,4 @@
-import { getAccessToken } from "./../reducers/userReducer";
+import { getApiAccessToken } from "./../reducers/userReducer";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { IrcApi } from "./../api/apis/IrcApi";
@@ -11,7 +11,7 @@ interface UseApiHook {
 export const useApiHook = (): UseApiHook => {
   const [ircApi, setIrcApi] = useState<IrcApi | undefined>(undefined);
 
-  const accessToken = useSelector(getAccessToken);
+  const accessToken = useSelector(getApiAccessToken);
 
   useEffect(() => {
     if (accessToken) {

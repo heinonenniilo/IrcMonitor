@@ -7,5 +7,6 @@ export * from './HandleGoogleLoginCommand';
 export * from './IrcChannelDto';
 export * from './IrcRowDto';
 export * from './OverviewStatisticsVm';
+export * from './StatisticsVmBase';
 export * from './UserVm';
 export * from './YearlyStatisticsVm';

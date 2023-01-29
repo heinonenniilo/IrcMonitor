@@ -1,28 +1,41 @@
 import { Container } from "@mui/material";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
-import { AuthApi, Configuration, IrcApi } from "api";
+import { AuthApi, UserVm } from "api";
 import { MenuBar } from "components/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
-import { getAccessToken, getUserInfo } from "reducers/userReducer";
+import { getGoogleAccessToken, getUserInfo } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-
 import config from "../config.json";
 import { LocalizationProvider } from "@mui/x-date-pickers";
+import { CookiesProvider, useCookies } from "react-cookie";
+import { useApiHook } from "hooks/useApiHook";
 
 interface AppProps {
   children: React.ReactNode;
 }
 
+const userInfoCookieName = "userInfo";
+
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
   const navigate = useNavigate();
-  const accessToken = useSelector(getAccessToken);
+  const [cookies, setCookie] = useCookies([userInfoCookieName]);
+  const apiHook = useApiHook();
 
+  const googleIdToken = useSelector(getGoogleAccessToken);
+
+  useEffect(() => {
+    const userInf = cookies.userInfo as UserVm;
+
+    if (userInf !== undefined && userInf?.email) {
+      dispatch(userActions.storeUserInfo(userInf));
+    }
+  }, [cookies, dispatch]);
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -34,28 +47,34 @@ export const App: React.FC<AppProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    if (accessToken) {
-      // TODO implement properly
-      const api = new IrcApi(new Configuration({ apiKey: `Bearer ${accessToken}` })); // Why isn't access token working?
-
+    if (apiHook.ircApi) {
+      const api = apiHook.ircApi;
       api.ircGetIrcChannels({ exclude: undefined }).then((res) => {
         if (res.channels) {
           dispatch(userActions.storeUserChannels(res.channels));
         }
       });
     }
-  }, [accessToken, dispatch]);
+  }, [dispatch, apiHook.ircApi]);
+
+  useEffect(() => {
+    if (!googleIdToken) {
+      return;
+    }
+    const api = new AuthApi();
+    api.authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } }).then((res) => {
+      dispatch(userActions.storeUserInfo(res));
+      setCookie(userInfoCookieName, res);
+    });
+  }, [googleIdToken, dispatch, setCookie]);
 
   const handleGoogleAuth = (response: CredentialResponse) => {
-    const api = new AuthApi();
-    api
-      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: response.credential } })
-      .then((res) => {
-        dispatch(userActions.storeUserInfo(res));
-      });
+    console.log(response);
+    dispatch(userActions.storeGoogleAccessToken(response.credential));
   };
 
   const handleLogOut = () => {
+    setCookie(userInfoCookieName, undefined);
     dispatch(userActions.clearUserInfo());
   };
 
@@ -64,29 +83,31 @@ export const App: React.FC<AppProps> = (props) => {
   };
 
   return (
-    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <Container maxWidth={"xl"}>
-          <MenuBar
-            user={user}
-            handleGoogleAuth={handleGoogleAuth}
-            handleLogOut={handleLogOut}
-            handleNavigateTo={handleNavigate}
-          />
-        </Container>
-        <Container
-          maxWidth="xl"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            height: "100%",
-            marginTop: 2
-          }}
-        >
-          {props.children}
-        </Container>
-      </LocalizationProvider>
-    </GoogleOAuthProvider>
+    <CookiesProvider>
+      <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <Container maxWidth={"xl"}>
+            <MenuBar
+              user={user}
+              handleGoogleAuth={handleGoogleAuth}
+              handleLogOut={handleLogOut}
+              handleNavigateTo={handleNavigate}
+            />
+          </Container>
+          <Container
+            maxWidth="xl"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              height: "100%",
+              marginTop: 2
+            }}
+          >
+            {props.children}
+          </Container>
+        </LocalizationProvider>
+      </GoogleOAuthProvider>
+    </CookiesProvider>
   );
 };

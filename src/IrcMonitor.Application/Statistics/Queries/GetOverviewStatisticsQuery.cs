@@ -39,7 +39,7 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
             throw new NotFoundException();
         }
 
-        if (!await _identityService.HasAccessToChannel(channel.Id))
+        if (!_identityService.HasAccessToChannel(channel.Id))
         {
             throw new FormatException();
         }

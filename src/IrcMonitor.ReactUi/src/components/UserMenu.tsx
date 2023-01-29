@@ -8,9 +8,15 @@ export interface UserMenuProps {
   handleGoogleAuth: (response: CredentialResponse) => void;
   handleLogOut: () => void;
   user: User | undefined;
+  autoLogOn?: boolean;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ handleGoogleAuth, user, handleLogOut }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({
+  handleGoogleAuth,
+  user,
+  handleLogOut,
+  autoLogOn
+}) => {
   const [userMenuAcnhor, setUserMenuAcnhor] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -21,7 +27,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ handleGoogleAuth, user, hand
     setUserMenuAcnhor(null);
   };
 
-  if (user && user.loggedIn) {
+  if (!autoLogOn && user && user.loggedIn) {
     return (
       <>
         <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
@@ -68,6 +74,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({ handleGoogleAuth, user, hand
       </>
     );
   } else {
-    return <GoogleLogin onSuccess={handleGoogleAuth} />;
+    return (
+      <>
+        <GoogleLogin onSuccess={handleGoogleAuth} />
+      </>
+    );
   }
 };

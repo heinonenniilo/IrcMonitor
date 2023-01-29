@@ -44,7 +44,7 @@ public class GetIrcRowsQueryHandler : IRequestHandler<GetIrcRowsQuery, GetIrcRow
             throw new NotFoundException();
         }
 
-        if (! await _identityService.HasAccessToChannel(channel.Id))
+        if (!_identityService.HasAccessToChannel(channel.Id))
         {
             throw new ForbiddenAccessException();
         }

@@ -4,10 +4,11 @@ import { Action } from "redux";
 
 export enum UserActionTypes {
   StoreUserInfo = "User/StoreUserInfo",
-  StoreAccessToken = "User/StoreAccessToken",
+  StoreApiAccessToken = "User/StoreAccessToken",
   ClearUserInfo = "User/ClearUserInfo",
   StoreUserChannels = "User/StoreUserChannels",
-  SelectChannel = "User/SelectChannel"
+  SelectChannel = "User/SelectChannel",
+  StoreGoogleAccessToken = "User/StoreGoogleAccessToken"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -15,9 +16,14 @@ export interface StoreGoogleAuthInfo extends Action {
   userInfo: UserVm;
 }
 
-export interface StoreAccessToken extends Action {
-  type: UserActionTypes.StoreAccessToken;
-  accessToken: string;
+export interface StoreApiAccessToken extends Action {
+  type: UserActionTypes.StoreApiAccessToken;
+  apiAccessToken: string;
+}
+
+export interface StoreGoogleAccessToken extends Action {
+  type: UserActionTypes.StoreGoogleAccessToken;
+  googleAccessToken: string;
 }
 
 export interface ClearUserInfo extends Action {
@@ -39,9 +45,9 @@ export const userActions = {
     type: UserActionTypes.StoreUserInfo,
     userInfo
   }),
-  storeAccessToken: (token: string): StoreAccessToken => ({
-    type: UserActionTypes.StoreAccessToken,
-    accessToken: token
+  storeAccessToken: (token: string): StoreApiAccessToken => ({
+    type: UserActionTypes.StoreApiAccessToken,
+    apiAccessToken: token
   }),
   clearUserInfo: (): ClearUserInfo => ({
     type: UserActionTypes.ClearUserInfo
@@ -53,12 +59,17 @@ export const userActions = {
   selectChannel: (channelId: string | undefined): SelectChannel => ({
     type: UserActionTypes.SelectChannel,
     channelId
+  }),
+  storeGoogleAccessToken: (googleAccessToken: string | undefined): StoreGoogleAccessToken => ({
+    type: UserActionTypes.StoreGoogleAccessToken,
+    googleAccessToken
   })
 };
 
 export type UserActions =
   | StoreGoogleAuthInfo
-  | StoreAccessToken
+  | StoreApiAccessToken
   | ClearUserInfo
   | StoreUserChannels
-  | SelectChannel;
+  | SelectChannel
+  | StoreGoogleAccessToken;

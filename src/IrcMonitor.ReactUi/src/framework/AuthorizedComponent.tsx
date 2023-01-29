@@ -14,9 +14,9 @@ export const AuthorizedComponent: React.FunctionComponent<AuthorizedComponentPro
 }) => {
   const user = useSelector(getUserInfo);
 
-  const isAdmin = user?.roles.some((r) => r === RoleNames.Admin);
+  const isAdmin = user?.roles?.some((r) => r === RoleNames.Admin);
 
-  if (isAdmin || user?.roles.some((r) => r === requiredRole)) {
+  if (isAdmin || user?.roles?.some((r) => r === requiredRole)) {
     return <>{children}</>;
   } else {
     return <></>;
