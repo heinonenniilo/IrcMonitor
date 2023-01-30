@@ -51,7 +51,7 @@ To assign yourselft with an admin role, add a row corresponding with your Google
 
 To insert some test data, ``TestDataInsert.sql`` in the SQL folder could be used.
 
-For you, you need to start the backend and ui separately. 
+UI and the backend need to be started separately.
 
 
 ## TODO
