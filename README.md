@@ -58,5 +58,8 @@ For you, you need to start the backend and ui separately.
 - Redux could be used more to store data, like criterias etc.
 - Implement proper mechanism for refetching the token / validate the current implementation in general.
 - Readiness for publishing the application somewhere.
+- There could possibly be some Saga styled solution to handle async stuff in the UI.
+- Toast notification system needs to be included in the UI, to handle failing requests etc. etc.
+- Backend error handling needs to be improved, on what to show for users etc.
 
 
