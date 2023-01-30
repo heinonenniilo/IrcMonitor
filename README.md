@@ -28,7 +28,7 @@ To update API definitions in the UI after making changes in the backend, run
 
 in src/IrcMonitor.ReactUI. The PowerShell script will update APIs / Models automatically based on the OpenApi doc.
 
-
+The UI setup goes normally by running ``yarn install`` and then ``yarn start``.
 
 Currently, only supports authentication using a Google account. UI layout is a draft.
 
@@ -38,7 +38,7 @@ Currently, only supports authentication using a Google account. UI layout is a d
 2. In appsettings (Web project), ConnectionStrings.DefaultConnection should point to a valid DB instance, so that migrations can be run.
 3. Create a Google Client ID. Instructions here, for example: https://blog.logrocket.com/guide-adding-google-login-react-app/
 4. Configure ClientId / ClientSecret in Web project appsettings. For local development client secrets could be used.
-5. Set GOOGLE_CLIENT_ID in src\IrcMonitor.ReactUi\src\config.json accordingly.
+5. Set GOOGLE_CLIENT_ID in the UI, for which there is an entry in .env file. Locally, you could set in in .env.local for example. 
 6. SetupProxy.js (in IrcMonitor.ReactUi\src) should point to where the API is located locally, for example https://localhost:5001/api (TODO: Check this part)
 7. Generate private / public key, with OpenSSL for example (https://slproweb.com/products/Win32OpenSSL.html).
     - ``openssl rsa -pubout -in private_key.pem -out public_key.pem`` will create the public key
@@ -49,6 +49,9 @@ Currently, only supports authentication using a Google account. UI layout is a d
 To assign yourselft with an admin role, add a row corresponding with your Google email in Users-table. After that, check the ID of the user row and insert a role having "Admin" as value for "Role" column and your user's id as value for UserId column.
 
 To insert some test data, ``TestDataInsert.sql`` in the SQL folder could be used.
+
+For you, you need to start the backend and ui separately. 
+
 
 ## TODO
 - Improve UI styling / CSS architecture in general, as it is currently a very draft version.
