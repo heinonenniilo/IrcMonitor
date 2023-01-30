@@ -63,5 +63,6 @@ UI and the backend need to be started separately.
 - Toast notification system needs to be included in the UI, to handle failing requests etc. etc.
 - Backend error handling needs to be improved, on what to show for users etc.
 - Use redirect flow for Google login...
+- The proxy setup from VS React template is currently not working with the generated APIs
 
 
