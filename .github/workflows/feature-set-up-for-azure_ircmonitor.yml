@@ -24,7 +24,9 @@ jobs:
       - name: Build React UI
         env:
           REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
-        run: yarn build --cwd src/IrcMonitor.ReactUi          
+        run: |
+          cd src/IrcMonitor.ReactUi
+          yarn build       
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
