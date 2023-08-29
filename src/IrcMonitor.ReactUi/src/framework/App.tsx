@@ -1,7 +1,7 @@
 import { Container } from "@mui/material";
 import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
-import { AuthApi, UserVm } from "api";
+import { UserVm } from "api";
 import { MenuBar } from "components/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
@@ -58,15 +58,16 @@ export const App: React.FC<AppProps> = (props) => {
   }, [dispatch, apiHook.ircApi]);
 
   useEffect(() => {
-    if (!googleIdToken) {
+    if (!googleIdToken || !apiHook.authApi) {
       return;
     }
-    const api = new AuthApi();
-    api.authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } }).then((res) => {
-      dispatch(userActions.storeUserInfo(res));
-      setCookie(userInfoCookieName, res);
-    });
-  }, [googleIdToken, dispatch, setCookie]);
+    apiHook.authApi
+      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } })
+      .then((res) => {
+        dispatch(userActions.storeUserInfo(res));
+        setCookie(userInfoCookieName, res);
+      });
+  }, [googleIdToken, dispatch, setCookie, apiHook.authApi]);
 
   const handleGoogleAuth = (response: CredentialResponse) => {
     console.log(response);
