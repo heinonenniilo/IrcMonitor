@@ -16,13 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Build the React UI
-      - name: Install dependencies and build React UI
+      # Install deps
+      - name: Install dependencies for React UI
+        run: yarn install --cwd src/IrcMonitor.ReactUi
+
+      # Build React UI
+      - name: Build React UI
         env:
           REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
-        run: |
-          yarn install --cwd src/IrcMonitor.ReactUi
-          yarn build --cwd src/IrcMonitor.ReactUi
+        run: yarn build --cwd src/IrcMonitor.ReactUi          
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
