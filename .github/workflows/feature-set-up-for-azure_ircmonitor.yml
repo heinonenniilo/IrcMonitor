@@ -16,6 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Build the React UI
+      - name: Install dependencies and build React UI
+        env:
+          REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
+        run: |
+          yarn install --cwd src/IrcMonitor.ReactUi
+          yarn build --cwd src/IrcMonitor.ReactUi
+
+      # Copy React build output to .NET's wwwroot
+      - name: Copy React build to .NET wwwroot
+        run: |
+          cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
