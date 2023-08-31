@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - IrcMonitor
 on:
   push:
     branches:
-      - feature/set-up-for-azure
+      - main
   workflow_dispatch:
 
 jobs:
