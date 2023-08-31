@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - IrcMonitor
 on:
   push:
     branches:
-      - feature/set-up-for-azure
+      - main
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Install deps
+      - name: Install dependencies for React UI
+        run: yarn install --cwd src/IrcMonitor.ReactUi
+
+      # Build React UI
+      - name: Build React UI
+        env:
+          REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
+        run: |
+          cd src/IrcMonitor.ReactUi
+          yarn build       
+
+      # Copy React build output to .NET's wwwroot
+      - name: Copy React build to .NET wwwroot
+        run: |
+          cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -23,10 +40,10 @@ jobs:
           include-prerelease: true
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release --property:PublishDir=${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release --property:PublishDir=${{env.DOTNET_ROOT}}/myapp
         
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2

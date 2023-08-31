@@ -48,7 +48,9 @@ else
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
 
 /*
 app.UseSwaggerUi3(settings =>
