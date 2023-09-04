@@ -48,9 +48,9 @@ public static class ConfigureServices
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
+        var publicRsaParameters = JwtGenerator.ConvertPemToRSAPublicParameters(authSettings.JwtPublicKey);
         RSA rsa = RSA.Create();
-        rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(authSettings.JwtPublicKey), out _);
-
+        rsa.ImportParameters(publicRsaParameters);
 
         services.AddAuthentication()
             .AddJwtBearer(cfg =>
