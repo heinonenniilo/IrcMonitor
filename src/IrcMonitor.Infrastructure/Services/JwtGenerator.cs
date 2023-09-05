@@ -2,13 +2,11 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Application.Common.Utils;
 using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
 
 namespace IrcMonitor.Infrastructure.Services;
 internal class JwtGenerator : IJwtGenerator
@@ -24,8 +22,8 @@ internal class JwtGenerator : IJwtGenerator
 
     public async Task<CreateUserAuthTokenReturnModel> CreateUserAuthToken(string userId)
     {
-        var pemData = _authenticationSettings.JwtPrivateSigningKey;    
-        var rsaParameters = ConvertPemToRSAParameters(_authenticationSettings.JwtPrivateSigningKey);
+        var pemData = _authenticationSettings.JwtPrivateSigningKey;
+        var rsaParameters = TokenUtils.ConvertPemToRSAPrivateParameters(_authenticationSettings.JwtPrivateSigningKey);
 
         var privateRSA = RSA.Create();
         privateRSA.ImportParameters(rsaParameters);
@@ -62,7 +60,7 @@ internal class JwtGenerator : IJwtGenerator
         {
             identity.AddClaims(readableChannels.Where(x => x.HasValue).Select(x => new Claim(CustomClaims.ChannelViewer, x.ToString() ?? "")));
         }
-      
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Audience = "IrcMonitor",
@@ -79,41 +77,5 @@ internal class JwtGenerator : IJwtGenerator
             AccessToken = tokenHandler.WriteToken(token),
             Roles = roles
         };
-    }
-
-
-    public static RSAParameters ConvertPemToRSAParameters(string pemData)
-    {
-        try
-        {
-            var trimmed = pemData.Trim();
-            TextReader textReader = new StringReader(trimmed);
-            PemReader pemReader = new PemReader(textReader);
-            var privateKey = (RsaPrivateCrtKeyParameters)pemReader.ReadObject();
-            RSAParameters rsaParameters = DotNetUtilities.ToRSAParameters(privateKey);
-            return rsaParameters;
-        } catch(Exception e)
-        {
-            throw;
-        }
-    }
-
-    public static RSAParameters ConvertPemToRSAPublicParameters(string pemData)
-    {
-        TextReader textReader = new StringReader(pemData);
-        PemReader pemReader = new PemReader(textReader);
-        RsaKeyParameters publicKey = (RsaKeyParameters)pemReader.ReadObject();
-        if (publicKey == null)
-        {
-            throw new ArgumentException("Provided data is not a valid PEM-formatted RSA public key.");
-        }
-
-        RSAParameters rsaParameters = new RSAParameters
-        {
-            Modulus = publicKey.Modulus.ToByteArrayUnsigned(),
-            Exponent = publicKey.Exponent.ToByteArrayUnsigned()
-        };
-
-        return rsaParameters;
     }
 }

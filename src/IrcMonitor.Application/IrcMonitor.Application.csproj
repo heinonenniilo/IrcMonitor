@@ -9,6 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Common\Security\**" />
+      <EmbeddedResource Remove="Common\Security\**" />
+      <None Remove="Common\Security\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
         <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
@@ -20,10 +26,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\IrcMonitor.Domain\IrcMonitor.Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Common\Security\" />
     </ItemGroup>
 
 </Project>
