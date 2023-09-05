@@ -1,13 +1,11 @@
 ﻿using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Application.Common.Utils;
 using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Identity;
 using IrcMonitor.Infrastructure.Persistence;
 using IrcMonitor.Infrastructure.Persistence.Interceptors;
 using IrcMonitor.Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -48,9 +46,9 @@ public static class ConfigureServices
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
+        var publicRsaParameters = TokenUtils.ConvertPemToRSAPublicParameters(authSettings.JwtPublicKey);
         RSA rsa = RSA.Create();
-        rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(authSettings.JwtPublicKey), out _);
-
+        rsa.ImportParameters(publicRsaParameters);
 
         services.AddAuthentication()
             .AddJwtBearer(cfg =>

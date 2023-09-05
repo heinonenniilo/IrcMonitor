@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Application.Common.Utils;
 using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Constants;
 using Microsoft.EntityFrameworkCore;
@@ -21,8 +22,11 @@ internal class JwtGenerator : IJwtGenerator
 
     public async Task<CreateUserAuthTokenReturnModel> CreateUserAuthToken(string userId)
     {
+        var pemData = _authenticationSettings.JwtPrivateSigningKey;
+        var rsaParameters = TokenUtils.ConvertPemToRSAPrivateParameters(_authenticationSettings.JwtPrivateSigningKey);
+
         var privateRSA = RSA.Create();
-        privateRSA.ImportPkcs8PrivateKey(Convert.FromBase64String(_authenticationSettings.JwtPrivateSigningKey), out _);
+        privateRSA.ImportParameters(rsaParameters);
 
         var userInDb = await _context.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == userId);
         var isAdmin = userInDb?.Roles.Any(r => r.Role == RoleConstants.Admin) ?? false;
@@ -56,7 +60,7 @@ internal class JwtGenerator : IJwtGenerator
         {
             identity.AddClaims(readableChannels.Where(x => x.HasValue).Select(x => new Claim(CustomClaims.ChannelViewer, x.ToString() ?? "")));
         }
-      
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Audience = "IrcMonitor",
