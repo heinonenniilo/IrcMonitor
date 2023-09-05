@@ -1,0 +1,8 @@
+{
+    "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "DBConnectionString": "Server=.\\SQLEXPRESS;Database=IrcMonitorDb;Trusted_Connection=True;MultipleActiveResultSets=true;Trust Server Certificate=true"
+  }
+}
