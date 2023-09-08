@@ -8,7 +8,8 @@ export enum UserActionTypes {
   ClearUserInfo = "User/ClearUserInfo",
   StoreUserChannels = "User/StoreUserChannels",
   SelectChannel = "User/SelectChannel",
-  StoreGoogleAccessToken = "User/StoreGoogleAccessToken"
+  StoreGoogleAccessToken = "User/StoreGoogleAccessToken",
+  SetIsLoggingIn = "User/SetIsLoggingIn"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -40,6 +41,11 @@ export interface SelectChannel extends Action {
   channelId: string | undefined;
 }
 
+export interface SetIsUserLoggingIn extends Action {
+  type: UserActionTypes.SetIsLoggingIn;
+  isLoggingIn: boolean;
+}
+
 export const userActions = {
   storeUserInfo: (userInfo: UserVm): StoreGoogleAuthInfo => ({
     type: UserActionTypes.StoreUserInfo,
@@ -63,6 +69,10 @@ export const userActions = {
   storeGoogleAccessToken: (googleAccessToken: string | undefined): StoreGoogleAccessToken => ({
     type: UserActionTypes.StoreGoogleAccessToken,
     googleAccessToken
+  }),
+  setIsLoggingIn: (isLoggingIn: boolean): SetIsUserLoggingIn => ({
+    type: UserActionTypes.SetIsLoggingIn,
+    isLoggingIn
   })
 };
 
@@ -72,4 +82,5 @@ export type UserActions =
   | ClearUserInfo
   | StoreUserChannels
   | SelectChannel
-  | StoreGoogleAccessToken;
+  | StoreGoogleAccessToken
+  | SetIsUserLoggingIn;
