@@ -4,7 +4,6 @@ using IrcMonitor.Infrastructure.Persistence.Interceptors;
 using IrcMonitor.Infrastructure.Services;
 using IrcMonitor.RowInserterFunction.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
