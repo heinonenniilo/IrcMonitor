@@ -17,7 +17,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FileName = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
                     ChannelId = table.Column<int>(type: "int", nullable: false),
                     RowCount = table.Column<int>(type: "int", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
