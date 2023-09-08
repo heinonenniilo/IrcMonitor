@@ -8,4 +8,6 @@ public class IrcChannel
     public IList<IrcRow> Rows { get; set; }
 
     public IList<UserRole> Roles { get; set; }
+
+    public IList<ProcessedLogFile> ProcessedFiles { get; set; }
 }

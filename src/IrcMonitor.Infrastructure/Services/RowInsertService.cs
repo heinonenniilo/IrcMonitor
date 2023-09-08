@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,6 +23,12 @@ public class RowInsertService : IRowInsertService
 
     public async Task ProcessFile(string fileName, string content)
     {
+
+        if (await _context.ProcessedLogFiles.AnyAsync(x => x.FileName == fileName)) {
+            _logger.LogWarning($"File {fileName} already processed");
+            return;
+        }
+
         // Capture everything before the last dot, then capture the date pattern, followed by ".log"
         var regex = new Regex(@"^(.*)\.(?=\d{4}-\d{2}-\d{2}\.log$)(\d{4}-\d{2}-\d{2})");
 
@@ -35,15 +42,12 @@ public class RowInsertService : IRowInsertService
         var date = DateTime.Parse(match.Groups[2].Value);
 
         var correspondingChannel = await _context.IrcChannels.FirstOrDefaultAsync(x => x.Name == channel);
-        if (correspondingChannel == null)
-        {
-            correspondingChannel = new IrcChannel()
+        correspondingChannel ??= new IrcChannel()
             {
                 Name = channel,
             };
-        }
 
-        var messageRegex = new Regex(@"^(\d{2}):(\d{2})\s+<([@+ ]?[^>]+)>\s*(.+)$");
+        var messageRegex = new Regex(@"^(\d{2}):(\d{2})\s+<[@+\s]?([^\s>]+)>\s+(.+)$");
         var ircRowsToInsert = new List<IrcRow>();
 
         using (var reader = new StringReader(content))
@@ -62,7 +66,7 @@ public class RowInsertService : IRowInsertService
                     ircRowsToInsert.Add(new IrcRow()
                     {
                         Channel = correspondingChannel,
-                        Nick = match.Groups[3].Value,
+                        Nick = rowMatch.Groups[3].Value,
                         Message = rowMatch.Groups[4].Value,
                         TimeStamp = timestamp
                 });
@@ -73,6 +77,12 @@ public class RowInsertService : IRowInsertService
                 line = await reader.ReadLineAsync();
             }
         }
+
+        await _context.ProcessedLogFiles.AddAsync (new ProcessedLogFile() {
+            FileName = fileName,
+            Channel = correspondingChannel,
+            RowCount = ircRowsToInsert.Count
+        });
 
         await _context.IrcRows.AddRangeAsync( ircRowsToInsert );
         await _context.SaveChangesAsync(CancellationToken.None);
