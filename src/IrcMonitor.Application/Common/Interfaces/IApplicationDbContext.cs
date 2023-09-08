@@ -12,5 +12,7 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
     DbSet<UserRole> UserRoles { get; }
 
+    DbSet<ProcessedLogFile> ProcessedLogFiles { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
