@@ -25,13 +25,15 @@ export interface UserState {
   googleTokenInfo?: GoogleTokenInfo;
   channels: IrcChannelDto[];
   selectedChannel: string | undefined;
+  isLoggingIn: boolean;
 }
 
 const defaultState: UserState = {
   logInInitiated: false,
   user: undefined,
   channels: [],
-  selectedChannel: undefined
+  selectedChannel: undefined,
+  isLoggingIn: false
 };
 
 export function userReducer(state: UserState = defaultState, action: UserActions): UserState {
@@ -83,6 +85,11 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.selectedChannel = action.channelId;
       });
       break;
+    case UserActionTypes.SetIsLoggingIn:
+      state = produce(state, (draft) => {
+        draft.isLoggingIn = action.isLoggingIn;
+      });
+      break;
   }
   return state;
 }
@@ -99,3 +106,5 @@ export const getChannels = (state: AppState): IrcChannelDto[] => state.user.chan
 
 export const getSelectecChannel = (state: AppState): string | undefined =>
   state.user.selectedChannel;
+
+export const getIsLoggingIn = (state: AppState): boolean => state.user.isLoggingIn;

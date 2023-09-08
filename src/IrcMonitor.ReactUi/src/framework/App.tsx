@@ -61,11 +61,15 @@ export const App: React.FC<AppProps> = (props) => {
     if (!googleIdToken || !apiHook.authApi) {
       return;
     }
+    dispatch(userActions.setIsLoggingIn(true));
     apiHook.authApi
       .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } })
       .then((res) => {
         dispatch(userActions.storeUserInfo(res));
         setCookie(userInfoCookieName, res);
+      })
+      .finally(() => {
+        dispatch(userActions.setIsLoggingIn(false));
       });
   }, [googleIdToken, dispatch, setCookie, apiHook.authApi]);
 
