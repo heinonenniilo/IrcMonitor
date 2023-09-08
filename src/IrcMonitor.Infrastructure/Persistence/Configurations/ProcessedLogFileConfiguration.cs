@@ -9,7 +9,7 @@ internal class ProcessedLogFileConfiguration : IEntityTypeConfiguration<Processe
     {
         builder.HasKey(e => e.Id);
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
-        builder.Property(x => x.FileName).HasMaxLength(1024);
+        builder.Property(x => x.FileName).HasMaxLength(512);
         builder.HasIndex(x => x.FileName).IsUnique();
 
         builder.HasOne(x => x.Channel).WithMany(x => x.ProcessedFiles);
