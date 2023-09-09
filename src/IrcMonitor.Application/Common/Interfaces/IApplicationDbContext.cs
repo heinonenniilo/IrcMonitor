@@ -14,5 +14,7 @@ public interface IApplicationDbContext
 
     DbSet<ProcessedLogFile> ProcessedLogFiles { get; }
 
+    DbSet<TimeGroupedRow> TimeGroupedRows { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

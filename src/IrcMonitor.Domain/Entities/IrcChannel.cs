@@ -10,4 +10,6 @@ public class IrcChannel
     public IList<UserRole> Roles { get; set; }
 
     public IList<ProcessedLogFile> ProcessedFiles { get; set; }
+
+    public IList<TimeGroupedRow> TimeGroupedRows { get; set; }
 }

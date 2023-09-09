@@ -17,6 +17,7 @@ var host = new HostBuilder()
             services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
             services.AddScoped<IRowInsertService, RowInsertService>();
             services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+            services.AddScoped<IStatisticsService, StatisticsService>();
             services.AddTransient<IDateTime, DateTimeService>();
             services.AddSingleton<ICurrentUserService, FunctionIdentifierService>();
         })

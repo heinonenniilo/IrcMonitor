@@ -25,6 +25,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<ProcessedLogFile> ProcessedLogFiles => Set<ProcessedLogFile>();
+    public DbSet<TimeGroupedRow> TimeGroupedRows => Set<TimeGroupedRow>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
