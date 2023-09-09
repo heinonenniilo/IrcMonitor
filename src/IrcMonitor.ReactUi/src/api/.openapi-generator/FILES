@@ -6,6 +6,7 @@ index.ts
 models/BarChartRow.ts
 models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
+models/HandleGoogleAuthorizationCodeCommand.ts
 models/HandleGoogleLoginCommand.ts
 models/IrcChannelDto.ts
 models/IrcRowDto.ts

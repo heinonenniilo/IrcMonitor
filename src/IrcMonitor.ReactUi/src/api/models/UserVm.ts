@@ -37,6 +37,12 @@ export interface UserVm {
      * @memberof UserVm
      */
     roles: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserVm
+     */
+    googleRefreshToken?: string;
 }
 
 /**
@@ -64,6 +70,7 @@ export function UserVmFromJSONTyped(json: any, ignoreDiscriminator: boolean): Us
         'email': json['email'],
         'accessToken': json['accessToken'],
         'roles': json['roles'],
+        'googleRefreshToken': !exists(json, 'googleRefreshToken') ? undefined : json['googleRefreshToken'],
     };
 }
 
@@ -79,6 +86,7 @@ export function UserVmToJSON(value?: UserVm | null): any {
         'email': value.email,
         'accessToken': value.accessToken,
         'roles': value.roles,
+        'googleRefreshToken': value.googleRefreshToken,
     };
 }
 

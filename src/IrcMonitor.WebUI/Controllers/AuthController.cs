@@ -13,4 +13,10 @@ public class AuthController: ApiControllerBase
     {
         return await Mediator.Send(command);
     }
+
+    [HttpPost(template: "google-auth-code")]
+    public async Task<UserVm> GoogleAuthCode([FromBody] HandleGoogleAuthorizationCodeCommand command)
+    {
+        return await Mediator.Send(command);
+    }
 }

@@ -10,4 +10,6 @@ public class UserVm
     public string AccessToken { get; set; }
     [Required]
     public List<string> Roles { get; set; }
+
+    public string GoogleRefreshToken { get; set; }
 }

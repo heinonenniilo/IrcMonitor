@@ -57,6 +57,7 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
         >
           {channels.map((c) => (
             <MenuItem
+              key={c.guid}
               onClick={() => {
                 onSelectChannel(c.guid ?? "");
               }}

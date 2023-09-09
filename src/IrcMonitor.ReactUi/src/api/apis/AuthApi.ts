@@ -15,10 +15,13 @@
 
 import * as runtime from '../runtime';
 import type {
+  HandleGoogleAuthorizationCodeCommand,
   HandleGoogleLoginCommand,
   UserVm,
 } from '../models';
 import {
+    HandleGoogleAuthorizationCodeCommandFromJSON,
+    HandleGoogleAuthorizationCodeCommandToJSON,
     HandleGoogleLoginCommandFromJSON,
     HandleGoogleLoginCommandToJSON,
     UserVmFromJSON,
@@ -27,6 +30,10 @@ import {
 
 export interface AuthGoogleAuthRequest {
     handleGoogleLoginCommand: HandleGoogleLoginCommand;
+}
+
+export interface AuthGoogleAuthCodeRequest {
+    handleGoogleAuthorizationCodeCommand: HandleGoogleAuthorizationCodeCommand;
 }
 
 /**
@@ -66,6 +73,41 @@ export class AuthApi extends runtime.BaseAPI {
      */
     async authGoogleAuth(requestParameters: AuthGoogleAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
         const response = await this.authGoogleAuthRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async authGoogleAuthCodeRaw(requestParameters: AuthGoogleAuthCodeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserVm>> {
+        if (requestParameters.handleGoogleAuthorizationCodeCommand === null || requestParameters.handleGoogleAuthorizationCodeCommand === undefined) {
+            throw new runtime.RequiredError('handleGoogleAuthorizationCodeCommand','Required parameter requestParameters.handleGoogleAuthorizationCodeCommand was null or undefined when calling authGoogleAuthCode.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Auth/google-auth-code`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: HandleGoogleAuthorizationCodeCommandToJSON(requestParameters.handleGoogleAuthorizationCodeCommand),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async authGoogleAuthCode(requestParameters: AuthGoogleAuthCodeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
+        const response = await this.authGoogleAuthCodeRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

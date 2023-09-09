@@ -1,7 +1,7 @@
 import { AppBar, Container, IconButton, MenuItem } from "@mui/material";
-import { CredentialResponse } from "@react-oauth/google";
+import { CredentialResponse, useGoogleLogin } from "@react-oauth/google";
 import React, { useEffect } from "react";
-import { getApiAccessToken, getChannels, User } from "reducers/userReducer";
+import { getChannels, getIsReLogging, getUserVm, User } from "reducers/userReducer";
 import styled from "styled-components";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { UserMenu } from "./UserMenu";
@@ -11,8 +11,10 @@ import { SelectChannel } from "./SelectChannel";
 import { userActions } from "actions/userActions";
 import { AuthorizedComponent } from "framework/AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
+import { useApiHook } from "hooks/useApiHook";
 import moment from "moment";
 import jwt_decode from "jwt-decode";
+import { tokenRefetchLimitInMinutes } from "framework/App";
 
 export interface MenuBarProps {
   handleGoogleAuth: (response: CredentialResponse) => void;
@@ -45,7 +47,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   // TODO Implement better handling of navigation.
 
   const channels = useSelector(getChannels);
-  const apiAccessToken = useSelector(getApiAccessToken);
+  const isReLoggingIn = useSelector(getIsReLogging);
+  const apiHook = useApiHook();
+  const userVm = useSelector(getUserVm);
 
   const dispatch = useDispatch();
 
@@ -56,22 +60,63 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   useEffect(() => {
     try {
       // TODO handle token refresh
-      if (!apiAccessToken) {
+      if (!userVm || !userVm.accessToken) {
         return;
       }
-      const token = jwt_decode(apiAccessToken) as any;
 
+      const token = jwt_decode(userVm.accessToken) as any;
       const momentDate = moment.unix(token.exp);
       const cur = moment();
       var duration = moment.duration(momentDate.diff(cur)).asMinutes();
 
-      if (duration < 55) {
-        //
+      console.log(duration);
+      if (duration < tokenRefetchLimitInMinutes) {
+        if (userVm?.googleRefreshToken) {
+          dispatch(userActions.setIsLoggingIn(true));
+          apiHook.authApi
+            .authGoogleAuthCode({
+              handleGoogleAuthorizationCodeCommand: {
+                authorizationCode: userVm.googleRefreshToken,
+                email: token.sid,
+                isRefresh: true
+              }
+            })
+            .then((res) => {
+              dispatch(userActions.storeUserInfo(res));
+            })
+            .catch((err) => {
+              dispatch(userActions.setIsReLoggingIn(true));
+              console.error(err);
+            })
+            .finally(() => {
+              dispatch(userActions.setIsLoggingIn(false));
+            });
+        } else {
+          dispatch(userActions.setIsReLoggingIn(true));
+        }
       }
     } catch (err) {
-      //
+      console.error(err);
     }
-  }, [apiAccessToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiHook.authApi, dispatch, userVm?.accessToken]);
+
+  const loginWithGoogleAuthCode = useGoogleLogin({
+    onSuccess: (code) => {
+      apiHook.authApi
+        .authGoogleAuthCode({
+          handleGoogleAuthorizationCodeCommand: { authorizationCode: code.code, email: user?.email }
+        })
+        .then((res) => {
+          dispatch(userActions.storeUserInfo(res));
+        })
+        .finally(() => {
+          dispatch(userActions.setIsReLoggingIn(false));
+        });
+    },
+    hint: user?.email,
+    flow: "auth-code"
+  });
 
   return (
     <AppBar position="fixed">
@@ -88,33 +133,49 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             >
               Home
             </MenuItem>
-            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-              <MenuItem
-                onClick={() => {
-                  handleNavigateTo(routes.statistics);
-                }}
-              >
-                Statistics
-              </MenuItem>
-            </AuthorizedComponent>
-            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-              <MenuItem
-                onClick={() => {
-                  handleNavigateTo(routes.browse);
-                }}
-              >
-                Browse
-              </MenuItem>
-            </AuthorizedComponent>
+            {!isReLoggingIn ? (
+              <>
+                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                  <MenuItem
+                    onClick={() => {
+                      handleNavigateTo(routes.statistics);
+                    }}
+                  >
+                    Statistics
+                  </MenuItem>
+                </AuthorizedComponent>
+                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                  <MenuItem
+                    onClick={() => {
+                      handleNavigateTo(routes.browse);
+                    }}
+                  >
+                    Browse
+                  </MenuItem>
+                </AuthorizedComponent>
+              </>
+            ) : null}
           </MenuArea>
 
           <MenuArea>
-            <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-              <MenuItem>
-                <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
-              </MenuItem>
-            </AuthorizedComponent>
-            <UserMenu handleGoogleAuth={handleGoogleAuth} user={user} handleLogOut={handleLogOut} />
+            {!isReLoggingIn ? (
+              <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                <MenuItem>
+                  <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+                </MenuItem>
+              </AuthorizedComponent>
+            ) : null}
+            <UserMenu
+              handleGoogleAuth={handleGoogleAuth}
+              user={user}
+              handleLogOut={() => {
+                handleLogOut();
+              }}
+              handleGoogleAuthWithCode={() => {
+                loginWithGoogleAuthCode();
+              }}
+              showReLogIn={isReLoggingIn}
+            />
           </MenuArea>
         </MenuItemsContainer>
       </Container>

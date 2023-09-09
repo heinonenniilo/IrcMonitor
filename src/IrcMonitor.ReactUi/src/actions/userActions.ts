@@ -9,7 +9,9 @@ export enum UserActionTypes {
   StoreUserChannels = "User/StoreUserChannels",
   SelectChannel = "User/SelectChannel",
   StoreGoogleAccessToken = "User/StoreGoogleAccessToken",
-  SetIsLoggingIn = "User/SetIsLoggingIn"
+  StoreGoogleAuthorizationKey = "User/StoreGoogleAuthorizationKey",
+  SetIsLoggingIn = "User/SetIsLoggingIn",
+  SetIsReLoggingIn = "User/SetIsReLoggingIn"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -25,6 +27,12 @@ export interface StoreApiAccessToken extends Action {
 export interface StoreGoogleAccessToken extends Action {
   type: UserActionTypes.StoreGoogleAccessToken;
   googleAccessToken: string;
+  triggerLogIn?: boolean;
+}
+
+export interface StoreGoogleAuthorizationKey extends Action {
+  type: UserActionTypes.StoreGoogleAuthorizationKey;
+  authorizationKey: string;
 }
 
 export interface ClearUserInfo extends Action {
@@ -44,6 +52,11 @@ export interface SelectChannel extends Action {
 export interface SetIsUserLoggingIn extends Action {
   type: UserActionTypes.SetIsLoggingIn;
   isLoggingIn: boolean;
+}
+
+export interface SetIsReLoggingIn extends Action {
+  type: UserActionTypes.SetIsReLoggingIn;
+  isReLogging: boolean;
 }
 
 export const userActions = {
@@ -66,13 +79,27 @@ export const userActions = {
     type: UserActionTypes.SelectChannel,
     channelId
   }),
-  storeGoogleAccessToken: (googleAccessToken: string | undefined): StoreGoogleAccessToken => ({
+  storeGoogleAccessToken: (
+    googleAccessToken: string | undefined,
+    triggerLogIn?: boolean
+  ): StoreGoogleAccessToken => ({
     type: UserActionTypes.StoreGoogleAccessToken,
-    googleAccessToken
+    googleAccessToken,
+    triggerLogIn
+  }),
+  storeGoogleAuthorizationKey: (
+    authorizationKey: string | undefined
+  ): StoreGoogleAuthorizationKey => ({
+    type: UserActionTypes.StoreGoogleAuthorizationKey,
+    authorizationKey
   }),
   setIsLoggingIn: (isLoggingIn: boolean): SetIsUserLoggingIn => ({
     type: UserActionTypes.SetIsLoggingIn,
     isLoggingIn
+  }),
+  setIsReLoggingIn: (isReLogging: boolean): SetIsReLoggingIn => ({
+    type: UserActionTypes.SetIsReLoggingIn,
+    isReLogging
   })
 };
 
@@ -83,4 +110,5 @@ export type UserActions =
   | StoreUserChannels
   | SelectChannel
   | StoreGoogleAccessToken
-  | SetIsUserLoggingIn;
+  | SetIsUserLoggingIn
+  | SetIsReLoggingIn;

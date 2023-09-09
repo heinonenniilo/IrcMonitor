@@ -1,5 +1,5 @@
 import { Container } from "@mui/material";
-import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
+import { CredentialResponse } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
 import { MenuBar } from "components/MenuBar";
@@ -7,7 +7,7 @@ import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
-import { getGoogleAccessToken, getUserInfo } from "reducers/userReducer";
+import { getGoogleAccessToken, getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
@@ -20,14 +20,18 @@ interface AppProps {
 
 const userInfoCookieName = "userInfo";
 
+export const tokenRefetchLimitInMinutes = 5;
+
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
+  const userVm = useSelector(getUserVm);
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies([userInfoCookieName]);
   const apiHook = useApiHook();
+  const isReLogginIn = useSelector(getIsReLogging);
 
-  const googleIdToken = useSelector(getGoogleAccessToken);
+  const googleTokenInfo = useSelector(getGoogleAccessToken);
 
   useEffect(() => {
     const userInf = cookies.userInfo as UserVm;
@@ -58,24 +62,32 @@ export const App: React.FC<AppProps> = (props) => {
   }, [dispatch, apiHook.ircApi]);
 
   useEffect(() => {
-    if (!googleIdToken || !apiHook.authApi) {
+    if (navigate && isReLogginIn) {
+      navigate(routes.main);
+    }
+  }, [isReLogginIn, navigate]);
+
+  useEffect(() => {
+    if (!googleTokenInfo || !apiHook.authApi || !googleTokenInfo.triggerLogIn) {
       return;
     }
     dispatch(userActions.setIsLoggingIn(true));
     apiHook.authApi
-      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } })
+      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleTokenInfo.accessToken } })
       .then((res) => {
         dispatch(userActions.storeUserInfo(res));
-        setCookie(userInfoCookieName, res);
       })
       .finally(() => {
         dispatch(userActions.setIsLoggingIn(false));
       });
-  }, [googleIdToken, dispatch, setCookie, apiHook.authApi]);
+  }, [googleTokenInfo, dispatch, apiHook.authApi]);
+
+  useEffect(() => {
+    setCookie(userInfoCookieName, userVm);
+  }, [userVm, setCookie]);
 
   const handleGoogleAuth = (response: CredentialResponse) => {
-    console.log(response);
-    dispatch(userActions.storeGoogleAccessToken(response.credential));
+    dispatch(userActions.storeGoogleAccessToken(response.credential, true));
   };
 
   const handleLogOut = () => {
@@ -90,30 +102,28 @@ export const App: React.FC<AppProps> = (props) => {
 
   return (
     <CookiesProvider>
-      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_APP_ID}>
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <Container maxWidth={"xl"} sx={{ top: 0 }}>
-            <MenuBar
-              user={user}
-              handleGoogleAuth={handleGoogleAuth}
-              handleLogOut={handleLogOut}
-              handleNavigateTo={handleNavigate}
-            />
-          </Container>
-          <Container
-            maxWidth="xl"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              height: "100%",
-              marginTop: "124px"
-            }}
-          >
-            {props.children}
-          </Container>
-        </LocalizationProvider>
-      </GoogleOAuthProvider>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <Container maxWidth={"xl"} sx={{ top: 0 }}>
+          <MenuBar
+            user={user}
+            handleGoogleAuth={handleGoogleAuth}
+            handleLogOut={handleLogOut}
+            handleNavigateTo={handleNavigate}
+          />
+        </Container>
+        <Container
+          maxWidth="xl"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            marginTop: "124px"
+          }}
+        >
+          {props.children}
+        </Container>
+      </LocalizationProvider>
     </CookiesProvider>
   );
 };
