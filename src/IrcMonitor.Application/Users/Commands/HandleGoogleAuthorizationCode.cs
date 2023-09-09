@@ -35,7 +35,7 @@ public class HandleGoogleAuthorizationCodeCommandHandler : IRequestHandler<Handl
             },
         });
 
-        var res = request.IsRefresh ? await flow.RefreshTokenAsync(request.Email, request.AuthorizationCode, cancellationToken) : await flow.ExchangeCodeForTokenAsync(request.Email, request.AuthorizationCode, "https://localhost:3000", CancellationToken.None);
+        var res = request.IsRefresh ? await flow.RefreshTokenAsync(request.Email, request.AuthorizationCode, cancellationToken) : await flow.ExchangeCodeForTokenAsync(request.Email, request.AuthorizationCode, _authenticationSettings.PageUrl, cancellationToken);
 
         var settings = new GoogleJsonWebSignature.ValidationSettings();
         settings.Audience = new List<string>() { _authenticationSettings.GoogleAuth.ClientId };

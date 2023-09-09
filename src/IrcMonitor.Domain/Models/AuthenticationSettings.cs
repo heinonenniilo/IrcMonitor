@@ -11,4 +11,5 @@ public class AuthenticationSettings
     public string JwtPrivateSigningKey { get; set; }
     public string JwtPublicKey { get; set; }
     public GoogleAuth GoogleAuth { get; set; }
+    public string PageUrl { get; set; }
 }
