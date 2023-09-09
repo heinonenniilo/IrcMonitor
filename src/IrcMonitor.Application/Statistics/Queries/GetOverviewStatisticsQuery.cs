@@ -45,11 +45,11 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
         }
 
 
-        var query = _context.IrcRows.Where(x => x.ChannelId == channel.Id).GroupBy(x => x.TimeStamp.Year).Select(d => new BarChartRow
+        var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id).GroupBy(x => x.Year).Select(d => new BarChartRow
         {
             Label = d.Key.ToString(),
             Identifier = d.Key,
-            Value = d.Count()
+            Value = d.Sum(x => x.Count)
         });
 
         var returnList = (await query.OrderBy(x => x.Identifier).ToListAsync(cancellationToken));

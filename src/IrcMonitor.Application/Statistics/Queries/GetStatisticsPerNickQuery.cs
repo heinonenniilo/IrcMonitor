@@ -46,23 +46,23 @@ public class GetStatisticsPerNickQueryHandler : IRequestHandler<GetStatisticsPer
             throw new ForbiddenAccessException();
         }
 
-        var query = _context.IrcRows.Where(x => x.ChannelId == channel.Id);
+        var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id);
 
         if (request.Year.HasValue)
         {
-            query = query.Where(x => x.TimeStamp.Year == request.Year.Value);
+            query = query.Where(x => x.Year == request.Year.Value);
         }
 
         if (request.Month.HasValue)
         {
-            query = query.Where(x => x.TimeStamp.Month == request.Month.Value);
+            query = query.Where(x => x.Month == request.Month.Value);
         }
 
         var groupedQuery = query.GroupBy(x => x.Nick).Select(x => new BarChartRow()
         {
             Label = x.Key,
             Identifier = 1,
-            Value = x.Count()
+            Value = x.Sum(x => x.Count)
         }).OrderByDescending(x => x.Value).Take(_ircStatisticsSetting.NickTresholdLimit);
 
         var rowsToReturn = (await groupedQuery.OrderByDescending(x => x.Value).ToListAsync(cancellationToken)).Select((x, i) =>

@@ -49,23 +49,23 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
             throw new ForbiddenAccessException();
         }
 
-        var query = _context.IrcRows.Where(x => x.ChannelId == channel.Id && x.TimeStamp.Year == request.Year);
+        var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id && x.Year == request.Year);
 
 
-        var monthlyQuery = query.GroupBy(x => x.TimeStamp.Month).Select(x => new BarChartRow()
+        var monthlyQuery = query.GroupBy(x => x.Month).Select(x => new BarChartRow()
         {
             Label = "",
             Identifier = x.Key,
-            Value = x.Count()
+            Value = x.Sum(x => x.Count)
         });
 
         var months = Enumerable.Range(1, 12);
 
-        var hourlyQuery = query.GroupBy(x => x.TimeStamp.Hour).OrderBy(x => x.Key).Select(x => new BarChartRow() {
+        var hourlyQuery = query.GroupBy(x => x.Hour).OrderBy(x => x.Key).Select(x => new BarChartRow() {
         
             Label = x.Key.ToString(),
             Identifier = x.Key,
-            Value = x.Count()
+            Value = x.Sum(x => x.Count)
         });
 
         var montlyStatistics = (await monthlyQuery.OrderBy(x => x.Identifier).ToListAsync(cancellationToken)).Select(x => new BarChartRow()
