@@ -4,6 +4,7 @@ using IrcMonitor.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IrcMonitor.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230909095457_ChangesToIndexes")]
+    partial class ChangesToIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +48,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("IrcChannels", (string)null);
+                    b.ToTable("IrcChannels");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.IrcRow", b =>
@@ -80,7 +83,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChannelId", "Nick", "TimeStamp");
 
-                    b.ToTable("IrcRows", (string)null);
+                    b.ToTable("IrcRows");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.ProcessedLogFile", b =>
@@ -121,7 +124,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.HasIndex("FileName")
                         .IsUnique();
 
-                    b.ToTable("ProcessedLogFiles", (string)null);
+                    b.ToTable("ProcessedLogFiles");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.User", b =>
@@ -141,7 +144,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.UserRole", b =>
@@ -174,7 +177,7 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[ChannelId] IS NOT NULL");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.IrcRow", b =>
