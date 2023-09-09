@@ -4,6 +4,7 @@ using IrcMonitor.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IrcMonitor.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230909095457_ChangesToIndexes")]
+    partial class ChangesToIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,37 +127,6 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.ToTable("ProcessedLogFiles");
                 });
 
-            modelBuilder.Entity("IrcMonitor.Domain.Entities.TimeGroupedRow", b =>
-                {
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Hour")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChannelId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nick")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Year", "Hour", "Month", "ChannelId", "Nick");
-
-                    b.HasIndex("ChannelId");
-
-                    b.ToTable("TimeGroupedRows");
-                });
-
             modelBuilder.Entity("IrcMonitor.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -230,17 +202,6 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.Navigation("Channel");
                 });
 
-            modelBuilder.Entity("IrcMonitor.Domain.Entities.TimeGroupedRow", b =>
-                {
-                    b.HasOne("IrcMonitor.Domain.Entities.IrcChannel", "Channel")
-                        .WithMany("TimeGroupedRows")
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Channel");
-                });
-
             modelBuilder.Entity("IrcMonitor.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("IrcMonitor.Domain.Entities.IrcChannel", "Channel")
@@ -265,8 +226,6 @@ namespace IrcMonitor.Infrastructure.Persistence.Migrations
                     b.Navigation("Roles");
 
                     b.Navigation("Rows");
-
-                    b.Navigation("TimeGroupedRows");
                 });
 
             modelBuilder.Entity("IrcMonitor.Domain.Entities.User", b =>

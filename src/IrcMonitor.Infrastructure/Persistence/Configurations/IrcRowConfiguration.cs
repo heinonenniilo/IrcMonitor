@@ -15,7 +15,8 @@ public class IrcRowConfiguration : IEntityTypeConfiguration<IrcRow>
         builder.Property(x => x.ChannelId).IsRequired();
 
         builder.HasIndex(x => x.TimeStamp);
-        builder.HasIndex(x => x.Nick);
+        builder.HasIndex(x => new { x.ChannelId, x.TimeStamp });
+        builder.HasIndex(x => new { x.ChannelId, x.Nick, x.TimeStamp });
 
         builder.HasOne(x => x.Channel).WithMany(x => x.Rows).IsRequired();
     }

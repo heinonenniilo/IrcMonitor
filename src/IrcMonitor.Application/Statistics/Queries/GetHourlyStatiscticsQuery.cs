@@ -39,16 +39,16 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
             throw new ForbiddenAccessException();
         }
 
-        var query = _context.IrcRows.Where(x => x.ChannelId == channel.Id);
+        var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id);
 
         if (request.Year.HasValue) {
 
-            query = query.Where(x => x.TimeStamp.Year == request.Year.Value);
+            query = query.Where(x => x.Year == request.Year.Value);
         }
 
         if (request.Month.HasValue)
         {
-            query = query.Where(x => x.TimeStamp.Month == request.Month.Value);
+            query = query.Where(x => x.Month == request.Month.Value);
         }
 
         if (!string.IsNullOrEmpty(request.Nick))
@@ -56,10 +56,10 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
             query = query.Where(x => x.Nick == request.Nick);
         }
 
-        var retList = await query.GroupBy(x => x.TimeStamp.Hour).Select(x => new BarChartRow {
+        var retList = await query.GroupBy(x => x.Hour).Select(x => new BarChartRow {
             Identifier = x.Key,
             Label = x.Key.ToString(),
-            Value = x.Count() }).OrderBy(x => x.Identifier).ToListAsync(cancellationToken);
+            Value = x.Sum(x => x.Count) }).OrderBy(x => x.Identifier).ToListAsync(cancellationToken);
 
 
         var hours = Enumerable.Range(0, 23);
