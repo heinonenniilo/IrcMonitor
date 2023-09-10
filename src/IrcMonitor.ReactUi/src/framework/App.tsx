@@ -13,8 +13,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
 import { useApiHook } from "hooks/useApiHook";
 import { routes } from "utilities/routes";
-import jwt_decode from "jwt-decode";
-import moment from "moment";
 
 interface AppProps {
   children: React.ReactNode;
@@ -73,50 +71,6 @@ export const App: React.FC<AppProps> = (props) => {
       setCookie(userInfoCookieName, userVm);
     }
   }, [userVm, setCookie]);
-
-  // Check whether token should be refetched
-  useEffect(() => {
-    try {
-      if (!userVm || !userVm.accessToken) {
-        return;
-      }
-
-      const token = jwt_decode(userVm.accessToken) as any;
-      const momentDate = moment.unix(token.exp);
-      const cur = moment();
-      var duration = moment.duration(momentDate.diff(cur)).asMinutes();
-
-      console.log(duration);
-      if (duration < tokenRefetchLimitInMinutes) {
-        if (userVm?.googleRefreshToken) {
-          dispatch(userActions.setIsLoggingIn(true));
-          apiHook.authApi
-            .authGoogleAuthCode({
-              handleGoogleAuthorizationCodeCommand: {
-                authorizationCode: userVm.googleRefreshToken,
-                email: token.sid,
-                isRefresh: true
-              }
-            })
-            .then((res) => {
-              dispatch(userActions.storeUserInfo(res));
-            })
-            .catch((err) => {
-              dispatch(userActions.setIsReLoggingIn(true));
-              console.error(err);
-            })
-            .finally(() => {
-              dispatch(userActions.setIsLoggingIn(false));
-            });
-        } else {
-          dispatch(userActions.setIsReLoggingIn(true));
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiHook.authApi, dispatch, userVm?.accessToken]);
 
   const loginWithGoogleAuthCode = useGoogleLogin({
     onSuccess: (code) => {
