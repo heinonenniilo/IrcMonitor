@@ -1,6 +1,6 @@
 import { AccountCircle } from "@mui/icons-material";
 import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { CredentialResponse, GoogleLogin, googleLogout } from "@react-oauth/google";
+import { CredentialResponse, googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
 
@@ -93,7 +93,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   } else {
     return (
       <>
-        <GoogleLogin onSuccess={handleGoogleAuth} />
+        <>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleGoogleAuthWithCode();
+            }}
+          >
+            Login with Google
+          </Button>
+        </>
       </>
     );
   }

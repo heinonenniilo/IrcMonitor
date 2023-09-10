@@ -81,6 +81,7 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.logInInitiated = false;
         draft.apiTokenInfo = undefined;
         draft.googleTokenInfo = undefined;
+        draft.userVm = undefined;
       });
       break;
     case UserActionTypes.StoreUserChannels:
