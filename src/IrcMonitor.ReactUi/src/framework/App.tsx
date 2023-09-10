@@ -1,5 +1,5 @@
 import { Container } from "@mui/material";
-import { CredentialResponse, useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
 import { MenuBar } from "components/MenuBar";
@@ -7,7 +7,7 @@ import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
-import { getGoogleAccessToken, getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
+import { getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
@@ -32,8 +32,6 @@ export const App: React.FC<AppProps> = (props) => {
   const [cookies, setCookie] = useCookies([userInfoCookieName]);
   const apiHook = useApiHook();
   const isReLogginIn = useSelector(getIsReLogging);
-
-  const googleTokenInfo = useSelector(getGoogleAccessToken);
 
   // Set user info from cookies, when the app loads
   useEffect(() => {
@@ -68,21 +66,6 @@ export const App: React.FC<AppProps> = (props) => {
       navigate(routes.main);
     }
   }, [isReLogginIn, navigate]);
-
-  useEffect(() => {
-    if (!googleTokenInfo || !apiHook.authApi || !googleTokenInfo.triggerLogIn) {
-      return;
-    }
-    dispatch(userActions.setIsLoggingIn(true));
-    apiHook.authApi
-      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleTokenInfo.accessToken } })
-      .then((res) => {
-        dispatch(userActions.storeUserInfo(res));
-      })
-      .finally(() => {
-        dispatch(userActions.setIsLoggingIn(false));
-      });
-  }, [googleTokenInfo, dispatch, apiHook.authApi]);
 
   useEffect(() => {
     if (userVm) {
@@ -135,10 +118,6 @@ export const App: React.FC<AppProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiHook.authApi, dispatch, userVm?.accessToken]);
 
-  const handleGoogleAuth = (response: CredentialResponse) => {
-    dispatch(userActions.storeGoogleAccessToken(response.credential, true));
-  };
-
   const loginWithGoogleAuthCode = useGoogleLogin({
     onSuccess: (code) => {
       dispatch(userActions.setIsLoggingIn(true));
@@ -174,12 +153,9 @@ export const App: React.FC<AppProps> = (props) => {
         <Container maxWidth={"xl"} sx={{ top: 0 }}>
           <MenuBar
             user={user}
-            handleGoogleAuth={handleGoogleAuth}
             handleLogOut={handleLogOut}
             handleNavigateTo={handleNavigate}
-            handleLoginWithGoogleAuthCode={() => {
-              loginWithGoogleAuthCode();
-            }}
+            handleLoginWithGoogleAuthCode={loginWithGoogleAuthCode}
           />
         </Container>
         <Container

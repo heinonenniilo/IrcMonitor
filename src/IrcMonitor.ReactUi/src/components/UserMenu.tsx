@@ -1,11 +1,10 @@
 import { AccountCircle } from "@mui/icons-material";
 import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { CredentialResponse, googleLogout } from "@react-oauth/google";
+import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
 
 export interface UserMenuProps {
-  handleGoogleAuth: (response: CredentialResponse) => void;
   handleGoogleAuthWithCode: () => void;
   handleLogOut: () => void;
   user: User | undefined;
@@ -14,7 +13,6 @@ export interface UserMenuProps {
 }
 
 export const UserMenu: React.FC<UserMenuProps> = ({
-  handleGoogleAuth,
   user,
   showReLogIn,
   handleLogOut,

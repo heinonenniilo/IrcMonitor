@@ -1,5 +1,4 @@
 import { AppBar, Container, IconButton, MenuItem } from "@mui/material";
-import { CredentialResponse } from "@react-oauth/google";
 import React from "react";
 import { getChannels, getIsReLogging, User } from "reducers/userReducer";
 import styled from "styled-components";
@@ -13,7 +12,6 @@ import { AuthorizedComponent } from "framework/AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
 
 export interface MenuBarProps {
-  handleGoogleAuth: (response: CredentialResponse) => void;
   handleLoginWithGoogleAuthCode: () => void;
   handleLogOut: () => void;
   handleNavigateTo: (route: string) => void;
@@ -36,7 +34,6 @@ const MenuArea = styled.div`
 `;
 
 export const MenuBar: React.FC<MenuBarProps> = ({
-  handleGoogleAuth,
   handleLogOut,
   user,
   handleNavigateTo,
@@ -101,7 +98,6 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               </AuthorizedComponent>
             ) : null}
             <UserMenu
-              handleGoogleAuth={handleGoogleAuth}
               user={user}
               handleLogOut={() => {
                 handleLogOut();
