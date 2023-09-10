@@ -35,11 +35,10 @@ export const App: React.FC<AppProps> = (props) => {
 
   useEffect(() => {
     const userInf = cookies.userInfo as UserVm;
-
-    if (userInf !== undefined && userInf?.email) {
+    if (userInf !== undefined && userInf?.email && !userVm) {
       dispatch(userActions.storeUserInfo(userInf));
     }
-  }, [cookies, dispatch]);
+  }, [cookies, dispatch, userVm]);
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -83,7 +82,10 @@ export const App: React.FC<AppProps> = (props) => {
   }, [googleTokenInfo, dispatch, apiHook.authApi]);
 
   useEffect(() => {
-    setCookie(userInfoCookieName, userVm);
+    if (userVm) {
+      console.log("Setting cookies");
+      setCookie(userInfoCookieName, userVm);
+    }
   }, [userVm, setCookie]);
 
   const handleGoogleAuth = (response: CredentialResponse) => {
