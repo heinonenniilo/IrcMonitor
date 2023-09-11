@@ -31,12 +31,6 @@ export interface HandleGoogleAuthorizationCodeCommand {
      * @memberof HandleGoogleAuthorizationCodeCommand
      */
     email?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof HandleGoogleAuthorizationCodeCommand
-     */
-    isRefresh?: boolean;
 }
 
 /**
@@ -60,7 +54,6 @@ export function HandleGoogleAuthorizationCodeCommandFromJSONTyped(json: any, ign
         
         'authorizationCode': !exists(json, 'authorizationCode') ? undefined : json['authorizationCode'],
         'email': !exists(json, 'email') ? undefined : json['email'],
-        'isRefresh': !exists(json, 'isRefresh') ? undefined : json['isRefresh'],
     };
 }
 
@@ -75,7 +68,6 @@ export function HandleGoogleAuthorizationCodeCommandToJSON(value?: HandleGoogleA
         
         'authorizationCode': value.authorizationCode,
         'email': value.email,
-        'isRefresh': value.isRefresh,
     };
 }
 

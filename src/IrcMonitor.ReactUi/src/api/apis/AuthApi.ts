@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   HandleGoogleAuthorizationCodeCommand,
   HandleGoogleLoginCommand,
+  HandleGoogleRefreshTokenCommand,
   UserVm,
 } from '../models';
 import {
@@ -24,6 +25,8 @@ import {
     HandleGoogleAuthorizationCodeCommandToJSON,
     HandleGoogleLoginCommandFromJSON,
     HandleGoogleLoginCommandToJSON,
+    HandleGoogleRefreshTokenCommandFromJSON,
+    HandleGoogleRefreshTokenCommandToJSON,
     UserVmFromJSON,
     UserVmToJSON,
 } from '../models';
@@ -34,6 +37,10 @@ export interface AuthGoogleAuthRequest {
 
 export interface AuthGoogleAuthCodeRequest {
     handleGoogleAuthorizationCodeCommand: HandleGoogleAuthorizationCodeCommand;
+}
+
+export interface AuthGoogleRefreshRequest {
+    handleGoogleRefreshTokenCommand: HandleGoogleRefreshTokenCommand;
 }
 
 /**
@@ -108,6 +115,41 @@ export class AuthApi extends runtime.BaseAPI {
      */
     async authGoogleAuthCode(requestParameters: AuthGoogleAuthCodeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
         const response = await this.authGoogleAuthCodeRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async authGoogleRefreshRaw(requestParameters: AuthGoogleRefreshRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserVm>> {
+        if (requestParameters.handleGoogleRefreshTokenCommand === null || requestParameters.handleGoogleRefreshTokenCommand === undefined) {
+            throw new runtime.RequiredError('handleGoogleRefreshTokenCommand','Required parameter requestParameters.handleGoogleRefreshTokenCommand was null or undefined when calling authGoogleRefresh.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Auth/google-refresh`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: HandleGoogleRefreshTokenCommandToJSON(requestParameters.handleGoogleRefreshTokenCommand),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async authGoogleRefresh(requestParameters: AuthGoogleRefreshRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
+        const response = await this.authGoogleRefreshRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

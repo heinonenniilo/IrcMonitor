@@ -5,6 +5,7 @@ export * from './GetIrcChannelsVm';
 export * from './GetIrcRowsVm';
 export * from './HandleGoogleAuthorizationCodeCommand';
 export * from './HandleGoogleLoginCommand';
+export * from './HandleGoogleRefreshTokenCommand';
 export * from './IrcChannelDto';
 export * from './IrcRowDto';
 export * from './OverviewStatisticsVm';

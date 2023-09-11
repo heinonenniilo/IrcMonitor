@@ -51,11 +51,16 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (apiHook.ircApi) {
       const api = apiHook.ircApi;
-      api.ircGetIrcChannels({ exclude: undefined }).then((res) => {
-        if (res.channels) {
-          dispatch(userActions.storeUserChannels(res.channels));
-        }
-      });
+      api
+        .ircGetIrcChannels({ exclude: undefined })
+        .then((res) => {
+          if (res.channels) {
+            dispatch(userActions.storeUserChannels(res.channels));
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, [dispatch, apiHook.ircApi]);
 
@@ -67,7 +72,6 @@ export const App: React.FC<AppProps> = (props) => {
 
   useEffect(() => {
     if (userVm) {
-      console.log("Setting cookies");
       setCookie(userInfoCookieName, userVm);
     }
   }, [userVm, setCookie]);

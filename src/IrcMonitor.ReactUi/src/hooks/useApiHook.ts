@@ -12,8 +12,12 @@ interface UseApiHook {
   authApi: AuthApi | undefined;
 }
 
+const isProduction = process.env!.NODE_ENV === "production";
 const authApi = new AuthApi(
-  new Configuration({ basePath: process.env!.NODE_ENV === "production" ? "" : null })
+  new Configuration({
+    basePath: isProduction ? "" : null,
+    credentials: isProduction ? "same-origin" : "include"
+  })
 );
 
 export const useApiHook = (): UseApiHook => {
@@ -42,31 +46,27 @@ export const useApiHook = (): UseApiHook => {
   );
 
   useEffect(() => {
-    if (isRefreshingToken) {
-      if (userVm?.googleRefreshToken) {
-        dispatch(userActions.setIsLoggingIn(true));
-        authApi
-          .authGoogleAuthCode({
-            handleGoogleAuthorizationCodeCommand: {
-              authorizationCode: userVm.googleRefreshToken,
-              isRefresh: true
-            }
-          })
-          .then((res) => {
-            dispatch(userActions.storeUserInfo(res));
-          })
-          .catch((err) => {
-            dispatch(userActions.setIsReLoggingIn(true));
-          })
-          .finally(() => {
-            dispatch(userActions.setIsLoggingIn(false));
-            setIsRefreshingToken(false);
-          });
-      } else {
-        dispatch(userActions.setIsReLoggingIn(true));
-      }
+    if (isRefreshingToken && userVm?.email) {
+      dispatch(userActions.setIsLoggingIn(true));
+      authApi
+        .authGoogleRefresh({
+          handleGoogleRefreshTokenCommand: {
+            email: userVm.email
+          }
+        })
+        .then((res) => {
+          dispatch(userActions.storeUserInfo(res));
+        })
+        .catch((err) => {
+          console.error(err);
+          dispatch(userActions.setIsReLoggingIn(true));
+        })
+        .finally(() => {
+          dispatch(userActions.setIsLoggingIn(false));
+          setIsRefreshingToken(false);
+        });
     }
-  }, [isRefreshingToken, userVm?.googleRefreshToken, dispatch]);
+  }, [isRefreshingToken, userVm?.email, dispatch]);
 
   useEffect(() => {
     if (accessToken) {
@@ -75,7 +75,8 @@ export const useApiHook = (): UseApiHook => {
           new Configuration({
             apiKey: `Bearer ${accessToken}`,
             basePath: process.env!.NODE_ENV === "production" ? "" : null,
-            middleware: [{ pre: preRequestHandler }]
+            middleware: [{ pre: preRequestHandler }],
+            credentials: isProduction ? "same-origin" : "include"
           })
         )
       );

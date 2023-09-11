@@ -8,6 +8,7 @@ models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
 models/HandleGoogleAuthorizationCodeCommand.ts
 models/HandleGoogleLoginCommand.ts
+models/HandleGoogleRefreshTokenCommand.ts
 models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/OverviewStatisticsVm.ts
