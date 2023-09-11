@@ -11,20 +11,13 @@ export interface User {
   roles: string[];
 }
 
-export interface GoogleTokenInfo {
-  accessToken: string;
-  triggerLogIn?: boolean;
-}
-
 export interface ApiTokenInfo {
   accessToken: string;
 }
 
 export interface UserState {
   user: User | undefined;
-  logInInitiated: boolean;
   apiTokenInfo?: ApiTokenInfo;
-  googleTokenInfo?: GoogleTokenInfo;
   channels: IrcChannelDto[];
   selectedChannel: string | undefined;
   isLoggingIn: boolean;
@@ -33,7 +26,6 @@ export interface UserState {
 }
 
 const defaultState: UserState = {
-  logInInitiated: false,
   user: undefined,
   channels: [],
   selectedChannel: undefined,
@@ -56,17 +48,9 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.apiTokenInfo = {
           accessToken: action.userInfo.accessToken
         };
-        draft.logInInitiated = true;
       });
       break;
-    case UserActionTypes.StoreGoogleAccessToken:
-      state = produce(state, (draft) => {
-        draft.googleTokenInfo = {
-          accessToken: action.googleAccessToken,
-          triggerLogIn: action.triggerLogIn
-        };
-      });
-      break;
+
     case UserActionTypes.StoreApiAccessToken:
       state = produce(state, (draft) => {
         draft.apiTokenInfo = { accessToken: action.apiAccessToken };
@@ -78,9 +62,7 @@ export function userReducer(state: UserState = defaultState, action: UserActions
     case UserActionTypes.ClearUserInfo:
       state = produce(state, (draft) => {
         draft.user = undefined;
-        draft.logInInitiated = false;
         draft.apiTokenInfo = undefined;
-        draft.googleTokenInfo = undefined;
         draft.userVm = undefined;
       });
       break;
@@ -112,9 +94,6 @@ export const getUserInfo = (state: AppState): User | undefined => state.user.use
 
 export const getApiAccessToken = (state: AppState): string | undefined =>
   state.user.apiTokenInfo?.accessToken;
-
-export const getGoogleAccessToken = (state: AppState): GoogleTokenInfo | undefined =>
-  state.user.googleTokenInfo;
 
 export const getChannels = (state: AppState): IrcChannelDto[] => state.user.channels;
 
