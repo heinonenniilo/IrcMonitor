@@ -14,6 +14,7 @@ internal class JwtGenerator : IJwtGenerator
 
     private readonly AuthenticationSettings _authenticationSettings;
     private readonly IApplicationDbContext _context;
+
     public JwtGenerator(AuthenticationSettings authenticationSettings, IApplicationDbContext context)
     {
         _authenticationSettings = authenticationSettings;
@@ -27,7 +28,6 @@ internal class JwtGenerator : IJwtGenerator
 
         var privateRSA = RSA.Create();
         privateRSA.ImportParameters(rsaParameters);
-
         var userInDb = await _context.Users.Include(x => x.Roles).FirstOrDefaultAsync(x => x.Email == userId);
         var isAdmin = userInDb?.Roles.Any(r => r.Role == RoleConstants.Admin) ?? false;
         var isViewer = userInDb?.Roles.Any(r => r.Role == RoleConstants.Viewer) ?? false;
