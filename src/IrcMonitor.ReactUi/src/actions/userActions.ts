@@ -8,8 +8,8 @@ export enum UserActionTypes {
   ClearUserInfo = "User/ClearUserInfo",
   StoreUserChannels = "User/StoreUserChannels",
   SelectChannel = "User/SelectChannel",
-  StoreGoogleAccessToken = "User/StoreGoogleAccessToken",
-  SetIsLoggingIn = "User/SetIsLoggingIn"
+  SetIsLoggingIn = "User/SetIsLoggingIn",
+  SetIsReLoggingIn = "User/SetIsReLoggingIn"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -20,11 +20,6 @@ export interface StoreGoogleAuthInfo extends Action {
 export interface StoreApiAccessToken extends Action {
   type: UserActionTypes.StoreApiAccessToken;
   apiAccessToken: string;
-}
-
-export interface StoreGoogleAccessToken extends Action {
-  type: UserActionTypes.StoreGoogleAccessToken;
-  googleAccessToken: string;
 }
 
 export interface ClearUserInfo extends Action {
@@ -44,6 +39,11 @@ export interface SelectChannel extends Action {
 export interface SetIsUserLoggingIn extends Action {
   type: UserActionTypes.SetIsLoggingIn;
   isLoggingIn: boolean;
+}
+
+export interface SetIsReLoggingIn extends Action {
+  type: UserActionTypes.SetIsReLoggingIn;
+  isReLogging: boolean;
 }
 
 export const userActions = {
@@ -66,13 +66,13 @@ export const userActions = {
     type: UserActionTypes.SelectChannel,
     channelId
   }),
-  storeGoogleAccessToken: (googleAccessToken: string | undefined): StoreGoogleAccessToken => ({
-    type: UserActionTypes.StoreGoogleAccessToken,
-    googleAccessToken
-  }),
   setIsLoggingIn: (isLoggingIn: boolean): SetIsUserLoggingIn => ({
     type: UserActionTypes.SetIsLoggingIn,
     isLoggingIn
+  }),
+  setIsReLoggingIn: (isReLogging: boolean): SetIsReLoggingIn => ({
+    type: UserActionTypes.SetIsReLoggingIn,
+    isReLogging
   })
 };
 
@@ -82,5 +82,5 @@ export type UserActions =
   | ClearUserInfo
   | StoreUserChannels
   | SelectChannel
-  | StoreGoogleAccessToken
-  | SetIsUserLoggingIn;
+  | SetIsUserLoggingIn
+  | SetIsReLoggingIn;

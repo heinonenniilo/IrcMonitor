@@ -17,8 +17,8 @@ if (builder.Environment.IsDevelopment())
         {
             builder.WithOrigins("https://localhost:3000", "http://localhost:3000")
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
-            //.AllowCredentials();
+                    .AllowAnyHeader()
+            .AllowCredentials();
         });
     });
 }

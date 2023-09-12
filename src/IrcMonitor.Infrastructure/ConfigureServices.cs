@@ -1,4 +1,6 @@
 ﻿using System.Security.Cryptography;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Application.Common.Utils;
 using IrcMonitor.Domain.Models;
@@ -9,6 +11,7 @@ using IrcMonitor.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Google.Apis.Auth;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -38,11 +41,31 @@ public static class ConfigureServices
         services.AddTransient<IDateTime, DateTimeService>();
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddScoped<IJwtGenerator, JwtGenerator>();
+        services.AddScoped<ICookieService, CookieService>();
         services.AddScoped(typeof(IPaginationService<>), typeof(PaginationService<>)); // Todo Check?
 
         // Add some settings
 
         var authSettings = configuration.GetRequiredSection("AuthenticationSettings").Get<AuthenticationSettings>();
+
+        services.AddScoped(x =>
+        {
+            var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer()
+            {
+                ClientSecrets = new ClientSecrets()
+                {
+                    ClientId = authSettings.GoogleAuth.ClientId,
+                    ClientSecret = authSettings.GoogleAuth.ClientSecret
+                },
+            });
+            var settings = new GoogleJsonWebSignature.ValidationSettings();
+            settings.Audience = new List<string>() { authSettings.GoogleAuth.ClientId };
+            return flow;
+        });
+
+        services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+
+        // TODO MOVE
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 

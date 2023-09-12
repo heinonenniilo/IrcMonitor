@@ -1,20 +1,22 @@
 import { AccountCircle } from "@mui/icons-material";
 import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { CredentialResponse, GoogleLogin, googleLogout } from "@react-oauth/google";
+import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
 
 export interface UserMenuProps {
-  handleGoogleAuth: (response: CredentialResponse) => void;
+  handleGoogleAuthWithCode: () => void;
   handleLogOut: () => void;
   user: User | undefined;
+  showReLogIn: boolean;
   autoLogOn?: boolean;
 }
 
 export const UserMenu: React.FC<UserMenuProps> = ({
-  handleGoogleAuth,
   user,
+  showReLogIn,
   handleLogOut,
+  handleGoogleAuthWithCode,
   autoLogOn
 }) => {
   const [userMenuAcnhor, setUserMenuAcnhor] = React.useState<null | HTMLElement>(null);
@@ -27,7 +29,20 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     setUserMenuAcnhor(null);
   };
 
-  if (!autoLogOn && user && user.loggedIn) {
+  if (showReLogIn) {
+    return (
+      <>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleGoogleAuthWithCode();
+          }}
+        >
+          Re-rogin
+        </Button>
+      </>
+    );
+  } else if (!autoLogOn && user && user.loggedIn) {
     return (
       <>
         <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
@@ -76,7 +91,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   } else {
     return (
       <>
-        <GoogleLogin onSuccess={handleGoogleAuth} />
+        <>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleGoogleAuthWithCode();
+            }}
+          >
+            Login with Google
+          </Button>
+        </>
       </>
     );
   }

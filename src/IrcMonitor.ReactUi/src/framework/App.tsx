@@ -1,5 +1,5 @@
 import { Container } from "@mui/material";
-import { CredentialResponse, GoogleOAuthProvider } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
 import { MenuBar } from "components/MenuBar";
@@ -7,7 +7,7 @@ import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from "react-router";
-import { getGoogleAccessToken, getUserInfo } from "reducers/userReducer";
+import { getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { CookiesProvider, useCookies } from "react-cookie";
@@ -20,22 +20,24 @@ interface AppProps {
 
 const userInfoCookieName = "userInfo";
 
+export const tokenRefetchLimitInMinutes = 5;
+
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
+  const userVm = useSelector(getUserVm);
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies([userInfoCookieName]);
   const apiHook = useApiHook();
+  const isReLogginIn = useSelector(getIsReLogging);
 
-  const googleIdToken = useSelector(getGoogleAccessToken);
-
+  // Set user info from cookies, when the app loads
   useEffect(() => {
     const userInf = cookies.userInfo as UserVm;
-
-    if (userInf !== undefined && userInf?.email) {
+    if (userInf !== undefined && userInf?.email && !userVm) {
       dispatch(userActions.storeUserInfo(userInf));
     }
-  }, [cookies, dispatch]);
+  }, [cookies, dispatch, userVm]);
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -49,34 +51,51 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (apiHook.ircApi) {
       const api = apiHook.ircApi;
-      api.ircGetIrcChannels({ exclude: undefined }).then((res) => {
-        if (res.channels) {
-          dispatch(userActions.storeUserChannels(res.channels));
-        }
-      });
+      api
+        .ircGetIrcChannels({ exclude: undefined })
+        .then((res) => {
+          if (res.channels) {
+            dispatch(userActions.storeUserChannels(res.channels));
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   }, [dispatch, apiHook.ircApi]);
 
   useEffect(() => {
-    if (!googleIdToken || !apiHook.authApi) {
-      return;
+    if (navigate && isReLogginIn) {
+      navigate(routes.main);
     }
-    dispatch(userActions.setIsLoggingIn(true));
-    apiHook.authApi
-      .authGoogleAuth({ handleGoogleLoginCommand: { tokenId: googleIdToken } })
-      .then((res) => {
-        dispatch(userActions.storeUserInfo(res));
-        setCookie(userInfoCookieName, res);
-      })
-      .finally(() => {
-        dispatch(userActions.setIsLoggingIn(false));
-      });
-  }, [googleIdToken, dispatch, setCookie, apiHook.authApi]);
+  }, [isReLogginIn, navigate]);
 
-  const handleGoogleAuth = (response: CredentialResponse) => {
-    console.log(response);
-    dispatch(userActions.storeGoogleAccessToken(response.credential));
-  };
+  useEffect(() => {
+    if (userVm) {
+      let date = new Date();
+      date.setTime(date.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+      setCookie(userInfoCookieName, userVm, { expires: date });
+    }
+  }, [userVm, setCookie]);
+
+  const loginWithGoogleAuthCode = useGoogleLogin({
+    onSuccess: (code) => {
+      dispatch(userActions.setIsLoggingIn(true));
+      apiHook.authApi
+        .authGoogleAuthCode({
+          handleGoogleAuthorizationCodeCommand: { authorizationCode: code.code, email: user?.email }
+        })
+        .then((res) => {
+          dispatch(userActions.storeUserInfo(res));
+        })
+        .finally(() => {
+          dispatch(userActions.setIsReLoggingIn(false));
+          dispatch(userActions.setIsLoggingIn(false));
+        });
+    },
+    hint: user?.email,
+    flow: "auth-code"
+  });
 
   const handleLogOut = () => {
     setCookie(userInfoCookieName, undefined);
@@ -90,30 +109,28 @@ export const App: React.FC<AppProps> = (props) => {
 
   return (
     <CookiesProvider>
-      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_APP_ID}>
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <Container maxWidth={"xl"} sx={{ top: 0 }}>
-            <MenuBar
-              user={user}
-              handleGoogleAuth={handleGoogleAuth}
-              handleLogOut={handleLogOut}
-              handleNavigateTo={handleNavigate}
-            />
-          </Container>
-          <Container
-            maxWidth="xl"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              width: "100%",
-              height: "100%",
-              marginTop: "124px"
-            }}
-          >
-            {props.children}
-          </Container>
-        </LocalizationProvider>
-      </GoogleOAuthProvider>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <Container maxWidth={"xl"} sx={{ top: 0 }}>
+          <MenuBar
+            user={user}
+            handleLogOut={handleLogOut}
+            handleNavigateTo={handleNavigate}
+            handleLoginWithGoogleAuthCode={loginWithGoogleAuthCode}
+          />
+        </Container>
+        <Container
+          maxWidth="xl"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            height: "100%",
+            marginTop: "124px"
+          }}
+        >
+          {props.children}
+        </Container>
+      </LocalizationProvider>
     </CookiesProvider>
   );
 };
