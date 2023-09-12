@@ -1,5 +1,4 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { userActions } from "actions/userActions";
 import { IrcGetHourlyStatisticsRequest, StatisticsVmBase, YearlyStatisticsVm } from "api";
 import { BarChartComponent } from "components/BarChartComponent";
 import { NickStatisticsDialog } from "components/NickStatisticsDialog";
@@ -7,7 +6,7 @@ import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getChannels, getSelectecChannel } from "reducers/userReducer";
 import { dateFormat } from "utilities/dateUtils";
@@ -19,7 +18,6 @@ const years = [
 
 export const YearlyStatisticsView: React.FC = () => {
   const { year } = useParams<{ year: string }>();
-  const { channel } = useParams<{ channel: string }>();
   const selectedChannel = useSelector(getSelectecChannel);
   const channels = useSelector(getChannels);
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
@@ -30,7 +28,6 @@ export const YearlyStatisticsView: React.FC = () => {
   const [userStatisticsRequest, setUserStatisticsRequest] = useState<
     IrcGetHourlyStatisticsRequest | undefined
   >(undefined);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const apiHook = useApiHook();
@@ -39,12 +36,6 @@ export const YearlyStatisticsView: React.FC = () => {
       setSelectedYear(parseInt(year, 10));
     }
   }, [year]);
-
-  useEffect(() => {
-    if (channel) {
-      dispatch(userActions.selectChannel(channel));
-    }
-  }, [channel, dispatch]);
 
   useEffect(() => {
     if (selectedYear !== undefined && selectedChannel && apiHook.ircApi) {

@@ -65,7 +65,7 @@ export const OverViewStatisticsView: React.FC = () => {
     const correspondingRow = response.rows[index];
 
     if (correspondingRow) {
-      navigate(`${routes.statistics}/${correspondingRow.identifier}/${selectedChannel}`);
+      navigate(`${routes.statistics}/${correspondingRow.identifier}`);
     }
   };
 
