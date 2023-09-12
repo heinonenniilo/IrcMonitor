@@ -51,15 +51,20 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (apiHook.ircApi) {
       const api = apiHook.ircApi;
+      dispatch(userActions.setIsLoadingChannels(true));
       api
         .ircGetIrcChannels({ exclude: undefined })
         .then((res) => {
           if (res.channels) {
+            dispatch(userActions.setIsLoadingChannels(false));
             dispatch(userActions.storeUserChannels(res.channels));
           }
         })
         .catch((err) => {
           console.error(err);
+        })
+        .finally(() => {
+          dispatch(userActions.setIsLoadingChannels(false));
         });
     }
   }, [dispatch, apiHook.ircApi]);

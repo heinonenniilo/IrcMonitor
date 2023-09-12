@@ -9,7 +9,8 @@ export enum UserActionTypes {
   StoreUserChannels = "User/StoreUserChannels",
   SelectChannel = "User/SelectChannel",
   SetIsLoggingIn = "User/SetIsLoggingIn",
-  SetIsReLoggingIn = "User/SetIsReLoggingIn"
+  SetIsReLoggingIn = "User/SetIsReLoggingIn",
+  SetIsLoadingChannels = "User/IsLoadingChannels"
 }
 
 export interface StoreGoogleAuthInfo extends Action {
@@ -46,6 +47,11 @@ export interface SetIsReLoggingIn extends Action {
   isReLogging: boolean;
 }
 
+export interface SetIsLoadingChannels extends Action {
+  type: UserActionTypes.SetIsLoadingChannels;
+  isLoadingChannels: boolean;
+}
+
 export const userActions = {
   storeUserInfo: (userInfo: UserVm): StoreGoogleAuthInfo => ({
     type: UserActionTypes.StoreUserInfo,
@@ -73,6 +79,10 @@ export const userActions = {
   setIsReLoggingIn: (isReLogging: boolean): SetIsReLoggingIn => ({
     type: UserActionTypes.SetIsReLoggingIn,
     isReLogging
+  }),
+  setIsLoadingChannels: (isLoadingChannels: boolean): SetIsLoadingChannels => ({
+    type: UserActionTypes.SetIsLoadingChannels,
+    isLoadingChannels
   })
 };
 
@@ -83,4 +93,5 @@ export type UserActions =
   | StoreUserChannels
   | SelectChannel
   | SetIsUserLoggingIn
-  | SetIsReLoggingIn;
+  | SetIsReLoggingIn
+  | SetIsLoadingChannels;

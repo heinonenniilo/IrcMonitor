@@ -23,6 +23,7 @@ export interface UserState {
   isLoggingIn: boolean;
   userVm: UserVm | undefined;
   isReLogIn: boolean;
+  isLoadingChannels: boolean;
 }
 
 const defaultState: UserState = {
@@ -31,7 +32,8 @@ const defaultState: UserState = {
   selectedChannel: undefined,
   isLoggingIn: false,
   userVm: undefined,
-  isReLogIn: false
+  isReLogIn: false,
+  isLoadingChannels: false
 };
 
 export function userReducer(state: UserState = defaultState, action: UserActions): UserState {
@@ -86,6 +88,11 @@ export function userReducer(state: UserState = defaultState, action: UserActions
         draft.isReLogIn = action.isReLogging;
       });
       break;
+    case UserActionTypes.SetIsLoadingChannels:
+      state = produce(state, (draft) => {
+        draft.isLoadingChannels = action.isLoadingChannels;
+      });
+      break;
   }
   return state;
 }
@@ -105,3 +112,5 @@ export const getIsLoggingIn = (state: AppState): boolean => state.user.isLogging
 export const getUserVm = (state: AppState): UserVm | undefined => state.user.userVm;
 
 export const getIsReLogging = (state: AppState): boolean => state.user.isReLogIn;
+
+export const getIsLoadingChannels = (state: AppState): boolean => state.user.isLoadingChannels;

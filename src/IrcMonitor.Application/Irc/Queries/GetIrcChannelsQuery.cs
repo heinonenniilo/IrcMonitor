@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Dynamic.Core;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Entities;
@@ -28,15 +29,13 @@ public class GetIrcChannelsQueryHandler : IRequestHandler<GetIrcChannelsQuery, G
     }
     public async Task<GetIrcChannelsVm> Handle(GetIrcChannelsQuery request, CancellationToken cancellationToken)
     {
-
-        IQueryable<IrcChannel> query = _context.IrcChannels;
-
+        IQueryable < IrcChannel > query = _context.IrcChannels;
         if (!_identityService.IsAdmin)
         {
             query = query.Where(x => _identityService.GetAccessibleChannels().Contains(x.Id.ToString()));
         }
 
-        query = query.Where(x => x.Rows.Count() >= _ircStatisticsSettings.MinRowCountForChannel);
+        query = query.Where(x => x.TimeGroupedRows.Sum(g => g.Count) > _ircStatisticsSettings.MinRowCountForChannel );
 
         var res = await query.ProjectTo<IrcChannelDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
 
