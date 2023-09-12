@@ -53,7 +53,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     if (channels && channels.length > 0 && !selectedChannel) {
       const valueInLocalStorage = localStorage.getItem(selectedChannelLocalStorageKey);
 
-      if (valueInLocalStorage) {
+      if (valueInLocalStorage && channels.some((c) => c.guid === valueInLocalStorage)) {
         dispatch(userActions.selectChannel(valueInLocalStorage));
       }
     }
