@@ -1,6 +1,6 @@
 import { AppBar, Container, IconButton, MenuItem } from "@mui/material";
-import React from "react";
-import { getChannels, getIsReLogging, User } from "reducers/userReducer";
+import React, { useEffect } from "react";
+import { getChannels, getIsReLogging, getSelectecChannel, User } from "reducers/userReducer";
 import styled from "styled-components";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { UserMenu } from "./UserMenu";
@@ -33,6 +33,8 @@ const MenuArea = styled.div`
   padding-bottom: 16px;
 `;
 
+const selectedChannelLocalStorageKey = "selectedChannel";
+
 export const MenuBar: React.FC<MenuBarProps> = ({
   handleLogOut,
   user,
@@ -43,10 +45,22 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
   const channels = useSelector(getChannels);
   const isReLoggingIn = useSelector(getIsReLogging);
+  const selectedChannel = useSelector(getSelectecChannel);
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (channels && channels.length > 0 && !selectedChannel) {
+      const valueInLocalStorage = localStorage.getItem(selectedChannelLocalStorageKey);
+
+      if (valueInLocalStorage && channels.some((c) => c.guid === valueInLocalStorage)) {
+        dispatch(userActions.selectChannel(valueInLocalStorage));
+      }
+    }
+  }, [channels, selectedChannel, dispatch]);
+
   const handleSelectChannel = (channelId: string | undefined) => {
+    localStorage.setItem(selectedChannelLocalStorageKey, channelId);
     dispatch(userActions.selectChannel(channelId));
   };
 

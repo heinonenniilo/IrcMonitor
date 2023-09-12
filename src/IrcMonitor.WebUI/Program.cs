@@ -1,3 +1,4 @@
+using System;
 using IrcMonitor.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,7 +72,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 
-app.MapRazorPages();
-
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "wwwroot";
+});
 
 app.Run();
