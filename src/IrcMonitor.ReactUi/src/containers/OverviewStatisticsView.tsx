@@ -52,7 +52,7 @@ export const OverViewStatisticsView: React.FC = () => {
         })
         .catch((err) => {
           setIsLoadingOverViewData(false);
-          alert("Error");
+          console.error(err);
         });
     }
   }, [selectedChannel, apiHook.ircApi]);

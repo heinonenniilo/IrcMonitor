@@ -48,7 +48,7 @@ export const YearlyStatisticsView: React.FC = () => {
         })
         .catch((er) => {
           setIsLoadingYearlyData(false);
-          alert(er);
+          console.error(er);
         });
 
       apiHook.ircApi
@@ -124,8 +124,9 @@ export const YearlyStatisticsView: React.FC = () => {
             {years.map((y) => (
               <MenuItem
                 value={y}
+                key={`year-${y}`}
                 onClick={() => {
-                  setSelectedYear(y);
+                  navigate(`${routes.statistics}/${y}`);
                 }}
               >
                 {y}
