@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IrcMonitor.Domain.Entities;
+﻿namespace IrcMonitor.Domain.Entities;
 public class IrcRow
 {
     public long Id { get; set; }

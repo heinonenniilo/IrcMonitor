@@ -1,7 +1,7 @@
 import { Backdrop, CircularProgress, Typography } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getIsLoggingIn } from "reducers/userReducer";
+import { getIsLoadingChannels, getIsLoggingIn } from "reducers/userReducer";
 import styled from "styled-components";
 
 export interface AppContentWrapperProps {
@@ -30,11 +30,12 @@ const OuterContainer = styled.div`
 
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   const isLoggingIn = useSelector(getIsLoggingIn);
+  const isLoadingChannels = useSelector(getIsLoadingChannels);
   return (
     <>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={props.isLoading || isLoggingIn}
+        open={props.isLoading || isLoggingIn || isLoadingChannels}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
