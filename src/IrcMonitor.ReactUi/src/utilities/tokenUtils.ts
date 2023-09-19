@@ -1,8 +1,14 @@
 import moment from "moment";
 import jwt_decode from "jwt-decode";
-import { tokenRefetchLimitInMinutes } from "framework/App";
 
-export const tokenIsExpiring = (tokenString: string) => {
+const tokenRefetchLimitInMinutes = 5;
+
+export interface TokenExpireInformation {
+  isExpiring: boolean;
+  hasExpired: boolean;
+}
+
+export const getTokenExpirationInformation = (tokenString: string): TokenExpireInformation => {
   try {
     if (tokenString) {
       const token = jwt_decode(tokenString) as any;
@@ -11,9 +17,16 @@ export const tokenIsExpiring = (tokenString: string) => {
       var duration = moment.duration(momentDate.diff(cur)).asMinutes();
 
       console.log(duration);
-      return duration < tokenRefetchLimitInMinutes;
+
+      return {
+        isExpiring: duration < tokenRefetchLimitInMinutes,
+        hasExpired: duration < 0
+      };
     }
   } catch (ex) {
-    return false;
+    return {
+      isExpiring: false,
+      hasExpired: false
+    };
   }
 };

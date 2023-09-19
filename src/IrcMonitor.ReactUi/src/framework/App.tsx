@@ -21,8 +21,6 @@ interface AppProps {
 const userInfoCookieName = "userInfo";
 const useInfoExpiresInDays = 4;
 
-export const tokenRefetchLimitInMinutes = 5;
-
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
