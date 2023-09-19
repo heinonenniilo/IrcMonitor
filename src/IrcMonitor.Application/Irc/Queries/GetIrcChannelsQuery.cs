@@ -35,7 +35,7 @@ public class GetIrcChannelsQueryHandler : IRequestHandler<GetIrcChannelsQuery, G
             query = query.Where(x => _identityService.GetAccessibleChannels().Contains(x.Id.ToString()));
         }
 
-        query = query.Where(x => x.TimeGroupedRows.Sum(g => g.Count) > _ircStatisticsSettings.MinRowCountForChannel );
+        query = query.Where(x => x.TimeGroupedRows.Sum(g => g.Count) >= _ircStatisticsSettings.MinRowCountForChannel );
 
         var res = await query.ProjectTo<IrcChannelDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
 
