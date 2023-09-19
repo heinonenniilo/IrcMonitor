@@ -70,16 +70,20 @@ export const useApiHook = (): UseApiHook => {
 
   useEffect(() => {
     if (accessToken) {
-      setIrcApi(
-        new IrcApi(
-          new Configuration({
-            apiKey: `Bearer ${accessToken}`,
-            basePath: process.env!.NODE_ENV === "production" ? "" : null,
-            middleware: [{ pre: preRequestHandler }],
-            credentials: isProduction ? "same-origin" : "include"
-          })
-        )
-      );
+      if (tokenIsExpiring(accessToken)) {
+        setIsRefreshingToken(true);
+      } else {
+        setIrcApi(
+          new IrcApi(
+            new Configuration({
+              apiKey: `Bearer ${accessToken}`,
+              basePath: process.env!.NODE_ENV === "production" ? "" : null,
+              middleware: [{ pre: preRequestHandler }],
+              credentials: isProduction ? "same-origin" : "include"
+            })
+          )
+        );
+      }
     } else {
       setIrcApi(undefined);
     }
