@@ -29,7 +29,7 @@ public class GoogleAuthService : IGoogleAuthService
 
         if (writeRefreshTokenInCookie)
         {
-            await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.RefreshTokenKey, exchangeRes.RefreshToken);
+            await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.RefreshTokenKey, exchangeRes.RefreshToken, _authSettings.GoogleAuth.StoreRefreshTokenForDays);
         }
 
         return new UserVm()
@@ -56,7 +56,7 @@ public class GoogleAuthService : IGoogleAuthService
 
         if (writeRefreshTokenInCookie)
         {
-            await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.RefreshTokenKey, exchangeRes.RefreshToken);
+            await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.RefreshTokenKey, exchangeRes.RefreshToken, _authSettings.GoogleAuth.StoreRefreshTokenForDays);
         }
 
         return new UserVm()

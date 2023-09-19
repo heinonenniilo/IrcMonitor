@@ -5,6 +5,7 @@ public class GoogleAuth
     public string ClientId { get; set; }
     public string ClientSecret { get; set; }
     public string RefreshTokenKey { get; set; }
+    public int StoreRefreshTokenForDays { get; set; }
 
 }
 public class AuthenticationSettings
