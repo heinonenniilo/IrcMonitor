@@ -12,12 +12,14 @@ public class CookieService : ICookieService
         _contextAccessor = contextAccessor;
     }
 
-    public Task SetHttpOnlyCookie(string key, string value)
+    public Task SetHttpOnlyCookie(string key, string value, int daysUntilExpiration)
     {
         _contextAccessor.HttpContext.Response.Cookies.Append(key, value, new CookieOptions()
         {
             HttpOnly = true,
-            Expires = DateTimeOffset.UtcNow.AddDays(1)
+            Expires = DateTimeOffset.UtcNow.AddDays(daysUntilExpiration),
+            Secure = true,
+            SameSite = SameSiteMode.Strict
         });
 
         return Task.CompletedTask;

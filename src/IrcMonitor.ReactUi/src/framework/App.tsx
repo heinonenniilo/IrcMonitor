@@ -19,8 +19,7 @@ interface AppProps {
 }
 
 const userInfoCookieName = "userInfo";
-
-export const tokenRefetchLimitInMinutes = 5;
+const useInfoExpiresInDays = 4;
 
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
@@ -78,8 +77,8 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (userVm) {
       let date = new Date();
-      date.setTime(date.getTime() + 24 * 60 * 60 * 1000); // 24 hours
-      setCookie(userInfoCookieName, userVm, { expires: date });
+      date.setTime(date.getTime() + useInfoExpiresInDays * 24 * 60 * 60 * 1000); // 24 hours
+      setCookie(userInfoCookieName, userVm, { expires: date, sameSite: "strict", secure: true });
     }
   }, [userVm, setCookie]);
 

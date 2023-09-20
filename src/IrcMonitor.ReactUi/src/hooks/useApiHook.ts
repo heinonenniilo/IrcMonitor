@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { IrcApi } from "./../api/apis/IrcApi";
 import { Configuration, FetchParams, RequestContext } from "api/runtime";
 import { AuthApi } from "api";
-import { tokenIsExpiring } from "utilities/tokenUtils";
+import { getTokenExpirationInformation } from "utilities/tokenUtils";
 import { userActions } from "actions/userActions";
 
 interface UseApiHook {
@@ -34,9 +34,20 @@ export const useApiHook = (): UseApiHook => {
       let curToken = context.init.headers["Authorization"] as string;
       curToken = curToken.replace("Bearer", "").trim();
 
-      if (curToken && tokenIsExpiring(curToken)) {
+      const tokenExpireInfo = getTokenExpirationInformation(curToken);
+      if (tokenExpireInfo.isExpiring) {
         setIsRefreshingToken(true);
       }
+
+      if (tokenExpireInfo.hasExpired) {
+        const controller = new AbortController();
+        controller.abort();
+        return {
+          init: { ...context.init, signal: controller.signal },
+          url: context.url
+        };
+      }
+
       return {
         init: context.init,
         url: context.url
@@ -70,16 +81,21 @@ export const useApiHook = (): UseApiHook => {
 
   useEffect(() => {
     if (accessToken) {
-      setIrcApi(
-        new IrcApi(
-          new Configuration({
-            apiKey: `Bearer ${accessToken}`,
-            basePath: process.env!.NODE_ENV === "production" ? "" : null,
-            middleware: [{ pre: preRequestHandler }],
-            credentials: isProduction ? "same-origin" : "include"
-          })
-        )
-      );
+      const tokenExpireInfo = getTokenExpirationInformation(accessToken);
+      if (tokenExpireInfo.isExpiring) {
+        setIsRefreshingToken(true);
+      } else {
+        setIrcApi(
+          new IrcApi(
+            new Configuration({
+              apiKey: `Bearer ${accessToken}`,
+              basePath: process.env!.NODE_ENV === "production" ? "" : null,
+              middleware: [{ pre: preRequestHandler }],
+              credentials: isProduction ? "same-origin" : "include"
+            })
+          )
+        );
+      }
     } else {
       setIrcApi(undefined);
     }
