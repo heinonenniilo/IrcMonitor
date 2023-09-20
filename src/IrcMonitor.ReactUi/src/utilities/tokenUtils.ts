@@ -16,8 +16,6 @@ export const getTokenExpirationInformation = (tokenString: string): TokenExpireI
       const cur = moment();
       var duration = moment.duration(momentDate.diff(cur)).asMinutes();
 
-      console.log(duration);
-
       return {
         isExpiring: duration < tokenRefetchLimitInMinutes,
         hasExpired: duration < 0
