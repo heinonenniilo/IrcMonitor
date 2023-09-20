@@ -34,12 +34,6 @@ export interface YearlyStatisticsVm {
     monthlyRows?: Array<BarChartRow>;
     /**
      * 
-     * @type {Array<BarChartRow>}
-     * @memberof YearlyStatisticsVm
-     */
-    hourlyRows?: Array<BarChartRow>;
-    /**
-     * 
      * @type {string}
      * @memberof YearlyStatisticsVm
      */
@@ -72,7 +66,6 @@ export function YearlyStatisticsVmFromJSONTyped(json: any, ignoreDiscriminator: 
     return {
         
         'monthlyRows': !exists(json, 'monthlyRows') ? undefined : ((json['monthlyRows'] as Array<any>).map(BarChartRowFromJSON)),
-        'hourlyRows': !exists(json, 'hourlyRows') ? undefined : ((json['hourlyRows'] as Array<any>).map(BarChartRowFromJSON)),
         'channel': !exists(json, 'channel') ? undefined : json['channel'],
         'year': !exists(json, 'year') ? undefined : json['year'],
     };
@@ -88,7 +81,6 @@ export function YearlyStatisticsVmToJSON(value?: YearlyStatisticsVm | null): any
     return {
         
         'monthlyRows': value.monthlyRows === undefined ? undefined : ((value.monthlyRows as Array<any>).map(BarChartRowToJSON)),
-        'hourlyRows': value.hourlyRows === undefined ? undefined : ((value.hourlyRows as Array<any>).map(BarChartRowToJSON)),
         'channel': value.channel,
         'year': value.year,
     };

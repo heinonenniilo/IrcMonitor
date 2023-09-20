@@ -21,10 +21,13 @@ export const YearlyStatisticsView: React.FC = () => {
   const selectedChannel = useSelector(getSelectecChannel);
   const channels = useSelector(getChannels);
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
-  const [response, setResponse] = useState<YearlyStatisticsVm | undefined>(undefined);
+  const [yearlyResponse, setYearlyResponse] = useState<YearlyStatisticsVm | undefined>(undefined);
   const [nickResponse, setNickResponse] = useState<StatisticsVmBase | undefined>(undefined);
+  const [hourlyResponse, setHourlyResponse] = useState<StatisticsVmBase | undefined>(undefined);
   const [isLoadingYearlyData, setIsLoadingYearlyData] = useState<boolean>(false);
   const [isLoadingNickData, setIsLoadingNickData] = useState<boolean>(false);
+  const [isLoadingHourlyData, setIsLoadingHourlyData] = useState<boolean>(false);
+
   const [userStatisticsRequest, setUserStatisticsRequest] = useState<
     IrcGetHourlyStatisticsRequest | undefined
   >(undefined);
@@ -40,10 +43,12 @@ export const YearlyStatisticsView: React.FC = () => {
   useEffect(() => {
     if (selectedYear !== undefined && selectedChannel && apiHook.ircApi) {
       setIsLoadingYearlyData(true);
+      setIsLoadingNickData(true);
+      setIsLoadingHourlyData(true);
       apiHook.ircApi
         .ircGetYearlyStatistics({ year: selectedYear, channelId: selectedChannel })
         .then((res) => {
-          setResponse(res);
+          setYearlyResponse(res);
           setIsLoadingYearlyData(false);
         })
         .catch((er) => {
@@ -64,6 +69,17 @@ export const YearlyStatisticsView: React.FC = () => {
           console.error(er);
           setIsLoadingNickData(false);
         });
+
+      apiHook.ircApi
+        .ircGetHourlyStatistics({ channelId: selectedChannel, year: selectedYear })
+        .then((res) => {
+          setHourlyResponse(res);
+          setIsLoadingHourlyData(false);
+        })
+        .catch((er) => {
+          console.error(er);
+          setIsLoadingHourlyData(false);
+        });
     }
   }, [selectedYear, selectedChannel, apiHook.ircApi]);
 
@@ -80,11 +96,11 @@ export const YearlyStatisticsView: React.FC = () => {
   };
 
   const handleMonthClick = (index: number) => {
-    const correspondingMonth = response?.monthlyRows[index];
+    const correspondingMonth = yearlyResponse?.monthlyRows[index];
 
     if (correspondingMonth) {
       const startMoment = moment({
-        year: response?.year,
+        year: yearlyResponse?.year,
         month: correspondingMonth.identifier - 1,
         day: 1
       });
@@ -103,7 +119,7 @@ export const YearlyStatisticsView: React.FC = () => {
   return (
     <AppContentWrapper
       title={`Yearly statistics for ${matchingChannel?.name}`}
-      isLoading={isLoadingYearlyData || isLoadingNickData}
+      isLoading={isLoadingYearlyData || isLoadingNickData || isLoadingHourlyData}
     >
       <NickStatisticsDialog
         isOpen={userStatisticsRequest !== undefined}
@@ -153,8 +169,8 @@ export const YearlyStatisticsView: React.FC = () => {
         }}
       >
         <BarChartComponent
-          rows={response?.hourlyRows ?? []}
-          dataSetLabel={response?.channel ?? ""}
+          rows={hourlyResponse?.rows ?? []}
+          dataSetLabel={yearlyResponse?.channel ?? ""}
           chartTitle={"Hourly statistics"}
         />
         <BarChartComponent
@@ -167,8 +183,8 @@ export const YearlyStatisticsView: React.FC = () => {
       </Box>
       <Box display={"flex"} width="100%" flexDirection={"column"} flex={1}>
         <BarChartComponent
-          rows={response?.monthlyRows ?? []}
-          dataSetLabel={response?.channel ?? ""}
+          rows={yearlyResponse?.monthlyRows ?? []}
+          dataSetLabel={yearlyResponse?.channel ?? ""}
           chartTitle={"Monthly statistics"}
           showPointerOnHover
           onClick={handleMonthClick}
