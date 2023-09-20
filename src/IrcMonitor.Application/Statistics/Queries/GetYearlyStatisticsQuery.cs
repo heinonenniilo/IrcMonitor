@@ -51,7 +51,6 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
 
         var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id && x.Year == request.Year);
 
-
         var monthlyQuery = query.GroupBy(x => x.Month).Select(x => new BarChartRow()
         {
             Label = "",
@@ -60,13 +59,6 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
         });
 
         var months = Enumerable.Range(1, 12);
-
-        var hourlyQuery = query.GroupBy(x => x.Hour).OrderBy(x => x.Key).Select(x => new BarChartRow() {
-        
-            Label = x.Key.ToString(),
-            Identifier = x.Key,
-            Value = x.Sum(x => x.Count)
-        });
 
         var montlyStatistics = (await monthlyQuery.OrderBy(x => x.Identifier).ToListAsync(cancellationToken)).Select(x => new BarChartRow()
         {
@@ -82,12 +74,9 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
             Label = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)
         }));
 
-        var hourlyStatistics = await hourlyQuery.ToListAsync(cancellationToken);
-
         return new YearlyStatisticsVm()
         {
             MonthlyRows = montlyStatistics.OrderBy(x => x.Identifier).ToList(),
-            HourlyRows = hourlyStatistics,
             Channel = channel.Name,
             Year = request.Year,
         };
