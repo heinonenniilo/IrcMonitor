@@ -104,7 +104,7 @@ internal class JwtGenerator : IJwtGenerator
         var jwtPayload = $"{encodedHeader}.{encodedPayload}";
         // Generate the hash to sign
         var bytesToSign = Encoding.ASCII.GetBytes(jwtPayload);
-        var hashToSign = new SHA256CryptoServiceProvider().ComputeHash(bytesToSign);
+        var hashToSign = SHA256.HashData(bytesToSign);
 
         // Use Azure Key Vault to sign the hash
         var signature = await cryptoClient.SignAsync(SignatureAlgorithm.RS256, hashToSign);
@@ -123,13 +123,5 @@ internal class JwtGenerator : IJwtGenerator
         tokenDescriptor.SigningCredentials = new SigningCredentials(new RsaSecurityKey(privateRSA), SecurityAlgorithms.RsaSha256);
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
-    }
-
-    private async Task<RSA> GetRsa()
-    {
-        var rsaParameters = TokenUtils.ConvertPemToRSAPrivateParameters(_authenticationSettings.JwtPrivateSigningKey);
-        var privateRSA = RSA.Create();
-        privateRSA.ImportParameters(rsaParameters);
-        return privateRSA;
     }
 }
