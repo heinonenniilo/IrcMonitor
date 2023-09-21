@@ -69,8 +69,8 @@ internal class JwtGenerator : IJwtGenerator
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Audience = "IrcMonitor",
-            Issuer = "IrcMonitor",
+            Audience = _authenticationSettings.PageUrl,
+            Issuer = _authenticationSettings.GetIssuer,
             Subject = identity,
             Expires = DateTime.UtcNow.AddMinutes(60),
         };

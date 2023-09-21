@@ -94,17 +94,14 @@ public static class ConfigureServices
         services.AddAuthentication()
             .AddJwtBearer(cfg =>
             {
-                cfg.RequireHttpsMetadata = false;
-                cfg.SaveToken = false;
-
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = signKey,
                     ValidateIssuer = true,
-                    ValidIssuer = "IrcMonitor",
+                    ValidIssuer = authSettings.GetIssuer,
                     ValidateAudience = true,
-                    ValidAudience = "IrcMonitor",
+                    ValidAudience = authSettings.PageUrl,
                     CryptoProviderFactory = new CryptoProviderFactory()
                     {
                         CacheSignatureProviders = false
