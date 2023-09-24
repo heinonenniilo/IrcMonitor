@@ -1,11 +1,7 @@
-﻿using IrcMonitor.Domain.Models;
+﻿using IrcMonitor.Application.Statistics.Base;
 
 namespace IrcMonitor.Application.Statistics.Queries;
-public class YearlyStatisticsVm
+public class YearlyStatisticsVm: StatisticsVmBase
 {
-    public List<BarChartRow> MonthlyRows { get; set; } 
-
     public string Channel { get; set; }
-
-    public int Year { get; set; }
 }

@@ -1,3 +1,5 @@
+import { Box } from "@mui/material";
+import { ircActions } from "actions/ircActions";
 import { IrcGetHourlyStatisticsRequest, StatisticsVmBase } from "api";
 import { OverviewStatisticsVm } from "api/models/OverviewStatisticsVm";
 import { BarChartComponent } from "components/BarChartComponent";
@@ -5,7 +7,7 @@ import { NickStatisticsDialog } from "components/NickStatisticsDialog";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { getSelectecChannel } from "reducers/userReducer";
 import { routes } from "utilities/routes";
@@ -24,6 +26,7 @@ export const OverViewStatisticsView: React.FC = () => {
   >(undefined);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const apiHook = useApiHook();
 
@@ -37,6 +40,7 @@ export const OverViewStatisticsView: React.FC = () => {
         })
         .then((res) => {
           setNickResponse(res);
+          dispatch(ircActions.storeChannelOverviewStatistics(res));
           setIsLoadingNickData(false);
         })
         .catch((er) => {
@@ -55,7 +59,7 @@ export const OverViewStatisticsView: React.FC = () => {
           console.error(err);
         });
     }
-  }, [selectedChannel, apiHook.ircApi]);
+  }, [selectedChannel, apiHook.ircApi, dispatch]);
 
   const handleOnClickChannel = (index: number) => {
     if (!response) {
@@ -72,17 +76,14 @@ export const OverViewStatisticsView: React.FC = () => {
   const handleOnClickUser = (index: number) => {
     const correspondingUser = nickResponse?.rows[index];
     if (correspondingUser) {
-      setUserStatisticsRequest({
-        channelId: selectedChannel,
-        nick: correspondingUser.label
-      });
+      navigate(`${routes.nickStatisticsBase}/${correspondingUser.label}`);
     }
   };
 
   return (
     <AppContentWrapper
       isLoading={isLoadingOverViewData || isLoadingNickData}
-      title={`Overview statistics ${response?.channelName ?? ""}`}
+      titleParts={[{ text: `Overview statistics ${response?.channelName ?? ""}` }]}
     >
       <NickStatisticsDialog
         isOpen={userStatisticsRequest !== undefined}
@@ -91,21 +92,37 @@ export const OverViewStatisticsView: React.FC = () => {
         }}
         params={userStatisticsRequest}
       />
-      <BarChartComponent
-        rows={response?.rows ?? []}
-        dataSetLabel={response?.channelName ?? ""}
-        chartTitle="Rows per year"
-        onClick={handleOnClickChannel}
-        showPointerOnHover
-      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: {
+            xs: "column",
+            lg: "row"
+          },
+          flexGrow: {
+            xs: 1
+          },
+          columnGap: {
+            xl: 3
+          }
+        }}
+      >
+        <BarChartComponent
+          rows={response?.rows ?? []}
+          dataSetLabel={response?.channelName ?? ""}
+          chartTitle="Rows per year"
+          onClick={handleOnClickChannel}
+          showPointerOnHover
+        />
 
-      <BarChartComponent
-        rows={nickResponse?.rows ?? []}
-        dataSetLabel={response?.channelName ?? ""}
-        chartTitle="Nick based statistics"
-        showPointerOnHover
-        onClick={handleOnClickUser}
-      />
+        <BarChartComponent
+          rows={nickResponse?.rows ?? []}
+          dataSetLabel={response?.channelName ?? ""}
+          chartTitle="Nick based statistics"
+          showPointerOnHover
+          onClick={handleOnClickUser}
+        />
+      </Box>
     </AppContentWrapper>
   );
 };

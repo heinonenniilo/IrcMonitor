@@ -74,6 +74,7 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
         return new StatisticsVmBase()
         {
             Rows = retList.OrderBy(x => x.Identifier).ToList(),
+            ChannelId = request.ChannelId,
         };
 
     }

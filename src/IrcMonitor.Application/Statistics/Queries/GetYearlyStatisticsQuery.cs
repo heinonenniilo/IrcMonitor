@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Linq.Dynamic.Core;
-using System.Text;
-using System.Threading.Tasks;
 using IrcMonitor.Application.Common.Exceptions;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Models;
@@ -14,14 +9,16 @@ using Microsoft.EntityFrameworkCore;
 namespace IrcMonitor.Application.Statistics.Queries;
 public class GetYearlyStatisticsQuery: IRequest<YearlyStatisticsVm>
 {
-    public GetYearlyStatisticsQuery(int year, Guid channelId)
+    public GetYearlyStatisticsQuery(int year, Guid channelId, string ?nick)
     {
         Year = year;
         ChannelId = channelId;
+        Nick = nick;
     }
 
     public int Year { get; set; }
     public Guid ChannelId { get; set; }
+    public string? Nick { get; set; }
 }
 
 
@@ -51,6 +48,11 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
 
         var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id && x.Year == request.Year);
 
+        if (!string.IsNullOrEmpty(request.Nick))
+        {
+            query = query.Where(x => x.Nick == request.Nick);
+        }
+
         var monthlyQuery = query.GroupBy(x => x.Month).Select(x => new BarChartRow()
         {
             Label = "",
@@ -76,9 +78,10 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
 
         return new YearlyStatisticsVm()
         {
-            MonthlyRows = montlyStatistics.OrderBy(x => x.Identifier).ToList(),
+            Rows = montlyStatistics.OrderBy(x => x.Identifier).ToList(),
             Channel = channel.Name,
             Year = request.Year,
+            ChannelId = channel.Guid
         };
     }
 }

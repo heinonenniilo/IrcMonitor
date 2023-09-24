@@ -109,7 +109,7 @@ export const BrowseView: React.FC = () => {
   ];
 
   return (
-    <AppContentWrapper title="Browse">
+    <AppContentWrapper titleParts={[{ text: "Browse" }]}>
       <SelectDateFromToComponent
         channelId={channelId}
         onSearch={(from: Date, to: Date, channelId: string) => {

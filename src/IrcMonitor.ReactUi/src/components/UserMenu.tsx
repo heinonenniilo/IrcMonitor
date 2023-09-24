@@ -9,15 +9,13 @@ export interface UserMenuProps {
   handleLogOut: () => void;
   user: User | undefined;
   showReLogIn: boolean;
-  autoLogOn?: boolean;
 }
 
 export const UserMenu: React.FC<UserMenuProps> = ({
   user,
   showReLogIn,
   handleLogOut,
-  handleGoogleAuthWithCode,
-  autoLogOn
+  handleGoogleAuthWithCode
 }) => {
   const [userMenuAcnhor, setUserMenuAcnhor] = React.useState<null | HTMLElement>(null);
 
@@ -42,7 +40,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         </Button>
       </>
     );
-  } else if (!autoLogOn && user && user.loggedIn) {
+  } else if (user && user.loggedIn) {
     return (
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
@@ -90,18 +88,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     );
   } else {
     return (
-      <>
-        <>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleGoogleAuthWithCode();
-            }}
-          >
-            Login with Google
-          </Button>
-        </>
-      </>
+      <MenuItem>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleGoogleAuthWithCode();
+          }}
+        >
+          Login with Google
+        </Button>
+      </MenuItem>
     );
   }
 };

@@ -1,20 +1,19 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box } from "@mui/material";
+import { ircActions } from "actions/ircActions";
 import { IrcGetHourlyStatisticsRequest, StatisticsVmBase, YearlyStatisticsVm } from "api";
 import { BarChartComponent } from "components/BarChartComponent";
 import { NickStatisticsDialog } from "components/NickStatisticsDialog";
+import { YearlyViewMenu } from "components/YearlyViewMenu";
+import { years } from "constants/conts";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getChannels, getSelectecChannel } from "reducers/userReducer";
 import { dateFormat } from "utilities/dateUtils";
 import { routes } from "utilities/routes";
-
-const years = [
-  2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
-];
 
 export const YearlyStatisticsView: React.FC = () => {
   const { year } = useParams<{ year: string }>();
@@ -32,6 +31,7 @@ export const YearlyStatisticsView: React.FC = () => {
     IrcGetHourlyStatisticsRequest | undefined
   >(undefined);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const apiHook = useApiHook();
   useEffect(() => {
@@ -64,6 +64,7 @@ export const YearlyStatisticsView: React.FC = () => {
         .then((res) => {
           setNickResponse(res);
           setIsLoadingNickData(false);
+          dispatch(ircActions.storeChannelYearlyStatistics(res));
         })
         .catch((er) => {
           console.error(er);
@@ -81,22 +82,18 @@ export const YearlyStatisticsView: React.FC = () => {
           setIsLoadingHourlyData(false);
         });
     }
-  }, [selectedYear, selectedChannel, apiHook.ircApi]);
+  }, [selectedYear, selectedChannel, apiHook.ircApi, dispatch]);
 
   const handleUserClick = (index: number) => {
     const correspondingUser = nickResponse?.rows[index];
 
     if (correspondingUser) {
-      setUserStatisticsRequest({
-        nick: correspondingUser.label,
-        year: selectedYear,
-        channelId: selectedChannel
-      });
+      navigate(`${routes.nickStatisticsBase}/${correspondingUser.label}/${year}`);
     }
   };
 
   const handleMonthClick = (index: number) => {
-    const correspondingMonth = yearlyResponse?.monthlyRows[index];
+    const correspondingMonth = yearlyResponse?.rows[index];
 
     if (correspondingMonth) {
       const startMoment = moment({
@@ -118,30 +115,19 @@ export const YearlyStatisticsView: React.FC = () => {
 
   return (
     <AppContentWrapper
-      title={`${matchingChannel?.name}/${year}`}
+      titleParts={[
+        { text: `${matchingChannel?.name}`, to: `${routes.statistics}` },
+        { text: year.toString() }
+      ]}
       isLoading={isLoadingYearlyData || isLoadingNickData || isLoadingHourlyData}
       leftMenu={
-        <FormControl fullWidth>
-          <InputLabel id="year-select-label">Year</InputLabel>
-          <Select
-            labelId="year-select-label"
-            id="year-select"
-            value={selectedYear ?? 2022}
-            label="Year"
-          >
-            {years.map((y) => (
-              <MenuItem
-                value={y}
-                key={`year-${y}`}
-                onClick={() => {
-                  navigate(`${routes.statistics}/${y}`);
-                }}
-              >
-                {y}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <YearlyViewMenu
+          years={years}
+          selectedYear={selectedYear}
+          onChangeYear={(year) => {
+            navigate(`${routes.statistics}/${year}`);
+          }}
+        />
       }
     >
       <NickStatisticsDialog
@@ -151,7 +137,6 @@ export const YearlyStatisticsView: React.FC = () => {
         }}
         params={userStatisticsRequest}
       />
-
       <Box
         display={"flex"}
         justifyContent="space-evenly"
@@ -159,7 +144,7 @@ export const YearlyStatisticsView: React.FC = () => {
         sx={{
           flexDirection: {
             xs: "column",
-            xl: "row"
+            lg: "row"
           },
           flexGrow: {
             xs: 1
@@ -184,7 +169,7 @@ export const YearlyStatisticsView: React.FC = () => {
       </Box>
       <Box display={"flex"} width="100%" flexDirection={"column"} flex={1}>
         <BarChartComponent
-          rows={yearlyResponse?.monthlyRows ?? []}
+          rows={yearlyResponse?.rows ?? []}
           dataSetLabel={yearlyResponse?.channel ?? ""}
           chartTitle={"Monthly statistics"}
           showPointerOnHover

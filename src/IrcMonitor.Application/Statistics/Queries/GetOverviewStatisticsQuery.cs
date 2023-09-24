@@ -1,7 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using IrcMonitor.Application.Common.Exceptions;
 using IrcMonitor.Application.Common.Interfaces;
-using IrcMonitor.Application.Irc.Queries;
+using IrcMonitor.Domain.Entities;
 using IrcMonitor.Domain.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace IrcMonitor.Application.Statistics.Queries;
 public class GetOverviewStatisticsQuery: IRequest<OverviewStatisticsVm>
 {
-    public GetOverviewStatisticsQuery(Guid channelId)
+    public GetOverviewStatisticsQuery(Guid channelId, string ?nick)
     {
         ChannelId = channelId;
+        Nick = nick;
     }
     public Guid ChannelId { get; set; }
-}
 
+    public string ?Nick { get; set; }
+}
 
 
 public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStatisticsQuery, OverviewStatisticsVm>
@@ -44,21 +46,26 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
             throw new FormatException();
         }
 
+        IQueryable<TimeGroupedRow> query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id);
+        if (!string.IsNullOrEmpty(request.Nick))
+        {
+            query = query.Where(x => x.Nick == request.Nick);
+        }
 
-        var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id).GroupBy(x => x.Year).Select(d => new BarChartRow
+        var groupedQuery = query.GroupBy(x => x.Year).Select(d => new BarChartRow
         {
             Label = d.Key.ToString(),
             Identifier = d.Key,
             Value = d.Sum(x => x.Count)
         });
 
-        var returnList = (await query.OrderBy(x => x.Identifier).ToListAsync(cancellationToken));
-
+        var returnList = (await groupedQuery.OrderBy(x => x.Identifier).ToListAsync(cancellationToken));
 
         return new OverviewStatisticsVm
         {
             Rows = returnList,
-            ChannelName= channel.Name
+            ChannelName = channel.Name,
+            ChannelId = channel.Guid
         };
     }
 }

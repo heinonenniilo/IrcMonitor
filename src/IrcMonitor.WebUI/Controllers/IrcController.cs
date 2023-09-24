@@ -26,15 +26,15 @@ public class IrcController : ApiControllerBase
     // TODO COMBINE
 
     [HttpGet(template: "statistics/{channelId}")]
-    public async Task<OverviewStatisticsVm> GetOverviewStatistics([FromRoute] Guid channelId)
+    public async Task<OverviewStatisticsVm> GetOverviewStatistics([FromRoute] Guid channelId, [FromQuery] string? nick)
     {
-        return await Mediator.Send(new GetOverviewStatisticsQuery(channelId));
+        return await Mediator.Send(new GetOverviewStatisticsQuery(channelId, nick));
     }
 
     [HttpGet(template: "statistics/{channelId}/{year}")]
-    public async Task<YearlyStatisticsVm> GetYearlyStatistics([FromRoute] Guid channelId, [FromRoute] int year)
+    public async Task<YearlyStatisticsVm> GetYearlyStatistics([FromRoute] Guid channelId, [FromRoute] int year, [FromQuery] string? nick)
     {
-        return await Mediator.Send(new GetYearlyStatisticsQuery(year, channelId));
+        return await Mediator.Send(new GetYearlyStatisticsQuery(year, channelId, nick));
     }
 
     [HttpGet(template: "statistics/nicks/{channelId}")]

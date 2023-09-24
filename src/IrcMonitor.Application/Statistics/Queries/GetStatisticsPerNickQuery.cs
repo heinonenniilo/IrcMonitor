@@ -74,6 +74,8 @@ public class GetStatisticsPerNickQueryHandler : IRequestHandler<GetStatisticsPer
         return new StatisticsVmBase()
         {
             Rows = rowsToReturn,
+            ChannelId = channel.Guid,
+            Year = request.Year,
         };
     }
 }

@@ -31,7 +31,19 @@ export interface StatisticsVmBase {
      * @type {Array<BarChartRow>}
      * @memberof StatisticsVmBase
      */
-    rows?: Array<BarChartRow>;
+    rows: Array<BarChartRow>;
+    /**
+     * 
+     * @type {string}
+     * @memberof StatisticsVmBase
+     */
+    channelId: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsVmBase
+     */
+    year?: number | null;
 }
 
 /**
@@ -39,6 +51,8 @@ export interface StatisticsVmBase {
  */
 export function instanceOfStatisticsVmBase(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "rows" in value;
+    isInstance = isInstance && "channelId" in value;
 
     return isInstance;
 }
@@ -53,7 +67,9 @@ export function StatisticsVmBaseFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'rows': !exists(json, 'rows') ? undefined : ((json['rows'] as Array<any>).map(BarChartRowFromJSON)),
+        'rows': ((json['rows'] as Array<any>).map(BarChartRowFromJSON)),
+        'channelId': json['channelId'],
+        'year': !exists(json, 'year') ? undefined : json['year'],
     };
 }
 
@@ -66,7 +82,9 @@ export function StatisticsVmBaseToJSON(value?: StatisticsVmBase | null): any {
     }
     return {
         
-        'rows': value.rows === undefined ? undefined : ((value.rows as Array<any>).map(BarChartRowToJSON)),
+        'rows': ((value.rows as Array<any>).map(BarChartRowToJSON)),
+        'channelId': value.channelId,
+        'year': value.year,
     };
 }
 

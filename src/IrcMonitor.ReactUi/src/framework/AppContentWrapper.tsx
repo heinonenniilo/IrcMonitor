@@ -7,12 +7,18 @@ import { LeftMenu } from "./LeftMenu";
 import { getIsLeftMenuOpen } from "reducers/appUiReducer";
 import { appUiActions } from "actions/appUiActions";
 import { centeringLimitPx, leftMenuWidth } from "./App";
+import { Link } from "react-router-dom";
+
+export interface TitlePart {
+  text: string;
+  to?: string;
+}
 
 export interface AppContentWrapperProps {
-  title: string;
   children: React.ReactNode;
   isLoading?: boolean;
   leftMenu?: JSX.Element;
+  titleParts: TitlePart[];
 }
 
 const Container = styled.div`
@@ -46,6 +52,32 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
     return !isLarge && isLeftMenuOpen;
   };
 
+  const drawTitle = () => {
+    const count = props.titleParts.length;
+    return (
+      <Typography variant="h4">
+        {props.titleParts.map((r, idx) => {
+          let el: JSX.Element;
+          if (r.to) {
+            el = <Link to={r.to}>{r.text}</Link>;
+          } else {
+            el = <>{r.text}</>;
+          }
+
+          if (idx < count - 1) {
+            return (
+              <>
+                {el}
+                {">"}
+              </>
+            );
+          } else {
+            return el;
+          }
+        })}
+      </Typography>
+    );
+  };
   return (
     <>
       <Backdrop
@@ -65,7 +97,7 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
           marginLeft: shouldHaveMarginForContent() ? leftMenuWidth : 0
         }}
       >
-        <Typography variant="h4">{props.title}</Typography>
+        {drawTitle()}
         {props.leftMenu ? <LeftMenu title="filters">{props.leftMenu}</LeftMenu> : null}
         <Container>{props.children}</Container>
       </Box>
