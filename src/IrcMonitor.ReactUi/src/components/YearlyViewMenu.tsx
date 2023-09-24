@@ -1,9 +1,14 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React from "react";
 
+export interface NickWithCount {
+  nick: string;
+  count: number;
+}
+
 export interface YearlyViewMenuProps {
   years?: number[];
-  nicks?: string[];
+  nicks?: NickWithCount[];
 
   selectedYear?: number;
   selectedNick?: string;
@@ -49,16 +54,24 @@ export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
         <Box sx={{ mt: 4 }}>
           <FormControl fullWidth>
             <InputLabel id="nick-select-label">Nick</InputLabel>
-            <Select labelId="nick-select-label" id="nick-select" value={selectedNick} label="Nick">
-              {nicks.map((nick) => (
+            <Select
+              labelId="nick-select-label"
+              id="nick-select"
+              value={selectedNick}
+              label="Nick"
+              renderValue={(d) => {
+                return d;
+              }}
+            >
+              {nicks.map((row) => (
                 <MenuItem
-                  value={nick}
-                  key={`nick-${nick}`}
+                  value={row.nick}
+                  key={`nick-${row.nick}`}
                   onClick={() => {
-                    onChangeNick && onChangeNick(nick);
+                    onChangeNick && onChangeNick(row.nick);
                   }}
                 >
-                  {nick}
+                  {`${row.nick} (${row.count})`}
                 </MenuItem>
               ))}
             </Select>

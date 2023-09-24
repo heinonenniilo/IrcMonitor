@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { ircActions } from "actions/ircActions";
 import { StatisticsVmBase, YearlyStatisticsVm } from "api";
 import { BarChartComponent } from "components/BarChartComponent";
-import { YearlyViewMenu } from "components/YearlyViewMenu";
+import { NickWithCount, YearlyViewMenu } from "components/YearlyViewMenu";
 import { years } from "constants/conts";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
@@ -93,7 +93,7 @@ export const NickStatisticsYear: React.FC = () => {
     }
   }, [year, channelYearlyStatistics, dispatch, apiHook.ircApi, selectedChannel]);
 
-  const getNicks = () => {
+  const getNicks = (): NickWithCount[] => {
     if (!channelYearlyStatistics) {
       return [];
     }
@@ -102,7 +102,9 @@ export const NickStatisticsYear: React.FC = () => {
       channelYearlyStatistics.channelId === selectedChannel &&
       channelYearlyStatistics.year === parseInt(year, 10)
     ) {
-      return channelYearlyStatistics.rows.map((r) => r.label);
+      return channelYearlyStatistics.rows.map((r) => {
+        return { nick: r.label, count: r.value };
+      });
     }
   };
 

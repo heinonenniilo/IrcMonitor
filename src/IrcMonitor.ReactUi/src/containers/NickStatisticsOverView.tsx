@@ -3,7 +3,7 @@ import { ircActions } from "actions/ircActions";
 import { StatisticsVmBase } from "api";
 import { OverviewStatisticsVm } from "api/models/OverviewStatisticsVm";
 import { BarChartComponent } from "components/BarChartComponent";
-import { YearlyViewMenu } from "components/YearlyViewMenu";
+import { NickWithCount, YearlyViewMenu } from "components/YearlyViewMenu";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import React, { useEffect, useState } from "react";
@@ -80,7 +80,7 @@ export const NickOverviewStatistics: React.FC = () => {
     }
   }, [overViewNicks, dispatch, apiHook.ircApi, selectedChannel]);
 
-  const getNicks = () => {
+  const getNicks = (): NickWithCount[] => {
     if (!overViewNicks || !overViewNicks.rows) {
       return [];
     }
@@ -89,7 +89,9 @@ export const NickOverviewStatistics: React.FC = () => {
       return [];
     }
 
-    return overViewNicks.rows.map((r) => r.label);
+    return overViewNicks.rows.map((r) => {
+      return { nick: r.label, count: r.value };
+    });
   };
 
   const handleClickYear = (index: number) => {

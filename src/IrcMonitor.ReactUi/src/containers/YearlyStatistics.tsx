@@ -144,7 +144,7 @@ export const YearlyStatisticsView: React.FC = () => {
         sx={{
           flexDirection: {
             xs: "column",
-            lg: "row"
+            xl: "row"
           },
           flexGrow: {
             xs: 1

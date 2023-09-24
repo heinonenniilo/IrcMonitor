@@ -54,25 +54,31 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
 
   const drawTitle = () => {
     const count = props.titleParts.length;
+
+    const shouldUseSmallTitle = props.titleParts.length > 1 && props.titleParts.some((t) => t.to);
     return (
-      <Typography variant="h4">
+      <Typography variant={shouldUseSmallTitle ? "h6" : "h5"}>
         {props.titleParts.map((r, idx) => {
           let el: JSX.Element;
           if (r.to) {
-            el = <Link to={r.to}>{r.text}</Link>;
+            el = (
+              <Link key={`title_${idx}`} to={r.to}>
+                {r.text}
+              </Link>
+            );
           } else {
             el = <>{r.text}</>;
           }
 
           if (idx < count - 1) {
             return (
-              <>
+              <span key={`el_${idx}`}>
                 {el}
                 {">"}
-              </>
+              </span>
             );
           } else {
-            return el;
+            return <span key={`el_${idx}`}>{el}</span>;
           }
         })}
       </Typography>

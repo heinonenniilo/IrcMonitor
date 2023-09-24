@@ -22,7 +22,7 @@ const userInfoCookieName = "userInfo";
 const useInfoExpiresInDays = 4;
 
 // styles, to be moved
-export const leftMenuWidth = "100px";
+export const leftMenuWidth = "116px";
 export const centeringLimitPx = "1700px";
 
 export const App: React.FC<AppProps> = (props) => {
@@ -133,7 +133,7 @@ export const App: React.FC<AppProps> = (props) => {
             flexDirection: "column",
             width: "100%",
             height: "100%",
-            marginTop: "100px"
+            marginTop: "80px"
           }}
         >
           {props.children}
