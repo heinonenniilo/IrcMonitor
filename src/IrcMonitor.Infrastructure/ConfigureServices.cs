@@ -107,22 +107,7 @@ public static class ConfigureServices
                         CacheSignatureProviders = false
                     }
                 };
-
-                cfg.Events = new AspNetCore.Authentication.JwtBearer.JwtBearerEvents()
-                {
-                    OnAuthenticationFailed = async con =>
-                    {
-                        Console.WriteLine(con.Exception);
-                    },
-                    OnForbidden = async con =>
-                    {
-                        Console.WriteLine(con);
-                    },
-                };
             });
-
-        services.AddAuthorization(options =>
-            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
 
         return services;
     }
