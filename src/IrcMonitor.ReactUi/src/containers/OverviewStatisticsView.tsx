@@ -95,15 +95,15 @@ export const OverViewStatisticsView: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: {
-            xs: "column",
-            lg: "row"
-          },
+          flexDirection: "column",
           flexGrow: {
             xs: 1
           },
-          columnGap: {
-            xl: 3
+          maxWidth: "100%",
+          width: "100%",
+          height: "100%",
+          "& > *": {
+            maxHeight: "50%"
           }
         }}
       >
@@ -114,7 +114,6 @@ export const OverViewStatisticsView: React.FC = () => {
           onClick={handleOnClickChannel}
           showPointerOnHover
         />
-
         <BarChartComponent
           rows={nickResponse?.rows ?? []}
           dataSetLabel={response?.channelName ?? ""}

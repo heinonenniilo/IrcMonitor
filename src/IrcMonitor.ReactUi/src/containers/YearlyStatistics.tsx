@@ -1,8 +1,7 @@
 import { Box } from "@mui/material";
 import { ircActions } from "actions/ircActions";
-import { IrcGetHourlyStatisticsRequest, StatisticsVmBase, YearlyStatisticsVm } from "api";
+import { StatisticsVmBase, YearlyStatisticsVm } from "api";
 import { BarChartComponent } from "components/BarChartComponent";
-import { NickStatisticsDialog } from "components/NickStatisticsDialog";
 import { YearlyViewMenu } from "components/YearlyViewMenu";
 import { years } from "constants/conts";
 import { AppContentWrapper } from "framework/AppContentWrapper";
@@ -27,9 +26,6 @@ export const YearlyStatisticsView: React.FC = () => {
   const [isLoadingNickData, setIsLoadingNickData] = useState<boolean>(false);
   const [isLoadingHourlyData, setIsLoadingHourlyData] = useState<boolean>(false);
 
-  const [userStatisticsRequest, setUserStatisticsRequest] = useState<
-    IrcGetHourlyStatisticsRequest | undefined
-  >(undefined);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -130,27 +126,25 @@ export const YearlyStatisticsView: React.FC = () => {
         />
       }
     >
-      <NickStatisticsDialog
-        isOpen={userStatisticsRequest !== undefined}
-        onClose={() => {
-          setUserStatisticsRequest(undefined);
-        }}
-        params={userStatisticsRequest}
-      />
       <Box
         display={"flex"}
         justifyContent="space-evenly"
         width="100%"
+        flexGrow={1}
         sx={{
           flexDirection: {
             xs: "column",
             xl: "row"
           },
-          flexGrow: {
-            xs: 1
-          },
+
           columnGap: {
             xl: 3
+          },
+          "& > *": {
+            xl: {
+              maxWidth: "50%",
+              maxHeight: "50%"
+            }
           }
         }}
       >
@@ -167,7 +161,13 @@ export const YearlyStatisticsView: React.FC = () => {
           showPointerOnHover
         />
       </Box>
-      <Box display={"flex"} width="100%" flexDirection={"column"} flex={1}>
+      <Box
+        display={"flex"}
+        width="100%"
+        flexDirection={"column"}
+        flex={1}
+        sx={{ maxHeight: { lg: "300px", xl: "50%" } }}
+      >
         <BarChartComponent
           rows={yearlyResponse?.rows ?? []}
           dataSetLabel={yearlyResponse?.channel ?? ""}

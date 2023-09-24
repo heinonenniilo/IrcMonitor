@@ -115,10 +115,7 @@ export const NickOverviewStatistics: React.FC = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: {
-            xs: "column",
-            lg: "row"
-          },
+          flexDirection: "column",
           flexGrow: {
             xs: 1
           },
