@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Google.Apis.Auth;
+using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -64,38 +66,48 @@ public static class ConfigureServices
         });
 
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
-
-        // TODO MOVE
+ 
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
-        var publicRsaParameters = TokenUtils.ConvertPemToRSAPublicParameters(authSettings.JwtPublicKey);
-        RSA rsa = RSA.Create();
-        rsa.ImportParameters(publicRsaParameters);
+        var keyClient = new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), new DefaultAzureCredential());
+        services.AddSingleton(x =>
+        {
+            return keyClient;
+        });
+
+        RsaSecurityKey signKey;
+        if (authSettings.UseKeyFromKeyVault)
+        {
+            var key = keyClient.GetKey(authSettings.KeyVault.KeyName);
+            signKey = new RsaSecurityKey(new RSAParameters()
+            {
+                Modulus = key.Value.Key.N,
+                Exponent = key.Value.Key.E
+            });
+        } else
+        {
+            var publicRsaParameters = TokenUtils.ConvertPemToRSAPublicParameters(authSettings.JwtPublicKey);
+            signKey = new RsaSecurityKey(publicRsaParameters);
+        }
 
         services.AddAuthentication()
             .AddJwtBearer(cfg =>
             {
-                cfg.RequireHttpsMetadata = false;
-                cfg.SaveToken = true;
-
                 cfg.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa),
+                    IssuerSigningKey = signKey,
                     ValidateIssuer = true,
-                    ValidIssuer = "IrcMonitor",
+                    ValidIssuer = authSettings.GetIssuer,
                     ValidateAudience = true,
-                    ValidAudience = "IrcMonitor",
+                    ValidAudience = authSettings.PageUrl,
                     CryptoProviderFactory = new CryptoProviderFactory()
                     {
                         CacheSignatureProviders = false
                     }
                 };
             });
-
-        services.AddAuthorization(options =>
-            options.AddPolicy("CanPurge", policy => policy.RequireRole("Administrator")));
 
         return services;
     }
