@@ -1,36 +1,51 @@
-import { Backdrop, CircularProgress, Typography } from "@mui/material";
-import React from "react";
-import { useSelector } from "react-redux";
+import { Backdrop, Box, CircularProgress, Typography, useMediaQuery } from "@mui/material";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getIsLoadingChannels, getIsLoggingIn } from "reducers/userReducer";
 import styled from "styled-components";
+import { LeftMenu } from "./LeftMenu";
+import { getIsLeftMenuOpen } from "reducers/appUiReducer";
+import { appUiActions } from "actions/appUiActions";
+import { centeringLimitPx, leftMenuWidth } from "./App";
 
 export interface AppContentWrapperProps {
   title: string;
   children: React.ReactNode;
   isLoading?: boolean;
+  leftMenu?: JSX.Element;
 }
 
 const Container = styled.div`
-  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  margin-top: 32px;
+  margin-top: 16px;
   flex-grow: 1;
   min-height: calc(100vh - 230px);
-  max-width: 1536px;
-`;
-
-const OuterContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  flex-grow: 1;
-  flex-direction: column;
+  max-width: 100%;
 `;
 
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   const isLoggingIn = useSelector(getIsLoggingIn);
   const isLoadingChannels = useSelector(getIsLoadingChannels);
+  const isLeftMenuOpen = useSelector(getIsLeftMenuOpen);
+
+  const isLarge = useMediaQuery(`(min-width:${centeringLimitPx})`);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (props.leftMenu) {
+      if (!isLeftMenuOpen && props.leftMenu !== undefined) {
+        dispatch(appUiActions.storeIsLeftMenuOpen(true));
+      } else if (isLeftMenuOpen && props.leftMenu === undefined) {
+        dispatch(appUiActions.storeIsLeftMenuOpen(false));
+      }
+    }
+  }, [props.leftMenu, dispatch, isLeftMenuOpen]);
+
+  const shouldHaveMarginForContent = () => {
+    return !isLarge && isLeftMenuOpen;
+  };
+
   return (
     <>
       <Backdrop
@@ -39,10 +54,21 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <OuterContainer>
-        <Typography variant="h2">{props.title}</Typography>
+
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          maxWidth: shouldHaveMarginForContent() ? `calc(100% - ${leftMenuWidth})` : "100%",
+          flexGrow: 1,
+          flexDirection: "column",
+          marginLeft: shouldHaveMarginForContent() ? leftMenuWidth : 0
+        }}
+      >
+        <Typography variant="h4">{props.title}</Typography>
+        {props.leftMenu ? <LeftMenu title="filters">{props.leftMenu}</LeftMenu> : null}
         <Container>{props.children}</Container>
-      </OuterContainer>
+      </Box>
     </>
   );
 };

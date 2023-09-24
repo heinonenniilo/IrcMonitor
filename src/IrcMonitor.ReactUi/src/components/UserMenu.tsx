@@ -1,5 +1,5 @@
 import { AccountCircle } from "@mui/icons-material";
-import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
@@ -44,7 +44,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     );
   } else if (!autoLogOn && user && user.loggedIn) {
     return (
-      <>
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
         <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
           {user.email}
         </Typography>
@@ -86,7 +86,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             </Button>
           </MenuItem>
         </Menu>
-      </>
+      </Box>
     );
   } else {
     return (

@@ -1,4 +1,4 @@
-import { AppBar, Container, IconButton, MenuItem } from "@mui/material";
+import { AppBar, Box, Container, IconButton, MenuItem } from "@mui/material";
 import React, { useEffect } from "react";
 import { getChannels, getIsReLogging, getSelectecChannel, User } from "reducers/userReducer";
 import styled from "styled-components";
@@ -29,8 +29,6 @@ const MenuItemsContainer = styled.div`
 const MenuArea = styled.div`
   display: flex;
   flex-direction: row;
-  padding-top: 16px;
-  padding-bottom: 16px;
 `;
 
 const selectedChannelLocalStorageKey = "selectedChannel";
@@ -65,8 +63,8 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   return (
-    <AppBar position="fixed">
-      <Container maxWidth="xl">
+    <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Container maxWidth={"xl"}>
         <MenuItemsContainer>
           <MenuArea>
             <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
@@ -102,24 +100,26 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               </>
             ) : null}
           </MenuArea>
+          <Box>
+            <MenuArea>
+              {!isReLoggingIn ? (
+                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                  <MenuItem>
+                    <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+                  </MenuItem>
+                </AuthorizedComponent>
+              ) : null}
 
-          <MenuArea>
-            {!isReLoggingIn ? (
-              <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-                <MenuItem>
-                  <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
-                </MenuItem>
-              </AuthorizedComponent>
-            ) : null}
-            <UserMenu
-              user={user}
-              handleLogOut={() => {
-                handleLogOut();
-              }}
-              handleGoogleAuthWithCode={handleLoginWithGoogleAuthCode}
-              showReLogIn={isReLoggingIn}
-            />
-          </MenuArea>
+              <UserMenu
+                user={user}
+                handleLogOut={() => {
+                  handleLogOut();
+                }}
+                handleGoogleAuthWithCode={handleLoginWithGoogleAuthCode}
+                showReLogIn={isReLoggingIn}
+              />
+            </MenuArea>
+          </Box>
         </MenuItemsContainer>
       </Container>
     </AppBar>

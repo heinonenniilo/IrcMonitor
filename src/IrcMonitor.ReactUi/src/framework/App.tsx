@@ -21,6 +21,10 @@ interface AppProps {
 const userInfoCookieName = "userInfo";
 const useInfoExpiresInDays = 4;
 
+// styles, to be moved
+export const leftMenuWidth = "100px";
+export const centeringLimitPx = "1700px";
+
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
   const user = useSelector(getUserInfo);
@@ -123,13 +127,13 @@ export const App: React.FC<AppProps> = (props) => {
           />
         </Container>
         <Container
-          maxWidth="xl"
+          maxWidth={"xl"}
           sx={{
             display: "flex",
             flexDirection: "column",
             width: "100%",
             height: "100%",
-            marginTop: "124px"
+            marginTop: "100px"
           }}
         >
           {props.children}

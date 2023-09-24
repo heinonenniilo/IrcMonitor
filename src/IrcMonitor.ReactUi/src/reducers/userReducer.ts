@@ -42,13 +42,13 @@ export function userReducer(state: UserState = defaultState, action: UserActions
       state = produce(state, (draft) => {
         draft.userVm = action.userInfo;
         draft.user = {
-          email: action.userInfo.email,
+          email: action.userInfo?.email,
           authenticationProvider: "google",
           loggedIn: true,
-          roles: action.userInfo.roles
+          roles: action.userInfo?.roles ?? []
         };
         draft.apiTokenInfo = {
-          accessToken: action.userInfo.accessToken
+          accessToken: action.userInfo?.accessToken ?? ""
         };
       });
       break;

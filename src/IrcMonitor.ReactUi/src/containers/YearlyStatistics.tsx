@@ -118,17 +118,9 @@ export const YearlyStatisticsView: React.FC = () => {
 
   return (
     <AppContentWrapper
-      title={`Yearly statistics for ${matchingChannel?.name}`}
+      title={`${matchingChannel?.name}/${year}`}
       isLoading={isLoadingYearlyData || isLoadingNickData || isLoadingHourlyData}
-    >
-      <NickStatisticsDialog
-        isOpen={userStatisticsRequest !== undefined}
-        onClose={() => {
-          setUserStatisticsRequest(undefined);
-        }}
-        params={userStatisticsRequest}
-      />
-      <Box maxWidth={300}>
+      leftMenu={
         <FormControl fullWidth>
           <InputLabel id="year-select-label">Year</InputLabel>
           <Select
@@ -150,7 +142,16 @@ export const YearlyStatisticsView: React.FC = () => {
             ))}
           </Select>
         </FormControl>
-      </Box>
+      }
+    >
+      <NickStatisticsDialog
+        isOpen={userStatisticsRequest !== undefined}
+        onClose={() => {
+          setUserStatisticsRequest(undefined);
+        }}
+        params={userStatisticsRequest}
+      />
+
       <Box
         display={"flex"}
         justifyContent="space-evenly"
