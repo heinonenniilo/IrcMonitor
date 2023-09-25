@@ -107,6 +107,7 @@ export const NickStatisticsYear: React.FC = () => {
       });
     }
   };
+  // nickOverView: "/statistics/nick/:nick",
 
   return (
     <AppContentWrapper
@@ -119,7 +120,7 @@ export const NickStatisticsYear: React.FC = () => {
           text: year,
           to: `${routes.statistics}/${year}`
         },
-        { text: nick }
+        { text: nick, to: `${routes.statistics}/nick/${nick}` }
       ]}
       isLoading={isLoadingYearlyStatistics || isLoadingHourlyStata}
       leftMenu={
