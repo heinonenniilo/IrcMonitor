@@ -93,6 +93,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ onNavigate, onLogin, onL
               selected={false}
               onClick={(event) => {
                 dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
+                handleClose();
               }}
             >
               {isLeftMenuOpen ? "Hide filters" : "Show filters"}
