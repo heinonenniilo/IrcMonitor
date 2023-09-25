@@ -1,5 +1,6 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React from "react";
+import { getFormattedNumber } from "utilities/numberFormatterUtils";
 
 export interface NickWithCount {
   nick: string;
@@ -71,7 +72,7 @@ export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
                     onChangeNick && onChangeNick(row.nick);
                   }}
                 >
-                  {`${row.nick} (${row.count})`}
+                  {`${row.nick} (${getFormattedNumber(row.count)})`}
                 </MenuItem>
               ))}
             </Select>

@@ -4,6 +4,7 @@ import { IrcChannelDto } from "api";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getSelectecChannel } from "reducers/userReducer";
+import { getFormattedNumber } from "utilities/numberFormatterUtils";
 
 export interface SelectChannelProps {
   channels: IrcChannelDto[];
@@ -53,6 +54,10 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
           labelId="channel-select-label"
           id="channel-select"
           value={selectedChannel ?? ""}
+          renderValue={(r) => {
+            const match = channels.find((c) => c.guid === r);
+            return match.name ?? r;
+          }}
           className={classes.select}
         >
           {channels.map((c) => (
@@ -63,7 +68,7 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
               }}
               value={c.guid as string}
             >
-              {c.name}
+              {`${c.name} (${getFormattedNumber(c.rowCount)})`}
             </MenuItem>
           ))}
         </Select>

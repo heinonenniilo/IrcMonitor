@@ -77,7 +77,7 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (userVm) {
       let date = new Date();
-      date.setTime(date.getTime() + useInfoExpiresInDays * 24 * 60 * 60 * 1000); // 24 hours
+      date.setTime(date.getTime() + useInfoExpiresInDays * 24 * 60 * 60 * 1000);
       setCookie(userInfoCookieName, userVm, { expires: date, sameSite: "strict", secure: true });
     }
   }, [userVm, setCookie]);
