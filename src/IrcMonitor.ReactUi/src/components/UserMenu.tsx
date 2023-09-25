@@ -9,13 +9,15 @@ export interface UserMenuProps {
   handleLogOut: () => void;
   user: User | undefined;
   showReLogIn: boolean;
+  isMobile?: boolean;
 }
 
 export const UserMenu: React.FC<UserMenuProps> = ({
   user,
   showReLogIn,
   handleLogOut,
-  handleGoogleAuthWithCode
+  handleGoogleAuthWithCode,
+  isMobile
 }) => {
   const [userMenuAcnhor, setUserMenuAcnhor] = React.useState<null | HTMLElement>(null);
 
@@ -43,7 +45,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   } else if (user && user.loggedIn) {
     return (
       <Box sx={{ display: "flex", flexDirection: "row" }}>
-        <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
+        <Typography variant={!isMobile ? "h6" : "body1"} marginTop={"auto"} marginBottom={"auto"}>
           {user.email}
         </Typography>
         <IconButton

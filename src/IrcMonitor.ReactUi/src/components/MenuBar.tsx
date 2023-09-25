@@ -1,4 +1,12 @@
-import { AppBar, Box, Container, IconButton, MenuItem } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Container,
+  IconButton,
+  MenuItem,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 import React, { useEffect } from "react";
 import { getChannels, getIsReLogging, getSelectecChannel, User } from "reducers/userReducer";
 import styled from "styled-components";
@@ -12,6 +20,7 @@ import { AuthorizedComponent } from "framework/AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
 import { appUiActions } from "actions/appUiActions";
 import { getLeftMenuIsOpen } from "reducers/appUiReducer";
+import { MobileMenu } from "./MobileMenu";
 
 export interface MenuBarProps {
   handleLoginWithGoogleAuthCode: () => void;
@@ -41,12 +50,16 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   handleNavigateTo,
   handleLoginWithGoogleAuthCode
 }) => {
+  const theme = useTheme();
+  const drawDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   // TODO Implement better handling of navigation.
 
   const channels = useSelector(getChannels);
   const isReLoggingIn = useSelector(getIsReLogging);
   const selectedChannel = useSelector(getSelectecChannel);
   const isLeftMenuOpen = useSelector(getLeftMenuIsOpen);
+
+  // Mobile
 
   const dispatch = useDispatch();
 
@@ -67,73 +80,83 @@ export const MenuBar: React.FC<MenuBarProps> = ({
 
   return (
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Container maxWidth={"xl"}>
-        <MenuItemsContainer>
-          <MenuArea>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-              onClick={() => {
-                dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <MenuItem
-              onClick={() => {
-                handleNavigateTo(routes.main);
-              }}
-            >
-              Home
-            </MenuItem>
-            {!isReLoggingIn ? (
-              <>
-                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-                  <MenuItem
-                    onClick={() => {
-                      handleNavigateTo(routes.statistics);
-                    }}
-                  >
-                    Statistics
-                  </MenuItem>
-                </AuthorizedComponent>
-                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-                  <MenuItem
-                    onClick={() => {
-                      handleNavigateTo(routes.browse);
-                    }}
-                  >
-                    Browse
-                  </MenuItem>
-                </AuthorizedComponent>
-              </>
-            ) : null}
-          </MenuArea>
-          <Box>
+      {!drawDesktop ? (
+        <MobileMenu
+          onNavigate={(route: string) => {
+            handleNavigateTo(route);
+          }}
+          onLogin={handleLoginWithGoogleAuthCode}
+          onLogOut={handleLogOut}
+        ></MobileMenu>
+      ) : (
+        <Container maxWidth={"xl"}>
+          <MenuItemsContainer>
             <MenuArea>
-              {!isReLoggingIn ? (
-                <AuthorizedComponent requiredRole={RoleNames.Viewer}>
-                  <MenuItem>
-                    <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
-                  </MenuItem>
-                </AuthorizedComponent>
-              ) : null}
-
-              <UserMenu
-                user={user}
-                handleLogOut={() => {
-                  handleLogOut();
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                sx={{ mr: 2 }}
+                onClick={() => {
+                  dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
                 }}
-                handleGoogleAuthWithCode={handleLoginWithGoogleAuthCode}
-                showReLogIn={isReLoggingIn}
-              />
+              >
+                <MenuIcon />
+              </IconButton>
+              <MenuItem
+                onClick={() => {
+                  handleNavigateTo(routes.main);
+                }}
+              >
+                Home
+              </MenuItem>
+              {!isReLoggingIn ? (
+                <>
+                  <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                    <MenuItem
+                      onClick={() => {
+                        handleNavigateTo(routes.statistics);
+                      }}
+                    >
+                      Statistics
+                    </MenuItem>
+                  </AuthorizedComponent>
+                  <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                    <MenuItem
+                      onClick={() => {
+                        handleNavigateTo(routes.browse);
+                      }}
+                    >
+                      Browse
+                    </MenuItem>
+                  </AuthorizedComponent>
+                </>
+              ) : null}
             </MenuArea>
-          </Box>
-        </MenuItemsContainer>
-      </Container>
+            <Box>
+              <MenuArea>
+                {!isReLoggingIn ? (
+                  <AuthorizedComponent requiredRole={RoleNames.Viewer}>
+                    <MenuItem>
+                      <SelectChannel channels={channels} onSelectChannel={handleSelectChannel} />
+                    </MenuItem>
+                  </AuthorizedComponent>
+                ) : null}
+
+                <UserMenu
+                  user={user}
+                  handleLogOut={() => {
+                    handleLogOut();
+                  }}
+                  handleGoogleAuthWithCode={handleLoginWithGoogleAuthCode}
+                  showReLogIn={isReLoggingIn}
+                />
+              </MenuArea>
+            </Box>
+          </MenuItemsContainer>
+        </Container>
+      )}
     </AppBar>
   );
 };
