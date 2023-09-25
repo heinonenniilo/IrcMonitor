@@ -44,12 +44,10 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
     if (props.leftMenu) {
       if (!hasLeftMenu && props.leftMenu) {
         dispatch(appUiActions.storeHasLeftMenu(true));
-        dispatch(appUiActions.toggleLeftMenu(true)); // TODO CHANE
       }
     } else {
       if (!props.leftMenu && hasLeftMenu) {
         dispatch(appUiActions.storeHasLeftMenu(false));
-        dispatch(appUiActions.toggleLeftMenu(false));
       }
     }
   }, [props.leftMenu, dispatch, hasLeftMenu]);

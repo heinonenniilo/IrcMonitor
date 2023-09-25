@@ -15,6 +15,7 @@ import moment from "moment";
 import { useApiHook } from "hooks/useApiHook";
 import { useSearchParams } from "react-router-dom";
 import { dateFormat } from "utilities/dateUtils";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const defaultPageSize = 100;
 const timeStampColumn = "timeStamp";
@@ -25,6 +26,8 @@ export const BrowseView: React.FC = () => {
   const [rows, setRows] = useState<GridRowsProp>([]);
   const [hasSearchedWithQueryParams, setHasSearchedWithQueryParams] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const theme = useTheme();
+  const drawDesktop = useMediaQuery(theme.breakpoints.up("lg"));
 
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
@@ -95,17 +98,17 @@ export const BrowseView: React.FC = () => {
   }, [searchParams, channelId, hasSearchedWithQueryParams, handleFetchRows, useApi.ircApi]);
 
   const columns: GridColDef[] = [
-    { field: "message", headerName: "Message", width: 150, sortable: false, flex: 1 },
-    { field: "nick", headerName: "Nick", width: 150, sortable: false },
     {
       field: "timeStamp",
       headerName: "Timestamp",
-      width: 400,
+      minWidth: 170,
       sortable: true,
       valueGetter: (params: GridValueGetterParams) => {
         return moment(params.value).format("DD.MM.YYYY HH:mm:ss");
       }
-    }
+    },
+    { field: "nick", headerName: "Nick", minWidth: 100, sortable: false },
+    { field: "message", headerName: "Message", minWidth: 150, sortable: false, flex: 1 }
   ];
 
   return (
@@ -142,6 +145,8 @@ export const BrowseView: React.FC = () => {
             sortModel: [{ field: timeStampColumn, sort: "asc" }]
           }
         }}
+        density="compact"
+        getRowHeight={drawDesktop ? undefined : () => "auto"}
         pageSize={pageSize}
         onSortModelChange={(model: GridSortModel) => {
           if (model.length === 1) {
