@@ -109,20 +109,24 @@ export const BrowseView: React.FC = () => {
   ];
 
   return (
-    <AppContentWrapper titleParts={[{ text: "Browse" }]}>
-      <SelectDateFromToComponent
-        channelId={channelId}
-        onSearch={(from: Date, to: Date, channelId: string) => {
-          handleFetchRows({
-            ...criteria,
-            criteriaChannelId: channelId,
-            criteriaFrom: from,
-            criteriaTo: to,
-            criteriaPage: 0
-          });
-        }}
-        criteria={criteria}
-      />
+    <AppContentWrapper
+      titleParts={[{ text: "Browse" }]}
+      leftMenu={
+        <SelectDateFromToComponent
+          channelId={channelId}
+          onSearch={(from: Date, to: Date, channelId: string) => {
+            handleFetchRows({
+              ...criteria,
+              criteriaChannelId: channelId,
+              criteriaFrom: from,
+              criteriaTo: to,
+              criteriaPage: 0
+            });
+          }}
+          criteria={criteria}
+        />
+      }
+    >
       <DataGrid
         rows={rows}
         rowCount={response?.totalRows ?? 0}

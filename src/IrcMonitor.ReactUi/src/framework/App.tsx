@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
@@ -20,10 +20,6 @@ interface AppProps {
 
 const userInfoCookieName = "userInfo";
 const useInfoExpiresInDays = 4;
-
-// styles, to be moved
-export const leftMenuWidth = "116px";
-export const centeringLimitPx = "1700px";
 
 export const App: React.FC<AppProps> = (props) => {
   const dispatch = useDispatch();
@@ -126,8 +122,7 @@ export const App: React.FC<AppProps> = (props) => {
             handleLoginWithGoogleAuthCode={loginWithGoogleAuthCode}
           />
         </Container>
-        <Container
-          maxWidth={"xl"}
+        <Box
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -137,7 +132,7 @@ export const App: React.FC<AppProps> = (props) => {
           }}
         >
           {props.children}
-        </Container>
+        </Box>
       </LocalizationProvider>
     </CookiesProvider>
   );

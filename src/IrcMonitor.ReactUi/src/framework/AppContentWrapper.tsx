@@ -1,12 +1,11 @@
-import { Backdrop, Box, CircularProgress, Typography, useMediaQuery } from "@mui/material";
-import React, { useEffect } from "react";
+import { Backdrop, Box, CircularProgress, Container, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsLoadingChannels, getIsLoggingIn } from "reducers/userReducer";
 import styled from "styled-components";
 import { LeftMenu } from "./LeftMenu";
 import { getIsLeftMenuOpen } from "reducers/appUiReducer";
 import { appUiActions } from "actions/appUiActions";
-import { centeringLimitPx, leftMenuWidth } from "./App";
 import { Link } from "react-router-dom";
 
 export interface TitlePart {
@@ -21,13 +20,12 @@ export interface AppContentWrapperProps {
   titleParts: TitlePart[];
 }
 
-const Container = styled.div`
+const PageContent = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
   margin-top: 16px;
   flex-grow: 1;
-  min-height: calc(100vh - 230px);
   max-width: 100%;
 `;
 
@@ -35,22 +33,22 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   const isLoggingIn = useSelector(getIsLoggingIn);
   const isLoadingChannels = useSelector(getIsLoadingChannels);
   const isLeftMenuOpen = useSelector(getIsLeftMenuOpen);
+  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
 
-  const isLarge = useMediaQuery(`(min-width:${centeringLimitPx})`);
   const dispatch = useDispatch();
   useEffect(() => {
     if (props.leftMenu) {
-      if (!isLeftMenuOpen && props.leftMenu !== undefined) {
+      if (!isLeftMenuOpen && props.leftMenu) {
+        console.log("Setting left menu open");
         dispatch(appUiActions.storeIsLeftMenuOpen(true));
-      } else if (isLeftMenuOpen && props.leftMenu === undefined) {
+      }
+    } else {
+      if (!props.leftMenu && isLeftMenuOpen) {
+        console.log("Setting left menu of");
         dispatch(appUiActions.storeIsLeftMenuOpen(false));
       }
     }
   }, [props.leftMenu, dispatch, isLeftMenuOpen]);
-
-  const shouldHaveMarginForContent = () => {
-    return !isLarge && isLeftMenuOpen;
-  };
 
   const drawTitle = () => {
     const count = props.titleParts.length;
@@ -92,20 +90,34 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-
       <Box
         sx={{
-          width: "100%",
-          height: "100%",
-          maxWidth: shouldHaveMarginForContent() ? `calc(100% - ${leftMenuWidth})` : "100%",
           flexGrow: 1,
           flexDirection: "column",
-          marginLeft: shouldHaveMarginForContent() ? leftMenuWidth : 0
+          minHeight: "calc(100vh - 230px)",
+          marginLeft: isLeftMenuOpen ? `${menuWidth}px` : "0px",
+          display: "flex",
+          paddingLeft: 1,
+          paddingRight: 1
         }}
       >
-        {drawTitle()}
-        {props.leftMenu ? <LeftMenu title="filters">{props.leftMenu}</LeftMenu> : null}
-        <Container>{props.children}</Container>
+        <Container maxWidth="xl" sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
+          {drawTitle()}
+          {props.leftMenu ? (
+            <LeftMenu
+              title="filters"
+              setMenuWidth={(width: number) => {
+                if (width) {
+                  console.log(width);
+                  setMenuWidth(width);
+                }
+              }}
+            >
+              {props.leftMenu}
+            </LeftMenu>
+          ) : null}
+          <PageContent>{props.children}</PageContent>
+        </Container>
       </Box>
     </>
   );
