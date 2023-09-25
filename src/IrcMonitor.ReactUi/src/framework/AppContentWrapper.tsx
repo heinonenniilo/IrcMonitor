@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getIsLoadingChannels, getIsLoggingIn } from "reducers/userReducer";
 import styled from "styled-components";
 import { LeftMenu } from "./LeftMenu";
-import { getIsLeftMenuOpen } from "reducers/appUiReducer";
+import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
 import { appUiActions } from "actions/appUiActions";
 import { Link } from "react-router-dom";
 
@@ -32,23 +32,29 @@ const PageContent = styled.div`
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   const isLoggingIn = useSelector(getIsLoggingIn);
   const isLoadingChannels = useSelector(getIsLoadingChannels);
-  const isLeftMenuOpen = useSelector(getIsLeftMenuOpen);
+  const hasLeftMenu = useSelector(getHasLeftMenu);
+  const leftMenuIsOpen = useSelector(getLeftMenuIsOpen);
   const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
 
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (props.leftMenu) {
-      if (!isLeftMenuOpen && props.leftMenu) {
-        console.log("Setting left menu open");
-        dispatch(appUiActions.storeIsLeftMenuOpen(true));
+      if (!hasLeftMenu && props.leftMenu) {
+        dispatch(appUiActions.storeHasLeftMenu(true));
+        dispatch(appUiActions.toggleLeftMenu(true)); // TODO CHANE
       }
     } else {
-      if (!props.leftMenu && isLeftMenuOpen) {
-        console.log("Setting left menu of");
-        dispatch(appUiActions.storeIsLeftMenuOpen(false));
+      if (!props.leftMenu && hasLeftMenu) {
+        dispatch(appUiActions.storeHasLeftMenu(false));
+        dispatch(appUiActions.toggleLeftMenu(false));
       }
     }
-  }, [props.leftMenu, dispatch, isLeftMenuOpen]);
+  }, [props.leftMenu, dispatch, hasLeftMenu]);
+
+  const handleMenuClose = () => {
+    dispatch(appUiActions.toggleLeftMenu(false));
+  };
 
   const drawTitle = () => {
     const count = props.titleParts.length;
@@ -95,7 +101,7 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
           flexGrow: 1,
           flexDirection: "column",
           minHeight: "calc(100vh - 230px)",
-          marginLeft: isLeftMenuOpen ? `${menuWidth}px` : "0px",
+          marginLeft: hasLeftMenu && leftMenuIsOpen ? `${menuWidth}px` : "0px",
           display: "flex",
           paddingLeft: 1,
           paddingRight: 1
@@ -103,19 +109,19 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
       >
         <Container maxWidth="xl" sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
           {drawTitle()}
-          {props.leftMenu ? (
-            <LeftMenu
-              title="filters"
-              setMenuWidth={(width: number) => {
-                if (width) {
-                  console.log(width);
-                  setMenuWidth(width);
-                }
-              }}
-            >
-              {props.leftMenu}
-            </LeftMenu>
-          ) : null}
+          <LeftMenu
+            title="filters"
+            setMenuWidth={(width: number) => {
+              if (width) {
+                console.log(width);
+                setMenuWidth(width);
+              }
+            }}
+            isOpen={props.leftMenu !== undefined && leftMenuIsOpen}
+            onClose={handleMenuClose}
+          >
+            {props.leftMenu}
+          </LeftMenu>
           <PageContent>{props.children}</PageContent>
         </Container>
       </Box>

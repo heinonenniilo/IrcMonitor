@@ -10,6 +10,8 @@ import { SelectChannel } from "./SelectChannel";
 import { userActions } from "actions/userActions";
 import { AuthorizedComponent } from "framework/AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
+import { appUiActions } from "actions/appUiActions";
+import { getLeftMenuIsOpen } from "reducers/appUiReducer";
 
 export interface MenuBarProps {
   handleLoginWithGoogleAuthCode: () => void;
@@ -44,6 +46,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   const channels = useSelector(getChannels);
   const isReLoggingIn = useSelector(getIsReLogging);
   const selectedChannel = useSelector(getSelectecChannel);
+  const isLeftMenuOpen = useSelector(getLeftMenuIsOpen);
 
   const dispatch = useDispatch();
 
@@ -67,7 +70,16 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       <Container maxWidth={"xl"}>
         <MenuItemsContainer>
           <MenuArea>
-            <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={() => {
+                dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
+              }}
+            >
               <MenuIcon />
             </IconButton>
             <MenuItem

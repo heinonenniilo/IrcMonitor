@@ -1,13 +1,22 @@
 import { Box, Drawer, Typography } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export interface LeftMenuProps {
   title: string;
   children: JSX.Element;
+  isOpen: boolean;
   setMenuWidth?: (width: number) => void;
+  onClose: () => void;
 }
 
-export const LeftMenu: React.FC<LeftMenuProps> = ({ title, children, setMenuWidth }) => {
+export const LeftMenu: React.FC<LeftMenuProps> = ({
+  title,
+  children,
+  setMenuWidth,
+  isOpen,
+  onClose
+}) => {
   const ref = useRef<HTMLElement | undefined | null>(null);
 
   const [menuWidth, setWidth] = useState<number | undefined>(undefined);
@@ -24,14 +33,30 @@ export const LeftMenu: React.FC<LeftMenuProps> = ({ title, children, setMenuWidt
   }, [menuWidth]);
 
   return (
-    <Drawer anchor="left" open={true} variant="persistent">
-      <Box sx={{ mt: 10, pr: 1, pl: 1, minWidth: "100px" }} ref={ref}>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="button" display="block" gutterBottom>
-            {title}
-          </Typography>
+    <Drawer anchor="left" open={isOpen} variant="persistent">
+      <Box
+        sx={{
+          mt: 10,
+          pr: 1,
+          pl: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          height: "100%"
+        }}
+        ref={ref}
+      >
+        <Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="button" display="block" gutterBottom>
+              {title}
+            </Typography>
+          </Box>
+          {children}
         </Box>
-        {children}
+        <Box sx={{ cursor: "pointer", mb: 2 }} onClick={onClose}>
+          <ArrowBackIcon />
+        </Box>
       </Box>
     </Drawer>
   );
