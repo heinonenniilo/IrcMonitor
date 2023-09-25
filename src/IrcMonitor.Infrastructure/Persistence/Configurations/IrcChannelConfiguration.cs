@@ -14,7 +14,7 @@ public class IrcChannelConfiguration : IEntityTypeConfiguration<IrcChannel>
         builder.Property(x => x.Name).HasMaxLength(256);
         builder.Property(x => x.Name).IsRequired();
 
-
         builder.HasIndex(x => x.Name).IsUnique();
+        builder.HasQueryFilter(x => x.IsActive);
     }
 }

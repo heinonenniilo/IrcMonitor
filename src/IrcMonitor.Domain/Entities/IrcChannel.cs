@@ -12,4 +12,6 @@ public class IrcChannel
     public IList<ProcessedLogFile> ProcessedFiles { get; set; }
 
     public IList<TimeGroupedRow> TimeGroupedRows { get; set; }
+
+    public bool IsActive { get; set; } = false;
 }
