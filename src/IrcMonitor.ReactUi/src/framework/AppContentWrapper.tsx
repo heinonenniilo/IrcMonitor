@@ -7,6 +7,7 @@ import { LeftMenu } from "./LeftMenu";
 import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
 import { appUiActions } from "actions/appUiActions";
 import { Link } from "react-router-dom";
+import { uiConfig } from "constants/conts";
 
 export interface TitlePart {
   text: string;
@@ -27,7 +28,7 @@ const PageContent = styled.div`
   margin-top: 16px;
   flex-grow: 1;
   max-width: 100%;
-  min-height: 400px; // TODO CHECK
+  min-height: ${uiConfig.pageContentMinHeight}; // TODO CHECK
 `;
 
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
