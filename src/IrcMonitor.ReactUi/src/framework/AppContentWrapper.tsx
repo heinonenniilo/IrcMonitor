@@ -27,6 +27,7 @@ const PageContent = styled.div`
   margin-top: 16px;
   flex-grow: 1;
   max-width: 100%;
+  min-height: 400px; // TODO CHECK
 `;
 
 export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
