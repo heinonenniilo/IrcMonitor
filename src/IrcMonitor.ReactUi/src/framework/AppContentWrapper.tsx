@@ -100,7 +100,7 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
         sx={{
           flexGrow: 1,
           flexDirection: "column",
-          minHeight: "calc(100vh - 230px)",
+          minHeight: "calc(100vh - 100px)", // TODO Could be made dynamic
           marginLeft: hasLeftMenu && leftMenuIsOpen ? `${menuWidth}px` : "0px",
           display: "flex",
           paddingLeft: 1,

@@ -42,7 +42,8 @@ export const LeftMenu: React.FC<LeftMenuProps> = ({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          height: "100%"
+          height: "100%",
+          maxWidth: "150px"
         }}
         ref={ref}
       >
