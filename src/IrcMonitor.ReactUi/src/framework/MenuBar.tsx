@@ -1,6 +1,6 @@
 import { AppBar, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect } from "react";
-import { getChannels, getSelectecChannel, User } from "reducers/userReducer";
+import { getChannels, getSelectecChannel } from "reducers/userReducer";
 
 import { useDispatch, useSelector } from "react-redux";
 import { userActions } from "actions/userActions";
@@ -11,14 +11,12 @@ export interface MenuBarProps {
   handleLoginWithGoogleAuthCode: () => void;
   handleLogOut: () => void;
   handleNavigateTo: (route: string) => void;
-  user: User | undefined;
 }
 
 const selectedChannelLocalStorageKey = "selectedChannel";
 
 export const MenuBar: React.FC<MenuBarProps> = ({
   handleLogOut,
-  user,
   handleNavigateTo,
   handleLoginWithGoogleAuthCode
 }) => {

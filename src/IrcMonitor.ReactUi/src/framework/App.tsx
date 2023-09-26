@@ -116,7 +116,6 @@ export const App: React.FC<AppProps> = (props) => {
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Container maxWidth={"xl"} sx={{ top: 0 }}>
           <MenuBar
-            user={user}
             handleLogOut={handleLogOut}
             handleNavigateTo={handleNavigate}
             handleLoginWithGoogleAuthCode={loginWithGoogleAuthCode}
