@@ -6,7 +6,7 @@ import { getUserInfo } from "reducers/userReducer";
 export const HomeView: React.FC = () => {
   const user = useSelector(getUserInfo);
   return (
-    <AppContentWrapper title="Home">
+    <AppContentWrapper titleParts={[{ text: "Home" }]}>
       {user && user.loggedIn && user.roles?.length > 0 ? (
         <p>See various IRC statistics in this page</p>
       ) : (

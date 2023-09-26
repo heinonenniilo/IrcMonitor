@@ -20,6 +20,7 @@ export interface BarCharComponentProps {
   chartTitle: string;
   onClick?: (index: number) => void;
   showPointerOnHover?: boolean;
+  maxHeight?: string;
 }
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -42,11 +43,12 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
   dataSetLabel,
   chartTitle,
   onClick,
-  showPointerOnHover
+  showPointerOnHover,
+  maxHeight
 }) => {
   const labels = rows.map((r) => r.label);
   return (
-    <Box display={"flex"} flexDirection={"column"} flex={1}>
+    <Box flex={1} position={"relative"} maxHeight={maxHeight} height={"auto"} width={"auto"}>
       <Bar
         options={{
           onClick: (event, elements) => {
@@ -66,6 +68,7 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
               target.style.cursor = "auto";
             }
           },
+          maintainAspectRatio: false,
           responsive: true,
           plugins: {
             legend: {

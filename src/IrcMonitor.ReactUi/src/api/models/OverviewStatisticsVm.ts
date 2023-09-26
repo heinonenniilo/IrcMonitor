@@ -37,6 +37,18 @@ export interface OverviewStatisticsVm {
      * @type {string}
      * @memberof OverviewStatisticsVm
      */
+    channelId: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof OverviewStatisticsVm
+     */
+    year?: number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof OverviewStatisticsVm
+     */
     channelName: string;
 }
 
@@ -46,6 +58,7 @@ export interface OverviewStatisticsVm {
 export function instanceOfOverviewStatisticsVm(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "rows" in value;
+    isInstance = isInstance && "channelId" in value;
     isInstance = isInstance && "channelName" in value;
 
     return isInstance;
@@ -62,6 +75,8 @@ export function OverviewStatisticsVmFromJSONTyped(json: any, ignoreDiscriminator
     return {
         
         'rows': ((json['rows'] as Array<any>).map(BarChartRowFromJSON)),
+        'channelId': json['channelId'],
+        'year': !exists(json, 'year') ? undefined : json['year'],
         'channelName': json['channelName'],
     };
 }
@@ -76,6 +91,8 @@ export function OverviewStatisticsVmToJSON(value?: OverviewStatisticsVm | null):
     return {
         
         'rows': ((value.rows as Array<any>).map(BarChartRowToJSON)),
+        'channelId': value.channelId,
+        'year': value.year,
         'channelName': value.channelName,
     };
 }

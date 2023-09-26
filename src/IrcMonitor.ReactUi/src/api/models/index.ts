@@ -9,6 +9,8 @@ export * from './HandleGoogleRefreshTokenCommand';
 export * from './IrcChannelDto';
 export * from './IrcRowDto';
 export * from './OverviewStatisticsVm';
+export * from './OverviewStatisticsVmAllOf';
 export * from './StatisticsVmBase';
 export * from './UserVm';
 export * from './YearlyStatisticsVm';
+export * from './YearlyStatisticsVmAllOf';

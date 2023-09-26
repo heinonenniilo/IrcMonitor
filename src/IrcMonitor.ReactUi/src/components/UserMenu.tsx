@@ -1,5 +1,5 @@
 import { AccountCircle } from "@mui/icons-material";
-import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
@@ -9,7 +9,7 @@ export interface UserMenuProps {
   handleLogOut: () => void;
   user: User | undefined;
   showReLogIn: boolean;
-  autoLogOn?: boolean;
+  isMobile?: boolean;
 }
 
 export const UserMenu: React.FC<UserMenuProps> = ({
@@ -17,7 +17,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   showReLogIn,
   handleLogOut,
   handleGoogleAuthWithCode,
-  autoLogOn
+  isMobile
 }) => {
   const [userMenuAcnhor, setUserMenuAcnhor] = React.useState<null | HTMLElement>(null);
 
@@ -42,10 +42,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         </Button>
       </>
     );
-  } else if (!autoLogOn && user && user.loggedIn) {
+  } else if (user && user.loggedIn) {
     return (
-      <>
-        <Typography variant="h6" marginTop={"auto"} marginBottom={"auto"}>
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Typography variant={!isMobile ? "h6" : "body1"} marginTop={"auto"} marginBottom={"auto"}>
           {user.email}
         </Typography>
         <IconButton
@@ -86,22 +86,20 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             </Button>
           </MenuItem>
         </Menu>
-      </>
+      </Box>
     );
   } else {
     return (
-      <>
-        <>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleGoogleAuthWithCode();
-            }}
-          >
-            Login with Google
-          </Button>
-        </>
-      </>
+      <MenuItem>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleGoogleAuthWithCode();
+          }}
+        >
+          Login with Google
+        </Button>
+      </MenuItem>
     );
   }
 };

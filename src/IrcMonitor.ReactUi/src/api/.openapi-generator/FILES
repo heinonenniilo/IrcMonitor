@@ -12,8 +12,10 @@ models/HandleGoogleRefreshTokenCommand.ts
 models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/OverviewStatisticsVm.ts
+models/OverviewStatisticsVmAllOf.ts
 models/StatisticsVmBase.ts
 models/UserVm.ts
 models/YearlyStatisticsVm.ts
+models/YearlyStatisticsVmAllOf.ts
 models/index.ts
 runtime.ts

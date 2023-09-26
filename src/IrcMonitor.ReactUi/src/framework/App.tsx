@@ -1,8 +1,8 @@
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
-import { MenuBar } from "components/MenuBar";
+import { MenuBar } from "framework/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
@@ -77,7 +77,7 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     if (userVm) {
       let date = new Date();
-      date.setTime(date.getTime() + useInfoExpiresInDays * 24 * 60 * 60 * 1000); // 24 hours
+      date.setTime(date.getTime() + useInfoExpiresInDays * 24 * 60 * 60 * 1000);
       setCookie(userInfoCookieName, userVm, { expires: date, sameSite: "strict", secure: true });
     }
   }, [userVm, setCookie]);
@@ -116,24 +116,22 @@ export const App: React.FC<AppProps> = (props) => {
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <Container maxWidth={"xl"} sx={{ top: 0 }}>
           <MenuBar
-            user={user}
             handleLogOut={handleLogOut}
             handleNavigateTo={handleNavigate}
             handleLoginWithGoogleAuthCode={loginWithGoogleAuthCode}
           />
         </Container>
-        <Container
-          maxWidth="xl"
+        <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             width: "100%",
             height: "100%",
-            marginTop: "124px"
+            marginTop: "80px"
           }}
         >
           {props.children}
-        </Container>
+        </Box>
       </LocalizationProvider>
     </CookiesProvider>
   );

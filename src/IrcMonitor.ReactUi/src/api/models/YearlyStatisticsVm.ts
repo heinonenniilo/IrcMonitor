@@ -31,19 +31,25 @@ export interface YearlyStatisticsVm {
      * @type {Array<BarChartRow>}
      * @memberof YearlyStatisticsVm
      */
-    monthlyRows?: Array<BarChartRow>;
+    rows: Array<BarChartRow>;
+    /**
+     * 
+     * @type {string}
+     * @memberof YearlyStatisticsVm
+     */
+    channelId: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof YearlyStatisticsVm
+     */
+    year?: number | null;
     /**
      * 
      * @type {string}
      * @memberof YearlyStatisticsVm
      */
     channel?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof YearlyStatisticsVm
-     */
-    year?: number;
 }
 
 /**
@@ -51,6 +57,8 @@ export interface YearlyStatisticsVm {
  */
 export function instanceOfYearlyStatisticsVm(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "rows" in value;
+    isInstance = isInstance && "channelId" in value;
 
     return isInstance;
 }
@@ -65,9 +73,10 @@ export function YearlyStatisticsVmFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'monthlyRows': !exists(json, 'monthlyRows') ? undefined : ((json['monthlyRows'] as Array<any>).map(BarChartRowFromJSON)),
-        'channel': !exists(json, 'channel') ? undefined : json['channel'],
+        'rows': ((json['rows'] as Array<any>).map(BarChartRowFromJSON)),
+        'channelId': json['channelId'],
         'year': !exists(json, 'year') ? undefined : json['year'],
+        'channel': !exists(json, 'channel') ? undefined : json['channel'],
     };
 }
 
@@ -80,9 +89,10 @@ export function YearlyStatisticsVmToJSON(value?: YearlyStatisticsVm | null): any
     }
     return {
         
-        'monthlyRows': value.monthlyRows === undefined ? undefined : ((value.monthlyRows as Array<any>).map(BarChartRowToJSON)),
-        'channel': value.channel,
+        'rows': ((value.rows as Array<any>).map(BarChartRowToJSON)),
+        'channelId': value.channelId,
         'year': value.year,
+        'channel': value.channel,
     };
 }
 

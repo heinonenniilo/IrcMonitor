@@ -4,13 +4,15 @@ import { IrcChannelDto } from "api";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getSelectecChannel } from "reducers/userReducer";
+import { getFormattedNumber } from "utilities/numberFormatterUtils";
 
 export interface SelectChannelProps {
   channels: IrcChannelDto[];
   onSelectChannel: (channelId: string | undefined) => void;
+  isMobile?: boolean;
 }
 
-const usePreStyles = makeStyles((theme?: any) => ({
+const desktopStyles = makeStyles((theme?: any) => ({
   formControl: {
     minWidth: 120,
     color: "white"
@@ -34,13 +36,38 @@ const usePreStyles = makeStyles((theme?: any) => ({
   }
 }));
 
+const mobileStyles = makeStyles((theme?: any) => ({
+  formControl: {
+    // minWidth: 120,
+    // color: "white"
+  },
+  selectEmpty: {},
+  divcontrol: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    minWidth: "300px"
+  },
+  select: {
+    // color: "white"
+  },
+  label: {
+    display: "flex"
+    // color: "white"
+  },
+  labelContainer: {
+    paddingRight: 16
+  }
+}));
+
 export const SelectChannel: React.FC<SelectChannelProps> = ({
   channels,
-  onSelectChannel
+  onSelectChannel,
+  isMobile
 }: SelectChannelProps) => {
   const selectedChannel = useSelector(getSelectecChannel);
 
-  const classes = usePreStyles();
+  const classes = !isMobile ? desktopStyles() : mobileStyles();
   return (
     <div className={classes.divcontrol}>
       <div className={classes.labelContainer}>
@@ -53,6 +80,10 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
           labelId="channel-select-label"
           id="channel-select"
           value={selectedChannel ?? ""}
+          renderValue={(r) => {
+            const match = channels.find((c) => c.guid === r);
+            return match.name ?? r;
+          }}
           className={classes.select}
         >
           {channels.map((c) => (
@@ -63,7 +94,7 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
               }}
               value={c.guid as string}
             >
-              {c.name}
+              {`${c.name} (${getFormattedNumber(c.rowCount)})`}
             </MenuItem>
           ))}
         </Select>

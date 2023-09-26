@@ -29,20 +29,32 @@ public class GetIrcChannelsQueryHandler : IRequestHandler<GetIrcChannelsQuery, G
     }
     public async Task<GetIrcChannelsVm> Handle(GetIrcChannelsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable < IrcChannel > query = _context.IrcChannels;
+        IQueryable<IrcChannel> query = _context.IrcChannels;
         if (!_identityService.IsAdmin)
         {
             query = query.Where(x => _identityService.GetAccessibleChannels().Contains(x.Id.ToString()));
         }
 
-        query = query.Where(x => x.TimeGroupedRows.Sum(g => g.Count) >= _ircStatisticsSettings.MinRowCountForChannel );
+        var grouped = query.Select(x => new IrcChannelQueryMode
+        {
+            Channel = x,
+            Count = x.TimeGroupedRows.Sum(x => x.Count)
+        });
 
-        var res = await query.ProjectTo<IrcChannelDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+        grouped = grouped.Where(x => x.Count >= _ircStatisticsSettings.MinRowCountForChannel);
+
+        var res = await grouped.OrderByDescending(d => d.Count).ProjectTo<IrcChannelDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
 
         return new GetIrcChannelsVm()
         {
             Channels = res
         };
-    } 
+    }
+}
+
+internal class IrcChannelQueryMode
+{
+    public IrcChannel Channel { get; set; }
+    public int Count { get; set; }
 }
 

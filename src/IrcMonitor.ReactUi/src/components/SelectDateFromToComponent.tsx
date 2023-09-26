@@ -24,45 +24,44 @@ export const SelectDateFromToComponent: React.FC<SelectDateFromToComponentProps>
   }, [criteria]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"row"}
-      marginBottom={4}
-      marginTop={4}
-      width={"100%"}
-      justifyContent={"space-between"}
-    >
-      <DesktopDatePicker
-        label="From"
-        inputFormat="DD.MM.YYYY"
-        value={fromDate}
-        onChange={(value) => {
-          if (value) {
-            setFromDate((value as moment.Moment).utc(true).startOf("day"));
-          }
-        }}
-        renderInput={(params) => <TextField {...params} />}
-      />
+    <Box display={"flex"} flexDirection={"column"} width={"100%"} justifyContent={"space-between"}>
+      <Box mt={2}>
+        <DesktopDatePicker
+          label="From"
+          inputFormat="DD.MM.YYYY"
+          value={fromDate}
+          onChange={(value) => {
+            if (value) {
+              setFromDate((value as moment.Moment).utc(true).startOf("day"));
+            }
+          }}
+          renderInput={(params) => <TextField {...params} />}
+        />
+      </Box>
 
-      <DesktopDatePicker
-        label="To"
-        inputFormat="DD.MM.YYYY"
-        value={toDate}
-        onChange={(value) => {
-          if (value) {
-            setToDate((value as moment.Moment).utc(true).endOf("day"));
-          }
-        }}
-        renderInput={(params) => <TextField {...params} />}
-      />
-      <Button
-        variant="outlined"
-        onClick={() => {
-          onSearch(fromDate.toDate(), toDate.toDate(), channelId);
-        }}
-      >
-        Search
-      </Button>
+      <Box mt={2}>
+        <DesktopDatePicker
+          label="To"
+          inputFormat="DD.MM.YYYY"
+          value={toDate}
+          onChange={(value) => {
+            if (value) {
+              setToDate((value as moment.Moment).utc(true).endOf("day"));
+            }
+          }}
+          renderInput={(params) => <TextField {...params} />}
+        />
+      </Box>
+      <Box mt={2}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            onSearch(fromDate.toDate(), toDate.toDate(), channelId);
+          }}
+        >
+          Search
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -12,6 +12,8 @@ import { BrowseView } from "containers/BrowseView";
 import { OverViewStatisticsView } from "containers/OverviewStatisticsView";
 import { YearlyStatisticsView } from "containers/YearlyStatistics";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { NickOverviewStatistics } from "containers/NickStatisticsOverView";
+import { NickStatisticsYear } from "containers/NickStatisticsYear";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
@@ -24,6 +26,8 @@ root.render(
               <Route path={routes.main} element={<HomeView />} />
               <Route path={routes.statistics} element={<OverViewStatisticsView />} />
               <Route path={routes.browse} element={<BrowseView />} />
+              <Route path={routes.nickOverView} element={<NickOverviewStatistics />} />
+              <Route path={routes.nickYearly} element={<NickStatisticsYear />} />
               <Route path={routes.yearlyStatistics} element={<YearlyStatisticsView />} />
             </Routes>
           </App>

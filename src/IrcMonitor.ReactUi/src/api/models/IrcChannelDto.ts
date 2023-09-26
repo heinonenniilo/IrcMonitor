@@ -37,6 +37,12 @@ export interface IrcChannelDto {
      * @memberof IrcChannelDto
      */
     name?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof IrcChannelDto
+     */
+    rowCount?: number;
 }
 
 /**
@@ -61,6 +67,7 @@ export function IrcChannelDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
         'id': !exists(json, 'id') ? undefined : json['id'],
         'guid': !exists(json, 'guid') ? undefined : json['guid'],
         'name': !exists(json, 'name') ? undefined : json['name'],
+        'rowCount': !exists(json, 'rowCount') ? undefined : json['rowCount'],
     };
 }
 
@@ -76,6 +83,7 @@ export function IrcChannelDtoToJSON(value?: IrcChannelDto | null): any {
         'id': value.id,
         'guid': value.guid,
         'name': value.name,
+        'rowCount': value.rowCount,
     };
 }
 

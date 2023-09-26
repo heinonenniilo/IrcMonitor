@@ -64,11 +64,13 @@ export interface IrcGetNickBasedStatisticsRequest {
 
 export interface IrcGetOverviewStatisticsRequest {
     channelId: string;
+    nick?: string | null;
 }
 
 export interface IrcGetYearlyStatisticsRequest {
     channelId: string;
     year: number;
+    nick?: string | null;
 }
 
 /**
@@ -261,6 +263,10 @@ export class IrcApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
+        if (requestParameters.nick !== undefined) {
+            queryParameters['nick'] = requestParameters.nick;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.apiKey) {
@@ -296,6 +302,10 @@ export class IrcApi extends runtime.BaseAPI {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters.nick !== undefined) {
+            queryParameters['nick'] = requestParameters.nick;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
