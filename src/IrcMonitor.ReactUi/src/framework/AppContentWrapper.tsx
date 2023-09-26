@@ -41,14 +41,10 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (props.leftMenu) {
-      if (!hasLeftMenu && props.leftMenu) {
-        dispatch(appUiActions.storeHasLeftMenu(true));
-      }
-    } else {
-      if (!props.leftMenu && hasLeftMenu) {
-        dispatch(appUiActions.storeHasLeftMenu(false));
-      }
+    if (!hasLeftMenu && props.leftMenu) {
+      dispatch(appUiActions.storeHasLeftMenu(true));
+    } else if (!props.leftMenu && hasLeftMenu) {
+      dispatch(appUiActions.storeHasLeftMenu(false));
     }
   }, [props.leftMenu, dispatch, hasLeftMenu]);
 
@@ -113,7 +109,6 @@ export const AppContentWrapper: React.FC<AppContentWrapperProps> = (props) => {
             title="filters"
             setMenuWidth={(width: number) => {
               if (width) {
-                console.log(width);
                 setMenuWidth(width);
               }
             }}

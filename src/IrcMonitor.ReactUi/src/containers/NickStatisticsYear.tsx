@@ -78,7 +78,6 @@ export const NickStatisticsYear: React.FC = () => {
         channelYearlyStatistics.year !== parseInt(year, 10) ||
         channelYearlyStatistics.channelId !== selectedChannel)
     ) {
-      console.log("Reloading");
       apiHook.ircApi
         .ircGetNickBasedStatistics({
           channelId: selectedChannel,
@@ -107,7 +106,6 @@ export const NickStatisticsYear: React.FC = () => {
       });
     }
   };
-  // nickOverView: "/statistics/nick/:nick",
 
   return (
     <AppContentWrapper

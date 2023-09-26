@@ -3,20 +3,25 @@ import React from "react";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { getChannels, getUserInfo, getUserVm } from "reducers/userReducer";
-import { SelectChannel } from "./SelectChannel";
+import { SelectChannel } from "../components/SelectChannel";
 import { routes } from "utilities/routes";
 import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
-import { UserMenu } from "./UserMenu";
-import { userActions } from "actions/userActions";
+import { UserMenu } from "../components/UserMenu";
 import { appUiActions } from "actions/appUiActions";
 
 export interface MobileMenuProps {
   onNavigate: (route: string) => void;
   onLogin: () => void;
   onLogOut: () => void;
+  onSelectChannel: (channelId: string) => void;
 }
 
-export const MobileMenu: React.FC<MobileMenuProps> = ({ onNavigate, onLogin, onLogOut }) => {
+export const MobileMenu: React.FC<MobileMenuProps> = ({
+  onNavigate,
+  onLogin,
+  onLogOut,
+  onSelectChannel
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const channels = useSelector(getChannels);
   const userVm = useSelector(getUserVm);
@@ -82,7 +87,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ onNavigate, onLogin, onL
             <SelectChannel
               channels={channels}
               onSelectChannel={(r) => {
-                dispatch(userActions.selectChannel(r));
+                onSelectChannel(r);
                 handleClose();
               }}
               isMobile
@@ -91,7 +96,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ onNavigate, onLogin, onL
           {hasLeftMenu ? (
             <MenuItem
               selected={false}
-              onClick={(event) => {
+              onClick={() => {
                 dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
                 handleClose();
               }}
@@ -115,7 +120,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ onNavigate, onLogin, onL
           id="mobileHamburger"
           sx={{ mr: 2 }}
           onClick={(event) => {
-            // dispatch(appUiActions.toggleLeftMenu(!isLeftMenuOpen));
             setAnchorEl(event.currentTarget);
           }}
         >

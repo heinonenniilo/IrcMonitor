@@ -32,7 +32,6 @@ export const NickOverviewStatistics: React.FC = () => {
 
   useEffect(() => {
     if (apiHook.ircApi && nick && selectedChannel) {
-      console.log("triggering");
       setIsLoadingOverViewStatistics(true);
       setIsLoadingHourlyStatistics(true);
       apiHook.ircApi

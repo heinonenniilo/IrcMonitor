@@ -2,7 +2,7 @@ import { Box, Container } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userActions } from "actions/userActions";
 import { UserVm } from "api";
-import { MenuBar } from "components/MenuBar";
+import { MenuBar } from "framework/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux/es/exports";
