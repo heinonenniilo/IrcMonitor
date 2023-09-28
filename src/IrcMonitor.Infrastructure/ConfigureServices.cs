@@ -70,7 +70,7 @@ public static class ConfigureServices
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
-        var keyClient = new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), new DefaultAzureCredential());
+        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), new DefaultAzureCredential()) : null;
         services.AddSingleton(x =>
         {
             return keyClient;

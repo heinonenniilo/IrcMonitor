@@ -109,16 +109,16 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     }
   };
 
+  // TODO: Check the definition for paddingLeft
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
-      <Box sx={{ display: "flex", flexDirection: "row" }}>
+      <Box sx={{ display: "flex", flexDirection: "row", pl: 1.5 }}>
         <IconButton
           size="large"
           edge="start"
           color="inherit"
           aria-label="menu"
           id="mobileHamburger"
-          sx={{ mr: 2 }}
           onClick={(event) => {
             setAnchorEl(event.currentTarget);
           }}

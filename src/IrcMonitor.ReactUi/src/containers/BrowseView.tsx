@@ -8,7 +8,7 @@ import {
 import { GetIrcRowsVm, IrcGetIrcRowsRequest } from "api";
 import { SelectDateFromToComponent } from "components/SelectDateFromToComponent";
 import { AppContentWrapper } from "framework/AppContentWrapper";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getSelectecChannel } from "reducers/userReducer";
 import moment from "moment";
@@ -19,6 +19,15 @@ import { useMediaQuery, useTheme } from "@mui/material";
 
 const defaultPageSize = 100;
 const timeStampColumn = "timeStamp";
+
+const defaultCriteria: IrcGetIrcRowsRequest = {
+  criteriaSortColumn: timeStampColumn,
+  criteriaIsAscendingOrder: true,
+  criteriaPage: 0,
+  criteriaPageSize: defaultPageSize,
+  criteriaFrom: moment().add(-1, "M").toDate(),
+  criteriaTo: moment().toDate()
+};
 
 export const BrowseView: React.FC = () => {
   const useApi = useApiHook();
@@ -32,17 +41,6 @@ export const BrowseView: React.FC = () => {
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
   let [searchParams] = useSearchParams();
-
-  const defaultCriteria: IrcGetIrcRowsRequest = useMemo(() => {
-    return {
-      criteriaSortColumn: timeStampColumn,
-      criteriaIsAscendingOrder: true,
-      criteriaPage: 0,
-      criteriaPageSize: defaultPageSize,
-      criteriaFrom: moment().add(-10, "M").toDate(),
-      criteriaTo: moment().toDate()
-    };
-  }, []);
 
   const [response, setResponse] = useState<GetIrcRowsVm | undefined>();
 
@@ -69,6 +67,9 @@ export const BrowseView: React.FC = () => {
           });
         })
         .catch((err) => {
+          console.error(err);
+        })
+        .finally(() => {
           setIsLoading(false);
         });
     },
@@ -83,16 +84,23 @@ export const BrowseView: React.FC = () => {
     const startString = searchParams.get("start");
     const endString = searchParams.get("end");
 
-    if (startString && endString && channelId && useApi.ircApi && !hasSearchedWithQueryParams) {
-      const momentStart = moment(startString, dateFormat).startOf("day");
-      const momentEnd = moment(endString, dateFormat).endOf("day");
+    if (channelId && useApi.ircApi && !hasSearchedWithQueryParams) {
+      if (startString && endString) {
+        const momentStart = moment(startString, dateFormat).startOf("day");
+        const momentEnd = moment(endString, dateFormat).endOf("day");
+        handleFetchRows({
+          ...defaultCriteria,
+          criteriaChannelId: channelId,
+          criteriaFrom: momentStart.startOf("day").toDate(),
+          criteriaTo: momentEnd.endOf("day").toDate()
+        });
+      } else {
+        handleFetchRows({
+          ...defaultCriteria,
+          criteriaChannelId: channelId
+        });
+      }
       setHasSearchedWithQueryParams(true);
-      handleFetchRows({
-        ...defaultCriteria,
-        criteriaChannelId: channelId,
-        criteriaFrom: momentStart.startOf("day").toDate(),
-        criteriaTo: momentEnd.endOf("day").toDate()
-      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, channelId, hasSearchedWithQueryParams, handleFetchRows, useApi.ircApi]);
@@ -103,12 +111,20 @@ export const BrowseView: React.FC = () => {
       headerName: "Timestamp",
       minWidth: 170,
       sortable: true,
+      filterable: false,
       valueGetter: (params: GridValueGetterParams) => {
         return moment(params.value).format("DD.MM.YYYY HH:mm:ss");
       }
     },
-    { field: "nick", headerName: "Nick", minWidth: 100, sortable: false },
-    { field: "message", headerName: "Message", minWidth: 150, sortable: false, flex: 1 }
+    { field: "nick", headerName: "Nick", minWidth: 100, sortable: false, filterable: true },
+    {
+      field: "message",
+      headerName: "Message",
+      minWidth: 150,
+      sortable: false,
+      flex: 1,
+      filterable: false
+    }
   ];
 
   return (
@@ -140,6 +156,7 @@ export const BrowseView: React.FC = () => {
           handleFetchRows({ ...criteria, criteriaPage: 0, criteriaPageSize: pageSize });
         }}
         paginationMode="server"
+        sortingMode="server"
         initialState={{
           sorting: {
             sortModel: [{ field: timeStampColumn, sort: "asc" }]

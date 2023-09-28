@@ -38,15 +38,12 @@ internal class JwtGenerator : IJwtGenerator
         var isAdmin = userInDb?.Roles.Any(r => r.Role == RoleConstants.Admin) ?? false;
         var isViewer = userInDb?.Roles.Any(r => r.Role == RoleConstants.Viewer) ?? false;
 
-        var cryptoClient = _client.GetCryptographyClient(_authenticationSettings.KeyVault.KeyName);
-
         var roles = new List<string>();
         var tokenHandler = new JwtSecurityTokenHandler();
         var identity = new ClaimsIdentity(new Claim[]
         {
             new Claim(ClaimTypes.Sid, userId.ToString())
         });
-
 
         if (isAdmin)
         {
