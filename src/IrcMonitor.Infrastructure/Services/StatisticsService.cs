@@ -37,4 +37,27 @@ public class StatisticsService : IStatisticsService
         _logger.LogInformation("Channel statistics populated");
 
     }
+
+    public async Task UpdateChannelMonthlyStatistics(int channelId, int year, int month, int day)
+    {
+        // The new grouped rows, hour / channel / nick.
+        var groupedQuery = _context.IrcRows.Where(x => x.Channel.Id == channelId &&
+
+        x.TimeStamp.Year == year && x.TimeStamp.Month == month
+        ).GroupBy(x => new { x.TimeStamp.Hour, x.ChannelId, x.Nick });
+
+        var newRows =  groupedQuery.Select(x => new TimeGroupedRow() {
+            Year = year,
+            Month = month,
+            Hour = x.Key.Hour,
+            ChannelId = channelId,
+            Count = x.Count(),
+            Nick = x.Key.Nick
+        });
+
+
+        var curRows = _context.TimeGroupedRows.Where(x => x.ChannelId == channelId && x.Year == year && x.Month == month);
+
+        return;
+    }
 }

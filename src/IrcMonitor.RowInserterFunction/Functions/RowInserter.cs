@@ -1,3 +1,4 @@
+using System.Text.Json;
 using IrcMonitor.Application.Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -15,10 +16,19 @@ public class RowInserter
     }
 
     [Function("RowInserter")]
-    public async Task Run([BlobTrigger("irclogs/{name}", Connection = "storagestring")] string content, string name)
+    [QueueOutput("daily-aggregates")]
+    public async Task<string> Run([BlobTrigger("irclogs/{name}", Connection = "storagestring")] string content, string name)
     {
         _logger.LogInformation($"Start processing file with name {name}");
-        await _rowInsertService.ProcessFile(name, content);
+        var res = await _rowInsertService.ProcessFile(name, content);
         _logger.LogInformation($"Finished processing file with name {name}");
+
+        if (res == null)
+        {
+            return null;
+        }
+
+        string jsonString = JsonSerializer.Serialize(res);
+        return jsonString;
     }
 }
