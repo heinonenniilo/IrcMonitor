@@ -17,4 +17,6 @@ public interface IApplicationDbContext
     DbSet<TimeGroupedRow> TimeGroupedRows { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    Task Upsert<T>(IEnumerable<T> entities, CancellationToken cancellationToken) where T : class;
 }

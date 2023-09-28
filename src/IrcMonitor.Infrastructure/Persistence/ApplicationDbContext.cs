@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using EFCore.BulkExtensions;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Entities;
 using IrcMonitor.Infrastructure.Persistence.Interceptors;
@@ -32,10 +33,16 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         base.OnModelCreating(builder);
+
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(_auditableEntitySaveChangesInterceptor);
+    }
+
+    public async Task Upsert<T>(IEnumerable<T> entities, CancellationToken cancellationToken) where T : class
+    {
+        await this.BulkInsertOrUpdateAsync(entities, cancellationToken: cancellationToken);
     }
 }

@@ -17,7 +17,7 @@ public class RowInserter
 
     [Function("RowInserter")]
     [QueueOutput("daily-aggregates")]
-    public async Task<string> Run([BlobTrigger("irclogs/{name}", Connection = "storagestring")] string content, string name)
+    public async Task<string> Run([BlobTrigger("irclogs/{name}")] string content, string name)
     {
         _logger.LogInformation($"Start processing file with name {name}");
         var res = await _rowInsertService.ProcessFile(name, content);
