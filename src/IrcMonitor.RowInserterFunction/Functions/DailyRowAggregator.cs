@@ -25,6 +25,5 @@ public class DailyRowAggregator
 
         _logger.LogInformation($"Daily aggregates formed for channel id {content.ChannelId}");
 
-        Console.WriteLine(content);
     }
 }
