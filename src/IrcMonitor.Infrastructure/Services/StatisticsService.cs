@@ -46,8 +46,10 @@ public class StatisticsService : IStatisticsService
 
         if (channel == null)
         {
-            throw new NotFoundException();
+            throw new NotFoundException($"No channel found with guid / id {channelId}");
         }
+
+        _logger.LogInformation($"Found channel {channel.Name} with guid {channelId}. Start updating monthly statistics.");
 
         // The new grouped rows, hour / channel / nick.
         var groupedQuery = _context.IrcRows.Where(x => x.Channel.Id == channel.Id &&
@@ -67,6 +69,8 @@ public class StatisticsService : IStatisticsService
 
         await _context.Upsert(newRows, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation($"Monthly statistics updated for channel {channel.Name} for year: {year}/ month: {month}");
 
     }
 }
