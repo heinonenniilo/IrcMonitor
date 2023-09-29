@@ -1,5 +1,4 @@
 ﻿using IrcMonitor.Application.Common.Interfaces;
-using IrcMonitor.Domain.Models;
 using IrcMonitor.Domain.Models.Functions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
