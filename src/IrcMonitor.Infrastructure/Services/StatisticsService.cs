@@ -70,7 +70,7 @@ public class StatisticsService : IStatisticsService
         await _context.Upsert(newRows, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation($"Monthly statistics updated for channel {channel.Name} for year: {year}/ month: {month}");
+        _logger.LogInformation($"Monthly statistics updated for channel {channel.Name} for year: {year} / month: {month}");
 
     }
 }
