@@ -18,7 +18,7 @@ public class DailyRowAggregator
     [Function("DailyRowAggregator")]
     public async Task Run([QueueTrigger("daily-aggregates")] FormDailyAggregateModel content, FunctionContext context)
     {
-        _logger.LogInformation($"Start forming daily aggregate for channel id {content.ChannelId} / date {content.Date}.");
+        _logger.LogInformation($"Daily aggregate for channel id {content.ChannelId} / date {content.Date} triggered");
 
         await _statisticsService.UpdateChannelMonthlyStatistics(content.ChannelId, content.Date.Year, content.Date.Month, content.Date.Day, context.CancellationToken);
 
