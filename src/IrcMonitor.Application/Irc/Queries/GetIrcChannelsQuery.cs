@@ -29,7 +29,7 @@ public class GetIrcChannelsQueryHandler : IRequestHandler<GetIrcChannelsQuery, G
     }
     public async Task<GetIrcChannelsVm> Handle(GetIrcChannelsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<IrcChannel> query = _context.IrcChannels;
+        IQueryable<IrcChannel> query = _context.IrcChannels.Where(x => x.IsActive);
         if (!_identityService.IsAdmin)
         {
             query = query.Where(x => _identityService.GetAccessibleChannels().Contains(x.Id.ToString()));

@@ -86,7 +86,7 @@ public class RowInsertService : IRowInsertService
 
         return new ProcessLogFileReturnModel()
         {
-            ChannelId = correspondingChannel.Id,
+            Channel = correspondingChannel,
             InsertedRowCount = ircRowsToInsert.Count,
             Date = date
         };

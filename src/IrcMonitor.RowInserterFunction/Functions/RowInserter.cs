@@ -1,5 +1,6 @@
 using System.Text.Json;
 using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Domain.Models.Functions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +29,13 @@ public class RowInserter
             return null;
         }
 
-        string jsonString = JsonSerializer.Serialize(res);
+        var retModel = new FormDailyAggregateModel()
+        {
+            ChannelId = res.Channel.Guid,
+            Date = res.Date
+        };
+
+        string jsonString = JsonSerializer.Serialize(retModel);
         return jsonString;
     }
 }

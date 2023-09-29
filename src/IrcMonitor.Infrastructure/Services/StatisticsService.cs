@@ -39,10 +39,10 @@ public class StatisticsService : IStatisticsService
 
     }
 
-    public async Task UpdateChannelMonthlyStatistics(int channelId, int year, int month, int day, CancellationToken cancellationToken)
+    public async Task UpdateChannelMonthlyStatistics(Guid channelId, int year, int month, int day, CancellationToken cancellationToken)
     {
 
-        var channel = await _context.IrcChannels.FirstOrDefaultAsync(x => x.Id == channelId, cancellationToken);
+        var channel = await _context.IrcChannels.FirstOrDefaultAsync(x => x.Guid == channelId, cancellationToken);
 
         if (channel == null)
         {
@@ -50,7 +50,7 @@ public class StatisticsService : IStatisticsService
         }
 
         // The new grouped rows, hour / channel / nick.
-        var groupedQuery = _context.IrcRows.Where(x => x.Channel.Id == channelId &&
+        var groupedQuery = _context.IrcRows.Where(x => x.Channel.Id == channel.Id &&
 
         x.TimeStamp.Year == year && x.TimeStamp.Month == month
         ).GroupBy(x => new { x.TimeStamp.Hour, x.ChannelId, x.Nick });
@@ -59,14 +59,13 @@ public class StatisticsService : IStatisticsService
             Year = year,
             Month = month,
             Hour = x.Key.Hour,
-            ChannelId = channelId,
+            ChannelId = channel.Id,
             Count = x.Count(),
             Nick = x.Key.Nick,
             Updated = DateTime.UtcNow, 
         }).ToListAsync();
 
         await _context.Upsert(newRows, cancellationToken);
-
         await _context.SaveChangesAsync(cancellationToken);
 
     }
