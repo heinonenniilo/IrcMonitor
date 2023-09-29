@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Entities;
+using IrcMonitor.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -14,13 +15,13 @@ public class RowInsertService : IRowInsertService
         _context = context;
         _logger = loggerFactory.CreateLogger<RowInsertService>();
     }
-
-    public async Task ProcessFile(string fileName, string content)
+    
+    public async Task<ProcessLogFileReturnModel> ProcessFile(string fileName, string content)
     {
 
         if (await _context.ProcessedLogFiles.AnyAsync(x => x.FileName == fileName)) {
             _logger.LogWarning($"File {fileName} already processed");
-            return;
+            return null;
         }
 
         // Capture everything before the last dot, then capture the date pattern, followed by ".log"
@@ -82,5 +83,12 @@ public class RowInsertService : IRowInsertService
         await _context.SaveChangesAsync(CancellationToken.None);
 
         _logger.LogInformation($"Finished processing file {fileName}. Inserted a total of {ircRowsToInsert.Count} rows");
+
+        return new ProcessLogFileReturnModel()
+        {
+            Channel = correspondingChannel,
+            InsertedRowCount = ircRowsToInsert.Count,
+            Date = date
+        };
     }
 }

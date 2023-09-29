@@ -1,4 +1,5 @@
-﻿using IrcMonitor.Application.Common.Interfaces;
+﻿using IrcMonitor.Application.Common.Exceptions;
+using IrcMonitor.Application.Common.Interfaces;
 using IrcMonitor.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ public class StatisticsService : IStatisticsService
         _context = context;
         _logger = loggerFactory.CreateLogger<StatisticsService>();
     }
-    public async Task PopulateChannelStatistics()
+    public async Task PopulateChannelStatistics(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Start populating channel statistics");
 
@@ -30,11 +31,46 @@ public class StatisticsService : IStatisticsService
             Month = x.Key.Month,
             Count = x.Count(),
             Updated = DateTime.UtcNow
-        }));
+        }), cancellationToken);
 
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Channel statistics populated");
+
+    }
+
+    public async Task UpdateChannelMonthlyStatistics(Guid channelId, int year, int month, int day, CancellationToken cancellationToken)
+    {
+
+        var channel = await _context.IrcChannels.FirstOrDefaultAsync(x => x.Guid == channelId, cancellationToken);
+
+        if (channel == null)
+        {
+            throw new NotFoundException($"No channel found with guid / id {channelId}");
+        }
+
+        _logger.LogInformation($"Found channel {channel.Name} with guid {channelId}. Start updating monthly statistics.");
+
+        // The new grouped rows, hour / channel / nick.
+        var groupedQuery = _context.IrcRows.Where(x => x.Channel.Id == channel.Id &&
+
+        x.TimeStamp.Year == year && x.TimeStamp.Month == month
+        ).GroupBy(x => new { x.TimeStamp.Hour, x.ChannelId, x.Nick });
+
+        var newRows =  await groupedQuery.Select(x => new TimeGroupedRow() {
+            Year = year,
+            Month = month,
+            Hour = x.Key.Hour,
+            ChannelId = channel.Id,
+            Count = x.Count(),
+            Nick = x.Key.Nick,
+            Updated = DateTime.UtcNow, 
+        }).ToListAsync();
+
+        await _context.Upsert(newRows, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation($"Monthly statistics updated for channel {channel.Name} for year: {year} / month: {month}");
 
     }
 }

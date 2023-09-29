@@ -23,7 +23,7 @@ namespace IrcMonitor.RowInserterFunction.Functions
 
             var response = req.CreateResponse(HttpStatusCode.OK);
 
-            await _statisticsService.PopulateChannelStatistics();
+            await _statisticsService.PopulateChannelStatistics(CancellationToken.None);
             
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
