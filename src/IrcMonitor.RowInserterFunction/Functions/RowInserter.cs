@@ -18,8 +18,11 @@ public class RowInserter
 
     [Function("RowInserter")]
     [QueueOutput("daily-aggregates")]
-    public async Task<string> Run([BlobTrigger("irclogs/{name}")] string content, string name)
-    {
+    public async Task<string> Run(
+        [QueueTrigger("log-files-to-process")] string name,
+        [BlobInput("irclogs/{queueTrigger}")] string content
+        )
+    {      
         _logger.LogInformation($"Start processing file with name {name}");
         var res = await _rowInsertService.ProcessFile(name, content);
         _logger.LogInformation($"Finished processing file with name {name}");
@@ -28,13 +31,11 @@ public class RowInserter
         {
             return null;
         }
-
         var retModel = new FormDailyAggregateModel()
         {
             ChannelId = res.Channel.Guid,
             Date = res.Date
         };
-
         string jsonString = JsonSerializer.Serialize(retModel);
         return jsonString;
     }
