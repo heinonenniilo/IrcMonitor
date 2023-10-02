@@ -54,12 +54,25 @@ UI and the backend need to be started separately.
 
 ## Azure implementation
 
-The solution includes an Azure Function App consisting of three functions.
+The solution includes a simple deployment YAML which is used for deploying the solution to Azure App service. 
+
+For the app to function in Azure, the following is needed:
+
+- Storage account
+- SQL DB
+- Function App
+- KeyVault, if using RSA key stored in the key vault.
+
+The solution includes an Azure Function App consisting of three functions, which are used for updating the IRC row data / statistics. 
+
 **DailyRowAggregator**
+HTTP triggered function, that populates the ``TimeGroupedRows`` table. Can be used to init the aggregated data.
 **RowAggregator**
-  
+Is triggered from queue named ``daily-aggregates`` The JSON message is supposed to include channel guid / date from which daily aggregates should be formed, updates the ``TimeGroupedRows`` table.
 **RowInserter**
-Is triggered from queue named ``log-files-to-process``. The queue is expected to include a message, the content of which points to a log file in blob container irclogs. With input binding, this blob is then read and processed. As an output, message is added to the ``daily-aggregates`` queue.
+Is triggered from queue named ``log-files-to-process``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container irclogs. With input binding, this blob is then read and processed. As an output, message is added to the ``daily-aggregates`` queue.
+
+For uploading the log files, see the Python script in the solution.
 
 
 ## TODO
