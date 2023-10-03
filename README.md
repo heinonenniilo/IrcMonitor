@@ -79,11 +79,11 @@ HTTP triggered function, that populates the ``TimeGroupedRows`` table. Can be us
 
 **RowAggregator**
 
-Is triggered from the defined queue, app setting ``DailyAggregatesQueue``. The JSON message is supposed to include channel guid / date from which daily aggregates should be formed, updates the ``TimeGroupedRows`` table.
+Is triggered from the defined queue, app setting ``DailyAggregatesQueueName``. The JSON message is supposed to include channel guid / date from which daily aggregates should be formed, updates the ``TimeGroupedRows`` table.
 
 **RowInserter**
 
-Is triggered from the defined queue, apps setting ``FilesToProcessQueueName``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container, the name of which is defined in appsetting ``LogsContainer``. With input binding, this blob is then read and processed. As an output, message is added to the queue defined in ``DailyAggregatesQueue`` app setting.
+Is triggered from the defined queue, apps setting ``FilesToProcessQueueName``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container, the name of which is defined in appsetting ``LogsContainerName``. With input binding, this blob is then read and processed. As an output, message is added to the queue defined in ``DailyAggregatesQueueName`` app setting.
 
 For uploading the log files, see the Python script in the solution.
 
