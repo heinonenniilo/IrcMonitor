@@ -17,10 +17,10 @@ public class RowInserter
     }
 
     [Function("RowInserter")]
-    [QueueOutput("daily-aggregates")]
+    [QueueOutput("%DailyAggregatesQueue%")]
     public async Task<string> Run(
-        [QueueTrigger("log-files-to-process")] string name,
-        [BlobInput("irclogs/{queueTrigger}")] string content
+        [QueueTrigger("%FilesToProcessQueueName%")] string name,
+        [BlobInput("%LogsContainer%/{queueTrigger}")] string content
         )
     {      
         _logger.LogInformation($"Start processing file with name {name}");
