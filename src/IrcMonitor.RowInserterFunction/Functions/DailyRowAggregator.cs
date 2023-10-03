@@ -16,7 +16,7 @@ public class DailyRowAggregator
     }
 
     [Function("DailyRowAggregator")]
-    public async Task Run([QueueTrigger("%DailyAggregatesQueue%")] FormDailyAggregateModel content, FunctionContext context)
+    public async Task Run([QueueTrigger("%DailyAggregatesQueueName%")] FormDailyAggregateModel content, FunctionContext context)
     {
         _logger.LogInformation($"Daily aggregate for channel id {content.ChannelId} / date {content.Date} triggered");
 
