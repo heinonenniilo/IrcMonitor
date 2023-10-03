@@ -45,7 +45,7 @@ Currently, only supports authentication using a Google account. UI layout is a d
     - ``openssl rsa -pubout -in private_key.pem -out public_key.pem`` will create the public key
     - ``openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048`` will create the private key.
 9. Place the keys  in appsettings.
-    - The keys should be in appsettings in full format, with line breaks being presented with "\n" character.
+    - The keys should be in appsettings in full format, with line breaks being presented with "\n" character. (TODO: Add a better expalantion on how to do this).
 
 To assign yourselft with an admin role, add a row corresponding with your Google email in Users-table. After that, check the ID of the user row and insert a role having "Admin" as value for "Role" column and your user's id as value for UserId column.
 
@@ -60,12 +60,16 @@ The solution includes a simple deployment YAML which is used for deploying the s
 For the app to function in Azure, the following is needed:
 
 - Storage account
-  - Should have queues "daily-aggregates" and "log-files-to-process".
-  - Also, a blob container for the log files is needed, currently with name "irclogs".
+  - Should have queues for files to process / daily aggregates. Names for these should be defined in Function App config.
+  - Also, a blob container for the log files is needed. This name should also be defined in Function App configuration.
 - SQL Server
 - Function App
-- KeyVault, if using RSA key stored in the key vault.
+  -  Currently, requires read / write access and table creationg rights (due to EF bulk extensions) in the DB.
+- KeyVault with RSA key defined.
 - App service.
+  -  Read / write access for the DB required.
+
+### Azure function app
 
 The solution includes an Azure Function App consisting of three functions, which are used for updating the IRC row data / statistics. 
 
@@ -75,13 +79,17 @@ HTTP triggered function, that populates the ``TimeGroupedRows`` table. Can be us
 
 **RowAggregator**
 
-Is triggered from queue named ``daily-aggregates`` The JSON message is supposed to include channel guid / date from which daily aggregates should be formed, updates the ``TimeGroupedRows`` table.
+Is triggered from the defined queue, app setting ``DailyAggregatesQueue``. The JSON message is supposed to include channel guid / date from which daily aggregates should be formed, updates the ``TimeGroupedRows`` table.
 
 **RowInserter**
 
-Is triggered from queue named ``log-files-to-process``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container irclogs. With input binding, this blob is then read and processed. As an output, message is added to the ``daily-aggregates`` queue.
+Is triggered from the defined queue, apps setting ``FilesToProcessQueueName``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container, the name of which is defined in appsetting ``LogsContainer``. With input binding, this blob is then read and processed. As an output, message is added to the queue defined in ``DailyAggregatesQueue`` app setting.
 
 For uploading the log files, see the Python script in the solution.
+
+**Local development settings**
+
+The solution includes the local.settings.json file with default settings, for queue names / DB connetion. These can be overriden using secrets. Using Azurite to simulate the storage account is a good option locally, and the local.settings.json is setup for that.
 
 
 ## TODO
