@@ -89,16 +89,15 @@ For uploading the log files, see the Python script in the solution.
 
 **Local development settings**
 
-The solution includes the local.settings.json file with default settings, for queue names / DB connetion. These can be overriden using secrets. Using Azurite to simulate the storage account is a good option locally, and the local.settings.json is setup for that.
+The solution includes the local.settings.json file with default settings, for queue names / DB connection. These can be overriden using secrets. Using Azurite to simulate the storage account is a good option locally, and the local.settings.json is setup for that.
 
 
 ## TODO
 - Improve UI styling / CSS architecture in general, as it is currently a very draft version.
 - Redux could be used more to store data, like criterias etc.
-- There could possibly be some Saga styled solution to handle async stuff in the UI.
 - Toast notification system needs to be included in the UI, to handle failing requests etc. etc.
 - Backend error handling needs to be improved, on what to show for users etc.
-- Use redirect flow for Google login...
+- Use redirect flow for Google login?
 - The proxy setup from VS React template is currently not working with the generated APIs
 
 
