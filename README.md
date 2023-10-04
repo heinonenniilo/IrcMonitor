@@ -85,7 +85,7 @@ Is triggered from the defined queue, app setting ``DailyAggregatesQueueName``. T
 
 Is triggered from the defined queue, apps setting ``FilesToProcessQueueName``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container, the name of which is defined in appsetting ``LogsContainerName``. With input binding, this blob is then read and processed. As an output, message is added to the queue defined in ``DailyAggregatesQueueName`` app setting.
 
-For uploading the log files, see the Python script in the solution (folder misc/python).
+For uploading the log files, see the Python script in the solution (folder misc/python). The Python script expects the log files to be per channel / day, and is supposed to be used when the day has passed, so that the log files are complete. It's not dynamic, and currently accepts the files in only one format.
 
 **Local development settings**
 
