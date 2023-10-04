@@ -20,16 +20,16 @@ def upload_to_azure(files, directory_path, blob_service_client, container_name):
         # Save to queue so that the processing starts
         encoded_message = base64.b64encode(file.encode()).decode()
         queue_client.send_message(encoded_message)
-
         print(f"{file} added to {queue_name} queue.")
 
 try:
 
     # Storage account
-    directory_path =  os.getenv("logfiles_directory")
     container_name = os.getenv("azure_blob_container_name")
     queue_name = os.getenv("azure_queue_name")
     account_name = os.getenv("azure_storage_account_name") 
+    # Local settings
+    directory_path =  os.getenv("logfiles_directory")
     # Credentials 
     client_id = os.getenv("azure_client_id")
     client_secret = os.getenv("azure_client_secret")
@@ -52,7 +52,7 @@ try:
     blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=credential)
     queue_client = QueueClient(account_url=f"https://{account_name}.queue.core.windows.net", queue_name=queue_name, credential=credential)
 
-    print(f"Start uploading to Azure blob storage, to container {container_name}. Timestamp: {datetime.now()}")
+    print(f"Start uploading to Azure blob storage, to container {container_name} in account {account_name}. Timestamp: {datetime.now()}")
     upload_to_azure(files, directory_path, blob_service_client, container_name)
     print(f"Total of {len(files)} files uploaded. Timestamp: {datetime.now()}")
 
