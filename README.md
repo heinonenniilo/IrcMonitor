@@ -49,7 +49,7 @@ Currently, only supports authentication using a Google account. UI layout is a d
 
 To assign yourselft with an admin role, add a row corresponding with your Google email in Users-table. After that, check the ID of the user row and insert a role having "Admin" as value for "Role" column and your user's id as value for UserId column.
 
-To insert some test data, ``TestDataInsert.sql`` in the SQL folder could be used. Once some data has been generated, ``PopulateChannelStatistics`` method in the ``StatisticsService`` should be called. Locally, this can be done by setting the FunctionApp as the startup project, and calling the HTTP triggered function.
+To insert some test data, ``TestDataInsert.sql`` in the misc/sql folder could be used. Once some data has been generated, ``PopulateChannelStatistics`` method in the ``StatisticsService`` should be called. Locally, this can be done by setting the FunctionApp as the startup project, and calling the HTTP triggered function.
 
 UI and the backend need to be started separately.
 
@@ -85,7 +85,7 @@ Is triggered from the defined queue, app setting ``DailyAggregatesQueueName``. T
 
 Is triggered from the defined queue, apps setting ``FilesToProcessQueueName``, processes a daily log IRC log file for a channel. The queue is expected to include a message, the content of which points to a log file in blob container, the name of which is defined in appsetting ``LogsContainerName``. With input binding, this blob is then read and processed. As an output, message is added to the queue defined in ``DailyAggregatesQueueName`` app setting.
 
-For uploading the log files, see the Python script in the solution.
+For uploading the log files, see the Python script in the solution (folder misc/python). The Python script expects the log files to be per channel / day, and is supposed to be used when the day has passed, so that the log files are complete. It's not dynamic, and currently accepts the files in only one format.
 
 **Local development settings**
 
