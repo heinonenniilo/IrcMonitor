@@ -43,7 +43,7 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
 
         if (!_identityService.HasAccessToChannel(channel.Id))
         {
-            throw new FormatException();
+            throw new ForbiddenAccessException();
         }
 
         IQueryable<TimeGroupedRow> query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id);

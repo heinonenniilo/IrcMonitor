@@ -1,4 +1,5 @@
-﻿using IrcMonitor.Infrastructure.Identity;
+﻿using System.Net.Http.Headers;
+using IrcMonitor.Infrastructure.Identity;
 using IrcMonitor.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -84,6 +85,23 @@ public partial class Testing
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync();
+    }
+
+    public static HttpClient CreateClient(string? token = null)
+    {
+        var client = _factory.CreateClient();
+
+        if (token != null)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        return client;
+    }
+
+    public static IServiceScopeFactory GetScopeFactory()
+    {
+        return _scopeFactory;
     }
 
     [OneTimeTearDown]

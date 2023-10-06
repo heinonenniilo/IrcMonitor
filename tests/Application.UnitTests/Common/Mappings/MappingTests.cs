@@ -1,8 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using AutoMapper;
 using IrcMonitor.Application.Common.Mappings;
-using IrcMonitor.Application.Common.Models;
-using IrcMonitor.Domain.Entities;
 using NUnit.Framework;
 
 namespace IrcMonitor.Application.UnitTests.Common.Mappings;
