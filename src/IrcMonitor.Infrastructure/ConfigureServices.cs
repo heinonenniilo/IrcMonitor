@@ -2,7 +2,6 @@
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2;
 using IrcMonitor.Application.Common.Interfaces;
-using IrcMonitor.Application.Common.Utils;
 using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Identity;
 using IrcMonitor.Infrastructure.Persistence;
@@ -87,8 +86,23 @@ public static class ConfigureServices
             });
         } else
         {
-            var publicRsaParameters = TokenUtils.ConvertPemToRSAPublicParameters(authSettings.JwtPublicKey);
-            signKey = new RsaSecurityKey(publicRsaParameters);
+            if (!string.IsNullOrEmpty(authSettings.RsaPrivateKeyLocation) && !string.IsNullOrEmpty(authSettings.RsaPublicKeyLocation))
+            {
+                var publicKey = RSA.Create();
+                publicKey.ImportFromPem(File.ReadAllText(authSettings.RsaPublicKeyLocation));
+
+                var privateKey = RSA.Create();
+                privateKey.ImportFromPem(File.ReadAllText(authSettings.RsaPrivateKeyLocation));
+                authSettings.RsaPrivateParameters = privateKey.ExportParameters(true);
+
+                signKey = new RsaSecurityKey(publicKey.ExportParameters(false));
+            } else
+            {
+                var rsa = RSA.Create();
+                authSettings.RsaPrivateParameters = rsa.ExportParameters(true);
+                signKey = new RsaSecurityKey(rsa.ExportParameters(false));
+            }
+
         }
 
         services.AddAuthentication()

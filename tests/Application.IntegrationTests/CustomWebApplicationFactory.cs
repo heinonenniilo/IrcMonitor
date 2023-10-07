@@ -1,4 +1,5 @@
 ﻿using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -15,13 +16,14 @@ internal class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        var integrationConfig = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.testing.json")
+            .AddEnvironmentVariables()
+            .Build();
+
+        builder.UseConfiguration(integrationConfig);
         builder.ConfigureAppConfiguration(configurationBuilder =>
         {
-            var integrationConfig = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .AddEnvironmentVariables()
-                .Build();
-
             configurationBuilder.AddConfiguration(integrationConfig);
         });
 
