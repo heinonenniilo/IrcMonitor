@@ -72,7 +72,7 @@ internal class JwtGenerator : IJwtGenerator
             Expires = DateTime.UtcNow.AddMinutes(60),
         };
 
-        var accessToken = _authenticationSettings.UseKeyFromKeyVault ? await FormTokenFromKeyVault(tokenDescriptor) : FormFromLocalKey(tokenDescriptor);
+        var accessToken = _authenticationSettings.UseKeyFromKeyVault ? await FormTokenFromKeyVault(tokenDescriptor) : await FormFromLocalKey(tokenDescriptor);
 
 
         return new CreateUserAuthTokenReturnModel
@@ -111,12 +111,11 @@ internal class JwtGenerator : IJwtGenerator
     }
 
 
-    private string FormFromLocalKey(SecurityTokenDescriptor tokenDescriptor)
+    private async Task<string> FormFromLocalKey(SecurityTokenDescriptor tokenDescriptor)
     {
-        var rsaParameters = TokenUtils.ConvertPemToRSAPrivateParameters(_authenticationSettings.JwtPrivateSigningKey);
         var privateRSA = RSA.Create();
         var tokenHandler = new JwtSecurityTokenHandler();
-        privateRSA.ImportParameters(rsaParameters);
+        privateRSA.ImportParameters(_authenticationSettings.RsaPrivateParameters);
         tokenDescriptor.SigningCredentials = new SigningCredentials(new RsaSecurityKey(privateRSA), SecurityAlgorithms.RsaSha256);
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);

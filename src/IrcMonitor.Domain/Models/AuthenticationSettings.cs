@@ -1,4 +1,6 @@
-﻿namespace IrcMonitor.Domain.Models;
+﻿using System.Security.Cryptography;
+
+namespace IrcMonitor.Domain.Models;
 
 public class GoogleAuth
 {
@@ -16,14 +18,16 @@ public class KeyVaultSettings
 
 public class AuthenticationSettings
 {
-    public string JwtPrivateSigningKey { get; set; }
-    public string JwtPublicKey { get; set; }
+    public string RsaPrivateKeyLocation { get; set; }
+    public string RsaPublicKeyLocation { get; set; }
     public GoogleAuth GoogleAuth { get; set; }
     public string PageUrl { get; set; }
     public string Issuer { get; set; }
     public int AccessTokenExpirationInMinutes { get; set; }
     public KeyVaultSettings KeyVault { get; set; }
     public bool UseKeyFromKeyVault { get; set; }
+
+    public RSAParameters RsaPrivateParameters { get; set; }
 
 
 
