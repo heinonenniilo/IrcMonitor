@@ -36,16 +36,19 @@ Currently, only supports authentication using a Google account. UI layout is a d
 
 1. Clone the project. 
 2. In appsettings (Web project), ConnectionStrings.DefaultConnection should point to a valid DB instance, so that migrations can be run.
-3. Create a Google Client ID. Instructions here, for example: https://blog.logrocket.com/guide-adding-google-login-react-app/
-4. Configure ClientId / ClientSecret in Web project appsettings. For local development client secrets could be used.
-5. Set GOOGLE_CLIENT_ID in the UI, for which there is an entry in .env file. Locally, you could set in in .env.local for example. 
+4. Create a Google Client ID. Instructions here, for example: https://blog.logrocket.com/guide-adding-google-login-react-app/
+5. Configure ClientId / ClientSecret in Web project appsettings. For local development client secrets could be used.
+6. Set GOOGLE_CLIENT_ID in the UI, for which there is an entry in .env file. Locally, you could set in in .env.local for example. 
    - Pay attention to providing https://localhost / https://localhost:3000 as authorized URLs, to allow local development.
 7. SetupProxy.js (in IrcMonitor.ReactUi\src) should point to where the API is located locally, for example https://localhost:5001/api (TODO: Check this part)
-8. Generate private / public key, with OpenSSL for example (https://slproweb.com/products/Win32OpenSSL.html).
+9. Generate private / public key, with OpenSSL for example (https://slproweb.com/products/Win32OpenSSL.html).
     - ``openssl rsa -pubout -in private_key.pem -out public_key.pem`` will create the public key
     - ``openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048`` will create the private key.
-9. Place the keys  in appsettings.
-    - The keys should be in appsettings in full format, with line breaks being presented with "\n" character. (TODO: Add a better expalantion on how to do this).
+10. Place path to the keys in appsettings.
+     - Paths found in: ``AuthenticationSettings.RsaPublicKeyLocation`` / ``AuthenticationSettings.RsaPrivateKeyLocation``
+     - If a path to both of the keys isn't defined, app creates the key which happens on every startup.
+11. Instead of using local / generated keys, you can also use an RSA key vault in Azure KeyVault, see appsettings. Sign in to Azure either with Visual Studio or Azure CLI, to authenticate to the vault.
+    
 
 To assign yourselft with an admin role, add a row corresponding with your Google email in Users-table. After that, check the ID of the user row and insert a role having "Admin" as value for "Role" column and your user's id as value for UserId column.
 
