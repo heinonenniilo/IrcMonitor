@@ -22,20 +22,21 @@ public abstract class BaseTestFixture
     {
         var channel = new IrcChannel() { Name = channelName, IsActive = isActive };
         await AddAsync(channel);
-
-        var rowsToAdd = rows.Select(x =>
+        if (rows?.Any() == true)
         {
-            x.ChannelId = channel.Id;
-            x.Id = 0;
-            return x;
-        });
-        foreach(var row in rowsToAdd)
-        {
-            await AddAsync(row);
+            var rowsToAdd = rows.Select(x =>
+            {
+                x.ChannelId = channel.Id;
+                x.Id = 0;
+                return x;
+            });
+            foreach (var row in rowsToAdd)
+            {
+                await AddAsync(row);
+            }
         }
 
         await UpdateStatistics();
-
         return channel;
     }
 

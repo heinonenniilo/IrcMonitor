@@ -12,7 +12,8 @@ public class IrcChannelDto : IMapFrom<IrcChannel>
 
     public void Mapping(Profile profile)
     {
-        profile.CreateMap<IrcChannel, IrcChannelDto>();
+        profile.CreateMap<IrcChannel, IrcChannelDto>()
+            .ForMember(x => x.RowCount, opt => opt.Ignore());
 
         profile.CreateMap<IrcChannelQueryMode, IrcChannelDto>()
             .IncludeMembers(x => x.Channel)
