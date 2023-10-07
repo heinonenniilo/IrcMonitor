@@ -1,14 +1,17 @@
 ﻿using System.Net.Http.Headers;
-using IrcMonitor.Infrastructure.Identity;
+using System.Net.NetworkInformation;
+using IrcMonitor.Application.Common.Interfaces;
+using IrcMonitor.Domain.Entities;
+using IrcMonitor.Infrastructure.Constants;
 using IrcMonitor.Infrastructure.Persistence;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Respawn;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace IrcMonitor.Application.IntegrationTests;
 
@@ -97,6 +100,53 @@ public partial class Testing
         }
 
         return client;
+    }
+
+    public static async Task<HttpClient> PrepareHttpClientForUser(string userEmail, bool giveAdminRole, IList<IrcChannel> channelsWithViewAccess = null)
+    {
+        var user = new User()
+        {
+            Email = userEmail
+        };
+
+        await AddAsync(user);
+
+        if (giveAdminRole)
+        {
+            var userRole = new UserRole()
+            {
+                UserId = user.Id,
+                Role = RoleConstants.Admin
+            };
+
+            await AddAsync(userRole);
+        }
+
+        if (channelsWithViewAccess != null && channelsWithViewAccess.Count > 0)
+        {
+            foreach (var channel in channelsWithViewAccess)
+            {
+                var role = new UserRole() { UserId = user.Id, ChannelId = channel.Id, Role = RoleConstants.Viewer };
+                await AddAsync(role);
+            }
+        }
+
+        var scopeFactory = GetScopeFactory();
+
+        using var scope = scopeFactory.CreateScope();
+
+        var service = scope.ServiceProvider.GetRequiredService<IJwtGenerator>();
+
+        var userVm = await service.CreateUserAuthToken(user.Email);
+
+        return CreateClient(userVm.AccessToken);
+    }
+
+    public static async Task UpdateStatistics()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var statisticsService = scope.ServiceProvider.GetRequiredService<IStatisticsService>();
+        await statisticsService.PopulateChannelStatistics(CancellationToken.None);
     }
 
     public static IServiceScopeFactory GetScopeFactory()

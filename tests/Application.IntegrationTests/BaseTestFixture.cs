@@ -18,52 +18,25 @@ public abstract class BaseTestFixture
     }
 
 
-
-    public async Task<IrcChannel> PrepareChannel(string channelName)
+    public async Task<IrcChannel> PrepareChannel(string channelName, bool isActive = true, IList<IrcRow> rows = null)
     {
-        var channel = new IrcChannel() { Name = channelName };
+        var channel = new IrcChannel() { Name = channelName, IsActive = isActive };
         await AddAsync(channel);
+
+        var rowsToAdd = rows.Select(x =>
+        {
+            x.ChannelId = channel.Id;
+            x.Id = 0;
+            return x;
+        });
+        foreach(var row in rowsToAdd)
+        {
+            await AddAsync(row);
+        }
+
+        await UpdateStatistics();
+
         return channel;
     }
 
-
-    public async Task<HttpClient> PrepareHttpClientForUser(string userEmail, bool giveAdminRole, IList<IrcChannel> channelsWithViewAccess = null)
-    {
-        var user = new User()
-        {
-            Email = userEmail
-        };
-
-        await AddAsync(user);
-
-        if (giveAdminRole)
-        {
-            var userRole = new UserRole()
-            {
-                UserId = user.Id,
-                Role = RoleConstants.Admin
-            };
-
-            await AddAsync(userRole);
-        }
-
-        if (channelsWithViewAccess != null && channelsWithViewAccess.Count > 0)
-        {
-            foreach (var channel in channelsWithViewAccess)
-            {
-                var role = new UserRole() { UserId = user.Id, ChannelId = channel.Id, Role = RoleConstants.Viewer };
-                await AddAsync(role);
-            }
-        }
-
-        var scopeFactory = GetScopeFactory();
-
-        using var scope = scopeFactory.CreateScope();
-
-        var service = scope.ServiceProvider.GetRequiredService<IJwtGenerator>();
-
-        var userVm = await service.CreateUserAuthToken(user.Email);
-
-        return CreateClient(userVm.AccessToken);
-    }
 }

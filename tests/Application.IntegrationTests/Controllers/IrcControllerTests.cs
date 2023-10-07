@@ -25,6 +25,8 @@ public class IrcControllerTests : BaseTestFixture
     private readonly WebApplicationFactory<Program> _factory;
     private HttpClient _client;
 
+    private const int MinRowCountForChannel = 100;
+
     public IrcControllerTests()
     {
 
@@ -100,11 +102,20 @@ public class IrcControllerTests : BaseTestFixture
     [TestCase(true, false)]
     public async Task CanFetchChannelRowDataIfHasChannelViewerAccessForChannelOrIsAdmin(bool isAdmin, bool isChannelViewer)
     {
-        var channel = await PrepareChannel("testChannel");
         var amountOfRowsToCreate = 20;
-        _client = await PrepareHttpClientForUser("tester@tester.com", isAdmin,  isChannelViewer ?  new List<IrcChannel>() { channel } : null);
+        var rows = Enumerable.Range(0, amountOfRowsToCreate)
+        .Select(_ => new IrcRow
+            {
+                Nick = Guid.NewGuid().ToString().Substring(0, 10),
+                Message = Guid.NewGuid().ToString(),
+                TimeStamp = DateTime.Now.AddDays(-1),
+        });
+        var channel = await PrepareChannel("testChannel", true, rows.ToList());
 
-        var query = new GetIrcRowsCriteria() { 
+        _client = await PrepareHttpClientForUser("tester@tester.com", isAdmin, isChannelViewer ? new List<IrcChannel>() { channel } : null);
+
+        var query = new GetIrcRowsCriteria()
+        {
             Page = 0,
             PageSize = 100,
             ChannelId = channel.Guid,
@@ -112,7 +123,6 @@ public class IrcControllerTests : BaseTestFixture
             To = DateTime.Now
         };
 
-        await PrepareRowDataForChannel(channel, amountOfRowsToCreate, DateTime.Now.AddDays(-1));
         var queryString = TransformIrcRowsCriteriaIntoQueryParams(query);
         var endpoint = $"/api/irc/rows?{queryString}";
 
@@ -125,14 +135,15 @@ public class IrcControllerTests : BaseTestFixture
         rowsResp.Rows.Count.Should().Be(amountOfRowsToCreate);
     }
 
+
     [Test]
     [TestCase(true)]
     [TestCase(false)]
-    public async Task StatusCodeShouldBeForbiddenWithAccessToADifferentChannelOrWithoutAnyAccessibleChannels(bool hasAccessToAnotherChannel)
+    public async Task StatusCodeShouldBeForbiddenWhenFetchingRowDataWithAccessToADifferentChannelOrWithoutAnyAccessibleChannels(bool hasAccessToAnotherChannel)
     {
         var channel = await PrepareChannel("testChannel");
         var anotherChannel = await PrepareChannel("anotherChannel");
-        var amountOfRowsToCreate = 20;
+        
         _client = await PrepareHttpClientForUser("tester@tester.com", false, hasAccessToAnotherChannel ? new List<IrcChannel>() { anotherChannel } : null );
 
         var query = new GetIrcRowsCriteria()
@@ -144,7 +155,7 @@ public class IrcControllerTests : BaseTestFixture
             To = DateTime.Now
         };
 
-        await PrepareRowDataForChannel(channel, amountOfRowsToCreate, DateTime.Now.AddDays(-1));
+
         var queryString = TransformIrcRowsCriteriaIntoQueryParams(query);
         var endpoint = $"/api/irc/rows?{queryString}";
 
@@ -153,6 +164,79 @@ public class IrcControllerTests : BaseTestFixture
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
 
     }
+
+
+
+    [Test]
+    public async Task AdminGetsAllTheActiveChannelsHavingDefinedAmountOfRows()
+    {
+        var rowsWithMinimalCount = Enumerable.Range(0, MinRowCountForChannel)
+        .Select(x => new IrcRow
+        {
+            Nick = Guid.NewGuid().ToString().Substring(0, 10),
+            Message = Guid.NewGuid().ToString(),
+            TimeStamp = DateTime.Now.AddDays(-1),
+        });
+
+        var rowsWithLessThanMinimalCount = Enumerable.Range(0, MinRowCountForChannel-1)
+        .Select(x => new IrcRow
+        {
+            Nick = Guid.NewGuid().ToString().Substring(0, 10),
+            Message = Guid.NewGuid().ToString(),
+            TimeStamp = DateTime.Now.AddDays(-1),
+        });
+
+        var shouldBeVisible = await PrepareChannel("channel", true, rowsWithMinimalCount.ToList());
+        var inActiveChannel = await PrepareChannel("inActive", false, rowsWithMinimalCount.ToList());
+        var channelWithNotEnoughRows = await PrepareChannel("notEnoughRows", true, rowsWithLessThanMinimalCount.ToList());
+
+        _client = await PrepareHttpClientForUser("tester@tester.com", true);
+
+        var endpoint = "/api/irc/channels";
+
+        var response = await _client.GetAsync(endpoint);
+        var vmResponse = await response.Content.ReadFromJsonAsync<GetIrcChannelsVm>();
+
+        vmResponse.Channels.Count.Should().Be(1); 
+        vmResponse.Channels.First().Guid.Should().Be(shouldBeVisible.Guid);
+    }
+
+    [Test]
+    public async Task NonAdminSeesOnlyActiveChannelsForWhichHasChannelViewerRole()
+    {
+        var rowsWithMinimalCount = Enumerable.Range(0, MinRowCountForChannel)
+        .Select(x => new IrcRow
+        {
+            Nick = Guid.NewGuid().ToString().Substring(0, 10),
+            Message = Guid.NewGuid().ToString(),
+            TimeStamp = DateTime.Now.AddDays(-1),
+        });
+
+        var rowsWithLessThanMinimalCount = Enumerable.Range(0, MinRowCountForChannel - 1)
+        .Select(x => new IrcRow
+        {
+            Nick = Guid.NewGuid().ToString().Substring(0, 10),
+            Message = Guid.NewGuid().ToString(),
+            TimeStamp = DateTime.Now.AddDays(-1),
+        });
+
+        var shouldBeVisible = await PrepareChannel("channel", true, rowsWithMinimalCount.ToList());
+        var noAccess = await PrepareChannel("noAccess", true, rowsWithMinimalCount.ToList());
+        var inActiveChannel = await PrepareChannel("inActive", false, rowsWithMinimalCount.ToList());
+        var channelWithNotEnoughRows = await PrepareChannel("notEnoughRows", true, rowsWithLessThanMinimalCount.ToList());
+
+        _client = await PrepareHttpClientForUser("tester@tester.com", false, new List<IrcChannel> { shouldBeVisible, inActiveChannel, channelWithNotEnoughRows });
+
+        var endpoint = "/api/irc/channels";
+
+        var response = await _client.GetAsync(endpoint);
+        var vmResponse = await response.Content.ReadFromJsonAsync<GetIrcChannelsVm>();
+
+        vmResponse.Channels.Count.Should().Be(1);
+        vmResponse.Channels.First().Guid.Should().Be(shouldBeVisible.Guid);
+    }
+
+
 
 
     private string TransformIrcRowsCriteriaIntoQueryParams(GetIrcRowsCriteria criteria)
@@ -167,18 +251,4 @@ public class IrcControllerTests : BaseTestFixture
 
     #endregion
 
-    private async Task PrepareRowDataForChannel(IrcChannel channel, int amountOfRowsToCreate, DateTime dateForRows)
-    {
-        for(var i = 0; i < amountOfRowsToCreate; i++)
-        {
-            var row = new IrcRow()
-            {
-                ChannelId = channel.Id,
-                Nick = Guid.NewGuid().ToString().Substring(0, 10),
-                Message = Guid.NewGuid().ToString(),
-                TimeStamp = dateForRows,
-            };
-            await AddAsync(row);
-        }
-    }
 }
