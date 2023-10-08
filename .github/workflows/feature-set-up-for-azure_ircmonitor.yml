@@ -30,10 +30,14 @@ jobs:
           install: localdb
 
       - name: Build test projects
-        run: dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
+        run: |
+         dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
+         dotnet build tests/Application.UnitTests/Application.UnitTests.csproj  --configuration Release
         
       - name: Test with the dotnet CLI
-        run: dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
+        run: | 
+         dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
+         dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
 
       # Install deps
       - name: Install dependencies for React UI
