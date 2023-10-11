@@ -6,7 +6,9 @@ The purpose of the application is to show statistics from IRC channels but could
 
 Backend is based on https://github.com/jasontaylordev/CleanArchitecture
 
-Currently, Google IdToken is sent to the backend. The backend validates the token, and creates an API acces token of its own, with the user roles. Later, could possibly add other mechanism to authenticate than Google. Google authentication also requires some fine-tuning to be made.
+Currently, only authentication with a Google account is supported. Authentication with Google is based on Authorization code-flow. User logs in within the UI, the backend validates the authorization code, and creates an API access token with the user roles. 
+
+Later, could possibly add other mechanism to authenticate than Google. Google authentication also requires some fine-tuning to be made.
 
 ## Adding a new migration
 
@@ -30,7 +32,7 @@ in src/IrcMonitor.ReactUI. The PowerShell script will update APIs / Models autom
 
 The UI setup goes normally by running ``yarn install`` and then ``yarn start``.
 
-Currently, only supports authentication using a Google account. UI layout is a draft.
+Currently, only supports authentication using a Google account.
 
 ## Setting up (Draft)
 
