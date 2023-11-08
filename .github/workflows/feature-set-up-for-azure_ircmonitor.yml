@@ -16,6 +16,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Setup .NET
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.0.x'
+          include-prerelease: true
+          
+      # Install LocalDB
+      - name: Install LocalDB
+        uses: potatoqualitee/mssqlsuite@v1.7
+        with:
+          install: localdb
+
+      - name: Build test projects
+        run: |
+         dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
+         dotnet build tests/Application.UnitTests/Application.UnitTests.csproj  --configuration Release
+        
+      - name: Test with the dotnet CLI
+        run: | 
+         dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
+         dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
+
       # Install deps
       - name: Install dependencies for React UI
         run: yarn install --cwd src/IrcMonitor.ReactUi
@@ -32,12 +55,6 @@ jobs:
       - name: Copy React build to .NET wwwroot
         run: |
           cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '7.0.x'
-          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  --configuration Release
