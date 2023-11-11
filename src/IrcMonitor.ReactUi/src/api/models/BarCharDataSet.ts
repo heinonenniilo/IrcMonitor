@@ -16,58 +16,50 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface BarChartRow
+ * @interface BarCharDataSet
  */
-export interface BarChartRow {
+export interface BarCharDataSet {
     /**
      * 
      * @type {string}
-     * @memberof BarChartRow
+     * @memberof BarCharDataSet
      */
     label: string;
     /**
      * 
-     * @type {number}
-     * @memberof BarChartRow
+     * @type {Array<number>}
+     * @memberof BarCharDataSet
      */
-    identifier: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof BarChartRow
-     */
-    value: number;
+    values: Array<number>;
 }
 
 /**
- * Check if a given object implements the BarChartRow interface.
+ * Check if a given object implements the BarCharDataSet interface.
  */
-export function instanceOfBarChartRow(value: object): boolean {
+export function instanceOfBarCharDataSet(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "label" in value;
-    isInstance = isInstance && "identifier" in value;
-    isInstance = isInstance && "value" in value;
+    isInstance = isInstance && "values" in value;
 
     return isInstance;
 }
 
-export function BarChartRowFromJSON(json: any): BarChartRow {
-    return BarChartRowFromJSONTyped(json, false);
+export function BarCharDataSetFromJSON(json: any): BarCharDataSet {
+    return BarCharDataSetFromJSONTyped(json, false);
 }
 
-export function BarChartRowFromJSONTyped(json: any, ignoreDiscriminator: boolean): BarChartRow {
+export function BarCharDataSetFromJSONTyped(json: any, ignoreDiscriminator: boolean): BarCharDataSet {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'label': json['label'],
-        'identifier': json['identifier'],
-        'value': json['value'],
+        'values': json['values'],
     };
 }
 
-export function BarChartRowToJSON(value?: BarChartRow | null): any {
+export function BarCharDataSetToJSON(value?: BarCharDataSet | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -77,8 +69,7 @@ export function BarChartRowToJSON(value?: BarChartRow | null): any {
     return {
         
         'label': value.label,
-        'identifier': value.identifier,
-        'value': value.value,
+        'values': value.values,
     };
 }
 
