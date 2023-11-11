@@ -9,7 +9,7 @@ namespace IrcMonitor.Application.Statistics.Queries;
 public class GetHourlyStatiscticsQuery: IRequest<StatisticsVmBase>
 {
     public Guid ChannelId { get; set; }
-    public string ?Nick { get; set; }
+    public List<string> Nick { get; set; }
     public int ?Year { get; set; }
     public int ?Month { get; set; }
 }
@@ -51,31 +51,85 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
             query = query.Where(x => x.Month == request.Month.Value);
         }
 
-        if (!string.IsNullOrEmpty(request.Nick))
+        var hours = Enumerable.Range(0, 24);
+        var hasNickFilter = false;
+        if (request.Nick != null && request.Nick.Any())
         {
-            query = query.Where(x => x.Nick == request.Nick);
+            hasNickFilter = true;
+            query = query.Where(x => request.Nick.Contains(x.Nick));
         }
 
-        var retList = await query.GroupBy(x => x.Hour).Select(x => new BarChartRow {
-            Identifier = x.Key,
-            Label = x.Key.ToString(),
-            Value = x.Sum(x => x.Count) }).OrderBy(x => x.Identifier).ToListAsync(cancellationToken);
-
-
-        var hours = Enumerable.Range(0, 23);
-
-        retList.AddRange(hours.Where(x => !retList.Any(r => r.Identifier == x)).Select(x => new BarChartRow()
+        if (hasNickFilter)
         {
-            Identifier = x,
-            Label = x.ToString(),
-            Value = 0
-        }));
+            var dataSets = new List<BarCharDataSet>();
 
-        return new StatisticsVmBase()
+            var groupedPerNick = await query.GroupBy(x => new { x.Hour, x.Nick }).Select(x => new
+            {
+                x.Key.Hour,
+                x.Key.Nick,
+                Count = x.Sum(x => x.Count)
+            }).ToListAsync(cancellationToken);
+
+            request?.Nick?.ForEach(n => {
+                var values = new List<int>();
+
+                foreach (var hour in hours.OrderBy(x => x))
+                {
+                    values.Add(groupedPerNick.Where(d => d.Nick.ToLower() == n.ToLower() && d.Hour == hour).Sum(d => d.Count));
+                }
+
+                dataSets.Add(new BarCharDataSet()
+                {
+                    Label = n,
+                    Values = values
+                }); 
+            });
+
+            return new StatisticsVmBase()
+            {
+                ChannelId = request.ChannelId,
+                Rows = new BarChartReturnModel()
+                {
+                    DataSets= dataSets,
+                    Identifiers = hours.ToList(),
+                    Labels = hours.Select(d => d.ToString()).ToList()
+                }
+            };
+        } else
         {
-            Rows = retList.OrderBy(x => x.Identifier).ToList(),
-            ChannelId = request.ChannelId,
-        };
+            var grouped = await query.GroupBy(x => x.Hour).Select(x => new
+            {
+                Hour = x.Key,
+                Count = x.Sum(x => x.Count)
+            }).ToListAsync(cancellationToken);
+
+            var values = new List<int>();
+            foreach(var hour in hours.OrderBy(x => x))
+            {
+                values.Add(grouped.Where(d => d.Hour == hour).Sum(d => d.Count));
+            }
+
+            var dataSet = new BarCharDataSet()
+            {
+                Label = "Default",
+                Values = values
+            };
+
+            var m = new BarChartReturnModel()
+            {
+                Identifiers = hours.ToList(),
+                Labels = hours.Select(d => d.ToString()).ToList(),
+                DataSets = new List<BarCharDataSet> { dataSet }
+            };
+
+            return new StatisticsVmBase()
+            {
+                ChannelId = request.ChannelId,
+                Rows = m
+            };
+
+
+        }
 
     }
 }

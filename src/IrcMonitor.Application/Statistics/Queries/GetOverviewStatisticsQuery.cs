@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 namespace IrcMonitor.Application.Statistics.Queries;
 public class GetOverviewStatisticsQuery: IRequest<OverviewStatisticsVm>
 {
-    public GetOverviewStatisticsQuery(Guid channelId, string ?nick)
+    public GetOverviewStatisticsQuery(Guid channelId, List<string> nick)
     {
         ChannelId = channelId;
         Nick = nick;
     }
     public Guid ChannelId { get; set; }
 
-    public string ?Nick { get; set; }
+    public List<string> Nick { get; set; } = null;
 }
 
 
@@ -47,26 +47,78 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
         }
 
         IQueryable<TimeGroupedRow> query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id);
-        if (!string.IsNullOrEmpty(request.Nick))
+
+
+        var hasNickFilter = false;
+        if (request.Nick != null && request.Nick.Any())
         {
-            query = query.Where(x => x.Nick == request.Nick);
+            hasNickFilter = true;
+            query = query.Where(x => request.Nick.Contains(x.Nick));
         }
 
-        var groupedQuery = query.GroupBy(x => x.Year).Select(d => new BarChartRow
+        if (hasNickFilter)
         {
-            Label = d.Key.ToString(),
-            Identifier = d.Key,
-            Value = d.Sum(x => x.Count)
-        });
+            var groupedPerNick = await query.GroupBy(x => new { x.Year, x.Nick }).Select(d => new {d.Key.Nick, d.Key.Year, Count = d.Sum(d => d.Count) }).ToListAsync(cancellationToken);
 
-        var returnList = (await groupedQuery.OrderBy(x => x.Identifier).ToListAsync(cancellationToken));
+            var datasets = new List<BarCharDataSet>();
+            var years = groupedPerNick.Select(x => x.Year).Distinct().OrderBy(x => x).Select(x => x).ToList() ?? new List<int>();
+            var retModel = new BarChartReturnModel() { };
 
-        return new OverviewStatisticsVm
+            request?.Nick?.ForEach(nick => {
+
+                var values = new List<int>();
+                foreach(var year in years)
+                {
+                    values.Add(groupedPerNick.Where(g => g.Nick.ToLower() == nick.ToLower() && g.Year == year).Sum(d => d.Count));
+                }
+                datasets.Add(new BarCharDataSet()
+                {
+                    Label = nick,
+                    Values = values
+                });
+            });
+
+            return new OverviewStatisticsVm
+            {
+                ChannelName = channel.Name,
+                ChannelId = channel.Guid,
+                Rows = new BarChartReturnModel() {
+                    Labels = years.Select(y => y.ToString()).ToList(),
+                    Identifiers = years,
+                    DataSets= datasets
+                }
+            };
+        } else
         {
-            Rows = returnList,
-            ChannelName = channel.Name,
-            ChannelId = channel.Guid
-        };
+            var grouped = await query.GroupBy(x => x.Year).Select(d => new
+            {
+                Year = d.Key,
+                Count = d.Sum(x => x.Count)
+            }).OrderBy(d => d.Year).ToListAsync(cancellationToken);
+
+
+            var ret = new OverviewStatisticsVm()
+            {
+                ChannelName = channel.Name,
+                ChannelId = channel.Guid,
+                Rows = new BarChartReturnModel()
+                {
+                    Labels = grouped.Select(d => d.Year.ToString()).ToList(),
+                    Identifiers = grouped.Select(d => d.Year).ToList(),
+                    DataSets = new List<BarCharDataSet>() 
+                    { 
+                        new BarCharDataSet()
+                        {
+                            Label = "Default",
+                            Values = grouped.Select(d => d.Count).ToList(),
+                        } 
+                    }
+                }
+            };
+            return ret;
+
+        }
+
     }
 }
 

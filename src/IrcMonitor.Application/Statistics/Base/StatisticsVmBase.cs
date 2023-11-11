@@ -5,7 +5,7 @@ namespace IrcMonitor.Application.Statistics.Base;
 public class StatisticsVmBase
 {
     [Required]
-    public List<BarChartRow> Rows { get; set; } = new List<BarChartRow>();
+    public BarChartReturnModel Rows { get; set; } = new BarChartReturnModel();
     [Required]
     public required Guid ChannelId { get; set; }
     public int ?Year { get; set; }

@@ -26,13 +26,13 @@ public class IrcController : ApiControllerBase
     // TODO COMBINE
 
     [HttpGet(template: "statistics/{channelId}")]
-    public async Task<OverviewStatisticsVm> GetOverviewStatistics([FromRoute] Guid channelId, [FromQuery] string? nick)
+    public async Task<OverviewStatisticsVm> GetOverviewStatistics([FromRoute] Guid channelId, [FromQuery] List<string> ?nick)
     {
         return await Mediator.Send(new GetOverviewStatisticsQuery(channelId, nick));
     }
 
     [HttpGet(template: "statistics/{channelId}/{year}")]
-    public async Task<YearlyStatisticsVm> GetYearlyStatistics([FromRoute] Guid channelId, [FromRoute] int year, [FromQuery] string? nick)
+    public async Task<YearlyStatisticsVm> GetYearlyStatistics([FromRoute] Guid channelId, [FromRoute] int year, [FromQuery] List<string> ?nick)
     {
         return await Mediator.Send(new GetYearlyStatisticsQuery(year, channelId, nick));
     }
@@ -45,7 +45,7 @@ public class IrcController : ApiControllerBase
 
     [HttpGet(template: "statistics/hourly/{channelId}")]
     [Authorize(Roles = "Viewer,Admin")]
-    public async Task<StatisticsVmBase> GetHourlyStatistics([FromRoute] Guid channelId, [FromQuery] int? year, [FromQuery] int? month, [FromQuery] string? nick)
+    public async Task<StatisticsVmBase> GetHourlyStatistics([FromRoute] Guid channelId, [FromQuery] int? year, [FromQuery] int? month, [FromQuery] List<string> ?nick)
     {
         return await Mediator.Send(new GetHourlyStatiscticsQuery()
         {
