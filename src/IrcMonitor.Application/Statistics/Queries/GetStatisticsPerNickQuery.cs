@@ -77,7 +77,7 @@ public class GetStatisticsPerNickQueryHandler : IRequestHandler<GetStatisticsPer
                 Identifiers = identifiers,
                 DataSets = new List<BarCharDataSet> {
                     new BarCharDataSet() {
-                        Label = "Default",
+                        Label = channel.Name,
                         Values = groupedQuery.Select(x => x.Count).ToList()
                     }
                 }

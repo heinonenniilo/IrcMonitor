@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userActions } from "actions/userActions";
 import { MobileMenu } from "./MobileMenu";
 import { DesktopMenu } from "./DesktopMenu";
+import { ircActions } from "actions/ircActions";
 
 export interface MenuBarProps {
   handleLoginWithGoogleAuthCode: () => void;
@@ -41,6 +42,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   const handleSelectChannel = (channelId: string | undefined) => {
     localStorage.setItem(selectedChannelLocalStorageKey, channelId);
     dispatch(userActions.selectChannel(channelId));
+    dispatch(ircActions.storeSelectedNicks([]));
   };
 
   return (

@@ -118,7 +118,7 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
             var labels = monthlyRows.OrderBy(x => x.Identifier).Select(d => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(d.Identifier)).ToList();
             var dataset = new BarCharDataSet()
             {
-                Label = "Default",
+                Label = channel.Name,
                 Values = monthlyRows.OrderBy(x => x.Identifier).Select(x => x.Count).ToList(),
             };
 

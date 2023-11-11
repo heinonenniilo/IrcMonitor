@@ -62,7 +62,7 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
 
             var datasets = new List<BarCharDataSet>();
             var years = groupedPerNick.Select(x => x.Year).Distinct().OrderBy(x => x).Select(x => x).ToList() ?? new List<int>();
-            var retModel = new BarChartReturnModel() { };
+            var retModel = new BarChartReturnModel();
 
             request?.Nick?.ForEach(nick => {
 
@@ -109,7 +109,7 @@ public class GetOverviewStatisticsQueryHandler : IRequestHandler<GetOverviewStat
                     { 
                         new BarCharDataSet()
                         {
-                            Label = "Default",
+                            Label = channel.Name,
                             Values = grouped.Select(d => d.Count).ToList(),
                         } 
                     }

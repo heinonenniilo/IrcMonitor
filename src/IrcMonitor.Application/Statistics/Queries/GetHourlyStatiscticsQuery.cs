@@ -87,7 +87,7 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
 
             return new StatisticsVmBase()
             {
-                ChannelId = request.ChannelId,
+                ChannelId = channel.Guid,
                 Rows = new BarChartReturnModel()
                 {
                     DataSets= dataSets,
@@ -111,7 +111,7 @@ public class GetHourlyStatiscticsQueryHandler : IRequestHandler<GetHourlyStatisc
 
             var dataSet = new BarCharDataSet()
             {
-                Label = "Default",
+                Label = channel.Name,
                 Values = values
             };
 

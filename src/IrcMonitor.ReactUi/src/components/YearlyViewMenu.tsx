@@ -1,5 +1,5 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import React from "react";
+import { Box, FormControl, InputLabel, MenuItem, Select, Tooltip } from "@mui/material";
+import React, { useState } from "react";
 import { getFormattedNumber } from "utilities/numberFormatterUtils";
 
 export interface NickWithCount {
@@ -25,6 +25,7 @@ export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
   onChangeYear,
   onChangeNick
 }) => {
+  const [isNickMenuOpen, setIsNickMenuOpen] = useState(false);
   return (
     <>
       {years && years.length > 0 ? (
@@ -53,34 +54,48 @@ export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
 
       {nicks && nicks.length > 0 ? (
         <Box sx={{ mt: 4 }}>
-          <FormControl fullWidth>
-            <InputLabel id="nick-select-label">Nick</InputLabel>
-            <Select
-              labelId="nick-select-label"
-              id="nick-select"
-              value={selectedNicks}
-              label="Nick"
-              renderValue={(d) => {
-                return d.join(",");
-              }}
-              multiple
-            >
-              {nicks.map((row) => (
-                <MenuItem
-                  value={row.nick}
-                  key={`nick-${row.nick}`}
-                  onClick={() => {
-                    if (onChangeNick) {
-                      const isInSelection = selectedNicks.some((s) => s === row.nick);
-                      onChangeNick(row.nick, !isInSelection);
-                    }
-                  }}
-                >
-                  {`${row.nick} (${getFormattedNumber(row.count)})`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Tooltip
+            title={
+              !isNickMenuOpen && selectedNicks.length > 0 ? selectedNicks?.join(", ") : undefined
+            }
+          >
+            <FormControl fullWidth>
+              <InputLabel id="nick-select-label">Nick</InputLabel>
+              <Select
+                labelId="nick-select-label"
+                onOpen={() => {
+                  console.log("open");
+                  setIsNickMenuOpen(true);
+                }}
+                onClose={() => {
+                  setIsNickMenuOpen(false);
+                  console.log("Close");
+                }}
+                id="nick-select"
+                value={selectedNicks}
+                label="Nick"
+                renderValue={(d) => {
+                  return d.join(",");
+                }}
+                multiple
+              >
+                {nicks.map((row) => (
+                  <MenuItem
+                    value={row.nick}
+                    key={`nick-${row.nick}`}
+                    onClick={() => {
+                      if (onChangeNick) {
+                        const isInSelection = selectedNicks.some((s) => s === row.nick);
+                        onChangeNick(row.nick, !isInSelection);
+                      }
+                    }}
+                  >
+                    {`${row.nick} (${getFormattedNumber(row.count)})`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
         </Box>
       ) : null}
     </>
