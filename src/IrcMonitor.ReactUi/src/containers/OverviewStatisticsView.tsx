@@ -61,22 +61,24 @@ export const OverViewStatisticsView: React.FC = () => {
     }
   }, [selectedChannel, apiHook.ircApi, dispatch]);
 
-  const handleOnClickChannel = (index: number) => {
+  const handleOnClickYear = (index: number) => {
     if (!response) {
       return;
     }
 
-    const correspondingRow = response.rows[index];
+    const correspondingRow = response.rows.identifiers[index];
 
     if (correspondingRow) {
-      navigate(`${routes.statistics}/${correspondingRow.identifier}`);
+      navigate(`${routes.statistics}/${correspondingRow}`);
     }
   };
 
   const handleOnClickUser = (index: number) => {
-    const correspondingUser = nickResponse?.rows[index];
+    const correspondingUser = nickResponse?.rows.labels[index];
+
     if (correspondingUser) {
-      navigate(`${routes.nickStatisticsBase}/${correspondingUser.label}`);
+      dispatch(ircActions.storeSelectedNicks([correspondingUser]));
+      navigate(`${routes.nickOverView}`);
     }
   };
 
@@ -108,14 +110,14 @@ export const OverViewStatisticsView: React.FC = () => {
         }}
       >
         <BarChartComponent
-          rows={response?.rows ?? []}
+          rows={response?.rows}
           dataSetLabel={response?.channelName ?? ""}
           chartTitle="Rows per year"
-          onClick={handleOnClickChannel}
+          onClick={handleOnClickYear}
           showPointerOnHover
         />
         <BarChartComponent
-          rows={nickResponse?.rows ?? []}
+          rows={nickResponse?.rows}
           dataSetLabel={response?.channelName ?? ""}
           chartTitle="Nick based statistics"
           showPointerOnHover

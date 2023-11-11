@@ -76,7 +76,7 @@ export const NickStatisticsDialog: React.FC<NickStatisticsDialogProps> = ({
         </DialogTitle>
         <DialogContent sx={{ flex: 1, maxWidth: "100%", display: "flex" }}>
           <div style={{ width: "100%" }}>
-            <BarChartComponent rows={response?.rows ?? []} chartTitle={""} dataSetLabel="Hour" />
+            <BarChartComponent rows={response?.rows} chartTitle={""} dataSetLabel="Hour" />
           </div>
         </DialogContent>
       </Container>

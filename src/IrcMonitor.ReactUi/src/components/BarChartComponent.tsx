@@ -1,4 +1,3 @@
-import { BarChartRow } from "api/models/BarChartRow";
 import React from "react";
 
 import {
@@ -8,14 +7,16 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Colors
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
 import { Box } from "@mui/material";
+import { BarChartReturnModel } from "api";
 
 export interface BarCharComponentProps {
-  rows: Array<BarChartRow>;
+  rows: BarChartReturnModel;
   dataSetLabel: string;
   chartTitle: string;
   onClick?: (index: number) => void;
@@ -23,7 +24,7 @@ export interface BarCharComponentProps {
   maxHeight?: string;
 }
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors);
 
 export const options = {
   responsive: true,
@@ -46,7 +47,7 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
   showPointerOnHover,
   maxHeight
 }) => {
-  const labels = rows.map((r) => r.label);
+  const labels = rows?.labels ?? [];
   return (
     <Box flex={1} position={"relative"} maxHeight={maxHeight} height={"auto"} width={"auto"}>
       <Bar
@@ -77,14 +78,19 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
             title: {
               display: true,
               text: chartTitle
+            },
+            colors: {
+              forceOverride: true
             }
           }
         }}
         data={{
           labels: labels,
-          datasets: [
-            { data: rows.map((r) => r.value), backgroundColor: "blue", label: dataSetLabel }
-          ]
+          datasets: rows?.dataSets
+            ? rows.dataSets.map((d) => {
+                return { data: d.values, label: d.label };
+              })
+            : []
         }}
       />
     </Box>

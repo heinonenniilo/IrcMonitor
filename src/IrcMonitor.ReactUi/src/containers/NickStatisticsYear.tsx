@@ -2,19 +2,22 @@ import { Box } from "@mui/material";
 import { ircActions } from "actions/ircActions";
 import { StatisticsVmBase, YearlyStatisticsVm } from "api";
 import { BarChartComponent } from "components/BarChartComponent";
-import { NickWithCount, YearlyViewMenu } from "components/YearlyViewMenu";
+import { YearlyViewMenu } from "components/YearlyViewMenu";
 import { years } from "constants/conts";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { getChannelYearlyNicks } from "reducers/ircReducer";
+import {
+  getChannelYearlyNicks,
+  getSelectedNicks,
+  getYearlyNicksWithCount
+} from "reducers/ircReducer";
 import { getChannels, getSelectecChannel } from "reducers/userReducer";
 import { routes } from "utilities/routes";
 
 export const NickStatisticsYear: React.FC = () => {
-  const { nick } = useParams<{ nick: string }>();
   const { year } = useParams<{ year: string }>();
 
   const navigate = useNavigate();
@@ -29,13 +32,15 @@ export const NickStatisticsYear: React.FC = () => {
 
   const selectedChannel = useSelector(getSelectecChannel);
   const channelYearlyStatistics = useSelector(getChannelYearlyNicks);
+  const selectedNicks = useSelector(getSelectedNicks);
+  const yearlyNicksWithCount = useSelector(getYearlyNicksWithCount);
 
   const apiHook = useApiHook();
 
   const matchingChannel = channels?.find((c) => c.guid === selectedChannel);
 
   useEffect(() => {
-    if (apiHook.ircApi && nick && selectedChannel && year) {
+    if (apiHook.ircApi && selectedNicks && selectedNicks.length > 0 && selectedChannel && year) {
       setIsLoadingYearlyStatistics(true);
       setIsLoadingHourlyData(true);
 
@@ -44,7 +49,7 @@ export const NickStatisticsYear: React.FC = () => {
         .ircGetYearlyStatistics({
           year: yearToUse,
           channelId: selectedChannel,
-          nick: nick
+          nick: selectedNicks
         })
         .then((res) => {
           setYearlyResponse(res);
@@ -57,7 +62,11 @@ export const NickStatisticsYear: React.FC = () => {
         });
 
       apiHook.ircApi
-        .ircGetHourlyStatistics({ channelId: selectedChannel, nick: nick, year: yearToUse })
+        .ircGetHourlyStatistics({
+          channelId: selectedChannel,
+          nick: selectedNicks,
+          year: yearToUse
+        })
         .then((res) => {
           setHourlyResponse(res);
         })
@@ -68,7 +77,7 @@ export const NickStatisticsYear: React.FC = () => {
           setIsLoadingHourlyData(false);
         });
     }
-  }, [apiHook.ircApi, nick, selectedChannel, year]);
+  }, [apiHook.ircApi, selectedNicks, selectedChannel, year]);
 
   useEffect(() => {
     if (
@@ -92,21 +101,6 @@ export const NickStatisticsYear: React.FC = () => {
     }
   }, [year, channelYearlyStatistics, dispatch, apiHook.ircApi, selectedChannel]);
 
-  const getNicks = (): NickWithCount[] => {
-    if (!channelYearlyStatistics) {
-      return [];
-    }
-
-    if (
-      channelYearlyStatistics.channelId === selectedChannel &&
-      channelYearlyStatistics.year === parseInt(year, 10)
-    ) {
-      return channelYearlyStatistics.rows.map((r) => {
-        return { nick: r.label, count: r.value };
-      });
-    }
-  };
-
   return (
     <AppContentWrapper
       titleParts={[
@@ -114,24 +108,28 @@ export const NickStatisticsYear: React.FC = () => {
           text: matchingChannel?.name,
           to: routes.statistics
         },
+        { text: "nicks", to: `${routes.nickOverView}` },
         {
           text: year,
           to: `${routes.statistics}/${year}`
-        },
-        { text: nick, to: `${routes.statistics}/nick/${nick}` }
+        }
       ]}
       isLoading={isLoadingYearlyStatistics || isLoadingHourlyStata}
       leftMenu={
         <YearlyViewMenu
           years={years}
           onChangeYear={(year) => {
-            navigate(`${routes.nickStatisticsBase}/${nick}/${year}`);
+            navigate(`${routes.nickOverView}/${year}`);
           }}
           selectedYear={year ? parseInt(year, 10) : undefined}
-          nicks={getNicks()}
-          selectedNick={nick}
-          onChangeNick={(newNick: string) => {
-            navigate(`${routes.nickStatisticsBase}/${newNick}/${year}`);
+          nicks={yearlyNicksWithCount}
+          selectedNicks={selectedNicks}
+          onChangeNick={(newNick: string, selected: boolean) => {
+            if (selected) {
+              dispatch(ircActions.storeSelectedNicks([...selectedNicks, newNick]));
+            } else {
+              dispatch(ircActions.storeSelectedNicks(selectedNicks.filter((s) => s !== newNick)));
+            }
           }}
         />
       }
@@ -152,13 +150,13 @@ export const NickStatisticsYear: React.FC = () => {
         }}
       >
         <BarChartComponent
-          rows={hourlyResponse?.rows ?? []}
+          rows={hourlyResponse?.rows}
           dataSetLabel={"Hour"}
           chartTitle="Hourly statistics"
           onClick={undefined}
         />
         <BarChartComponent
-          rows={yearlyResponse?.rows ?? []}
+          rows={yearlyResponse?.rows}
           dataSetLabel={"Month"}
           chartTitle="Rows per month"
           onClick={undefined}

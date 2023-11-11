@@ -9,7 +9,7 @@ import { AuthorizedComponent } from "./AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
 import { SelectChannel } from "components/SelectChannel";
 import { UserMenu } from "components/UserMenu";
-import { getChannels, getUserInfo } from "reducers/userReducer";
+import { getChannels, getIsReLogging, getUserInfo } from "reducers/userReducer";
 import { routes } from "utilities/routes";
 export interface DesktopMenuProps {
   onNavigate: (route: string) => void;
@@ -39,6 +39,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isLeftMenuOpen = useSelector(getLeftMenuIsOpen);
+  const isReLogging = useSelector(getIsReLogging);
   const channels = useSelector(getChannels);
   const user = useSelector(getUserInfo);
 
@@ -97,7 +98,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
               user={user}
               handleLogOut={onLogOut}
               handleGoogleAuthWithCode={onLogin}
-              showReLogIn={false}
+              showReLogIn={isReLogging}
             />
           </MenuArea>
         </Box>

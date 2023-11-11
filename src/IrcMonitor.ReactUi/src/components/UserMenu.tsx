@@ -31,16 +31,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
   if (showReLogIn) {
     return (
-      <>
+      <MenuItem>
         <Button
           variant="contained"
           onClick={() => {
             handleGoogleAuthWithCode();
           }}
         >
-          Re-rogin
+          {`Re-LogIn`}
         </Button>
-      </>
+      </MenuItem>
     );
   } else if (user && user.loggedIn) {
     return (

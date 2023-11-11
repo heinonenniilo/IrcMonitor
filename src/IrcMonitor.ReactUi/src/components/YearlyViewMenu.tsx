@@ -12,16 +12,16 @@ export interface YearlyViewMenuProps {
   nicks?: NickWithCount[];
 
   selectedYear?: number;
-  selectedNick?: string;
+  selectedNicks?: string[];
   onChangeYear?: (year: number) => void;
-  onChangeNick?: (nick: string) => void;
+  onChangeNick?: (nick: string, select: boolean) => void;
 }
 
 export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
   years,
   nicks,
   selectedYear,
-  selectedNick,
+  selectedNicks,
   onChangeYear,
   onChangeNick
 }) => {
@@ -58,18 +58,22 @@ export const YearlyViewMenu: React.FC<YearlyViewMenuProps> = ({
             <Select
               labelId="nick-select-label"
               id="nick-select"
-              value={selectedNick}
+              value={selectedNicks}
               label="Nick"
               renderValue={(d) => {
-                return d;
+                return d.join(",");
               }}
+              multiple
             >
               {nicks.map((row) => (
                 <MenuItem
                   value={row.nick}
                   key={`nick-${row.nick}`}
                   onClick={() => {
-                    onChangeNick && onChangeNick(row.nick);
+                    if (onChangeNick) {
+                      const isInSelection = selectedNicks.some((s) => s === row.nick);
+                      onChangeNick(row.nick, !isInSelection);
+                    }
                   }}
                 >
                   {`${row.nick} (${getFormattedNumber(row.count)})`}
