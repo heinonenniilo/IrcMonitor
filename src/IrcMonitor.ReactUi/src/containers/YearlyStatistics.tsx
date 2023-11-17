@@ -90,12 +90,12 @@ export const YearlyStatisticsView: React.FC = () => {
   };
 
   const handleMonthClick = (index: number) => {
-    const correspondingMonth = yearlyResponse?.rows[index];
+    const correspondingMonth = yearlyResponse?.rows.identifiers[index];
 
     if (correspondingMonth) {
       const startMoment = moment({
         year: yearlyResponse?.year,
-        month: correspondingMonth.identifier - 1,
+        month: correspondingMonth - 1,
         day: 1
       });
 
