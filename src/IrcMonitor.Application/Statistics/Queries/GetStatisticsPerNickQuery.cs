@@ -58,25 +58,34 @@ public class GetStatisticsPerNickQueryHandler : IRequestHandler<GetStatisticsPer
             query = query.Where(x => x.Month == request.Month.Value);
         }
 
-        var groupedQuery = query.GroupBy(x => x.Nick).Select(x => new BarChartRow()
+        var groupedQuery = await query.GroupBy(x => x.Nick).Select(x => new
         {
             Label = x.Key,
             Identifier = 1,
-            Value = x.Sum(x => x.Count)
-        }).OrderByDescending(x => x.Value).Take(_ircStatisticsSetting.NickTresholdLimit);
+            Count = x.Sum(x => x.Count)
+        }).OrderByDescending(x => x.Count).Take(_ircStatisticsSetting.NickTresholdLimit).ToListAsync(cancellationToken);
 
-        var rowsToReturn = (await groupedQuery.OrderByDescending(x => x.Value).ToListAsync(cancellationToken)).Select((x, i) =>
+        var labels = groupedQuery.Select(x => x.Label).ToList();
+        var identifiers = groupedQuery.Select((x, i) => i).ToList();
+        var ret = new StatisticsVmBase()
         {
-            x.Identifier = i;
-            return x;
-        }).ToList();
-
-        return new StatisticsVmBase()
-        {
-            Rows = rowsToReturn,
             ChannelId = channel.Guid,
             Year = request.Year,
+            Rows = new BarChartReturnModel()
+            {
+                Labels = labels,
+                Identifiers = identifiers,
+                DataSets = new List<BarCharDataSet> {
+                    new BarCharDataSet() {
+                        Label = channel.Name,
+                        Values = groupedQuery.Select(x => x.Count).ToList()
+                    }
+                }
+            }
         };
+
+        return ret;
+
     }
 }
 

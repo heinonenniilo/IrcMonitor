@@ -3,7 +3,8 @@ apis/AuthApi.ts
 apis/IrcApi.ts
 apis/index.ts
 index.ts
-models/BarChartRow.ts
+models/BarCharDataSet.ts
+models/BarChartReturnModel.ts
 models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
 models/HandleGoogleAuthorizationCodeCommand.ts

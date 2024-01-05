@@ -1,7 +1,7 @@
 import { RoleNames } from "enums/RoleEnums";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getUserInfo } from "reducers/userReducer";
+import { getIsReLogging, getUserInfo } from "reducers/userReducer";
 
 export interface AuthorizedComponentProps {
   requiredRole: RoleNames;
@@ -13,10 +13,11 @@ export const AuthorizedComponent: React.FunctionComponent<AuthorizedComponentPro
   children
 }) => {
   const user = useSelector(getUserInfo);
+  const isReLogging = useSelector(getIsReLogging);
 
   const isAdmin = user?.roles?.some((r) => r === RoleNames.Admin);
 
-  if (isAdmin || user?.roles?.some((r) => r === requiredRole)) {
+  if (!isReLogging && (isAdmin || user?.roles?.some((r) => r === requiredRole))) {
     return <>{children}</>;
   } else {
     return <></>;

@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { BarChartRow } from './BarChartRow';
+import type { BarChartReturnModel } from './BarChartReturnModel';
 import {
-    BarChartRowFromJSON,
-    BarChartRowFromJSONTyped,
-    BarChartRowToJSON,
-} from './BarChartRow';
+    BarChartReturnModelFromJSON,
+    BarChartReturnModelFromJSONTyped,
+    BarChartReturnModelToJSON,
+} from './BarChartReturnModel';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface StatisticsVmBase {
     /**
      * 
-     * @type {Array<BarChartRow>}
+     * @type {BarChartReturnModel}
      * @memberof StatisticsVmBase
      */
-    rows: Array<BarChartRow>;
+    rows: BarChartReturnModel;
     /**
      * 
      * @type {string}
@@ -67,7 +67,7 @@ export function StatisticsVmBaseFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'rows': ((json['rows'] as Array<any>).map(BarChartRowFromJSON)),
+        'rows': BarChartReturnModelFromJSON(json['rows']),
         'channelId': json['channelId'],
         'year': !exists(json, 'year') ? undefined : json['year'],
     };
@@ -82,7 +82,7 @@ export function StatisticsVmBaseToJSON(value?: StatisticsVmBase | null): any {
     }
     return {
         
-        'rows': ((value.rows as Array<any>).map(BarChartRowToJSON)),
+        'rows': BarChartReturnModelToJSON(value.rows),
         'channelId': value.channelId,
         'year': value.year,
     };

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace IrcMonitor.Application.Statistics.Queries;
 public class GetYearlyStatisticsQuery: IRequest<YearlyStatisticsVm>
 {
-    public GetYearlyStatisticsQuery(int year, Guid channelId, string ?nick)
+    public GetYearlyStatisticsQuery(int year, Guid channelId, List<string> nick)
     {
         Year = year;
         ChannelId = channelId;
@@ -18,7 +18,7 @@ public class GetYearlyStatisticsQuery: IRequest<YearlyStatisticsVm>
 
     public int Year { get; set; }
     public Guid ChannelId { get; set; }
-    public string? Nick { get; set; }
+    public List<string> Nick { get; set; }
 }
 
 
@@ -48,41 +48,95 @@ public class GetYearlyStatisticsQueryHandler : IRequestHandler<GetYearlyStatisti
 
         var query = _context.TimeGroupedRows.Where(x => x.ChannelId == channel.Id && x.Year == request.Year);
 
-        if (!string.IsNullOrEmpty(request.Nick))
+        var hasNickFilter = false;
+        if (request.Nick != null && request.Nick.Any())
         {
-            query = query.Where(x => x.Nick == request.Nick);
+            hasNickFilter = true;
+            query = query.Where(x => request.Nick.Contains(x.Nick));
         }
 
-        var monthlyQuery = query.GroupBy(x => x.Month).Select(x => new BarChartRow()
-        {
-            Label = "",
-            Identifier = x.Key,
-            Value = x.Sum(x => x.Count)
-        });
-
         var months = Enumerable.Range(1, 12);
-
-        var montlyStatistics = (await monthlyQuery.OrderBy(x => x.Identifier).ToListAsync(cancellationToken)).Select(x => new BarChartRow()
+        if (hasNickFilter)
         {
-            Identifier = x.Identifier,
-            Value = x.Value,
-            Label = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(x.Identifier)
-        }).ToList();
+            var grouped = query.GroupBy(x => new { x.Nick, x.Month }).Select(d => new
+            {
+                d.Key.Month,
+                d.Key.Nick,
+                Count = d.Sum(d => d.Count)
+            });
 
-        montlyStatistics.AddRange(months.Where(t => !montlyStatistics.Select(y => y.Identifier).Contains(t) ).Select(m => new BarChartRow()
-        {
-            Identifier = m,
-            Value = 0,
-            Label = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)
-        }));
+            var datasets = new List<BarCharDataSet>();
 
-        return new YearlyStatisticsVm()
+            request?.Nick?.ForEach(nick =>
+            {
+                var values = new List<int>();
+                foreach (var month in months)
+                {
+                    values.Add(grouped.Where(d => d.Nick.ToLower() == nick.ToLower() && d.Month == month).Sum(d => d.Count));
+                }
+
+                datasets.Add(new BarCharDataSet()
+                {
+                    Label = nick,
+                    Values = values
+                });
+            });
+
+            var returnModel = new BarChartReturnModel()
+            {
+                DataSets = datasets,
+                Labels = months.Select(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName).ToList(),
+                Identifiers = months.ToList()
+            };
+
+            return new YearlyStatisticsVm()
+            {
+                Channel = channel.Name,
+                Year = request.Year,
+                ChannelId = channel.Guid,
+                Rows = returnModel
+            };
+
+        }
+        else
         {
-            Rows = montlyStatistics.OrderBy(x => x.Identifier).ToList(),
-            Channel = channel.Name,
-            Year = request.Year,
-            ChannelId = channel.Guid
-        };
+            var monthlyRows = await query.GroupBy(x => x.Month).Select(x => new
+            {
+                Label = "",
+                Identifier = x.Key,
+                Count = x.Sum(x => x.Count)
+            }).ToListAsync(cancellationToken);
+
+            monthlyRows.AddRange(months.Where(d => !monthlyRows.Select(d => d.Identifier).Contains(d) ).Select(d => new
+            {
+                Label = "",
+                Identifier = d,
+                Count = 0
+            }));
+
+            var identifiers = monthlyRows.OrderBy(x => x.Identifier).Select(d => d.Identifier).ToList();
+            var labels = monthlyRows.OrderBy(x => x.Identifier).Select(d => CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(d.Identifier)).ToList();
+            var dataset = new BarCharDataSet()
+            {
+                Label = channel.Name,
+                Values = monthlyRows.OrderBy(x => x.Identifier).Select(x => x.Count).ToList(),
+            };
+
+            return new YearlyStatisticsVm()
+            {
+                ChannelId = channel.Guid,
+                Year = request.Year,
+                Channel = channel.Name,
+                Rows = new BarChartReturnModel()
+                {
+                    Labels = labels,
+                    Identifiers = identifiers,
+                    DataSets = new List<BarCharDataSet> { dataset }
+                }
+            };
+
+        }
+
     }
 }
 

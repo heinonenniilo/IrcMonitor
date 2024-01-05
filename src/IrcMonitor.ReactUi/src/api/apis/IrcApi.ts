@@ -38,7 +38,7 @@ export interface IrcGetHourlyStatisticsRequest {
     channelId: string;
     year?: number | null;
     month?: number | null;
-    nick?: string | null;
+    nick?: Array<string> | null;
 }
 
 export interface IrcGetIrcChannelsRequest {
@@ -51,7 +51,7 @@ export interface IrcGetIrcRowsRequest {
     criteriaChannelId?: string;
     criteriaPage?: number;
     criteriaPageSize?: number;
-    criteriaSortColumn?: string | null;
+    criteriaSortColumn?: string;
     criteriaIsAscendingOrder?: boolean;
     criteriaSkipTotalRowCount?: boolean;
 }
@@ -64,13 +64,13 @@ export interface IrcGetNickBasedStatisticsRequest {
 
 export interface IrcGetOverviewStatisticsRequest {
     channelId: string;
-    nick?: string | null;
+    nick?: Array<string> | null;
 }
 
 export interface IrcGetYearlyStatisticsRequest {
     channelId: string;
     year: number;
-    nick?: string | null;
+    nick?: Array<string> | null;
 }
 
 /**
@@ -95,7 +95,7 @@ export class IrcApi extends runtime.BaseAPI {
             queryParameters['month'] = requestParameters.month;
         }
 
-        if (requestParameters.nick !== undefined) {
+        if (requestParameters.nick) {
             queryParameters['nick'] = requestParameters.nick;
         }
 
@@ -263,7 +263,7 @@ export class IrcApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters.nick !== undefined) {
+        if (requestParameters.nick) {
             queryParameters['nick'] = requestParameters.nick;
         }
 
@@ -303,7 +303,7 @@ export class IrcApi extends runtime.BaseAPI {
 
         const queryParameters: any = {};
 
-        if (requestParameters.nick !== undefined) {
+        if (requestParameters.nick) {
             queryParameters['nick'] = requestParameters.nick;
         }
 

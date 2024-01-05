@@ -2,7 +2,7 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import React from "react";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { getChannels, getUserInfo, getUserVm } from "reducers/userReducer";
+import { getChannels, getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { SelectChannel } from "../components/SelectChannel";
 import { routes } from "utilities/routes";
 import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
@@ -24,6 +24,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const channels = useSelector(getChannels);
+  const isReLogging = useSelector(getIsReLogging);
   const userVm = useSelector(getUserVm);
   const user = useSelector(getUserInfo);
   const isLeftMenuOpen = useSelector(getLeftMenuIsOpen);
@@ -46,7 +47,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       return;
     }
 
-    if (userVm?.roles?.length > 0) {
+    if (!isReLogging && userVm?.roles?.length > 0) {
       return (
         <Menu
           id="lock-menu"
@@ -133,7 +134,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           user={user}
           handleGoogleAuthWithCode={onLogin}
           handleLogOut={onLogOut}
-          showReLogIn={false}
+          showReLogIn={isReLogging}
           isMobile
         />
       </Box>

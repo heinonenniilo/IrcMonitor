@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './BarChartRow';
+export * from './BarCharDataSet';
+export * from './BarChartReturnModel';
 export * from './GetIrcChannelsVm';
 export * from './GetIrcRowsVm';
 export * from './HandleGoogleAuthorizationCodeCommand';

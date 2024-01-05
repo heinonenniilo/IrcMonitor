@@ -81,20 +81,21 @@ export const YearlyStatisticsView: React.FC = () => {
   }, [selectedYear, selectedChannel, apiHook.ircApi, dispatch]);
 
   const handleUserClick = (index: number) => {
-    const correspondingUser = nickResponse?.rows[index];
+    const correspondingUser = nickResponse?.rows.labels[index];
 
     if (correspondingUser) {
-      navigate(`${routes.nickStatisticsBase}/${correspondingUser.label}/${year}`);
+      dispatch(ircActions.storeSelectedNicks([correspondingUser]));
+      navigate(`${routes.nickOverView}/${year}`);
     }
   };
 
   const handleMonthClick = (index: number) => {
-    const correspondingMonth = yearlyResponse?.rows[index];
+    const correspondingMonth = yearlyResponse?.rows.identifiers[index];
 
     if (correspondingMonth) {
       const startMoment = moment({
         year: yearlyResponse?.year,
-        month: correspondingMonth.identifier - 1,
+        month: correspondingMonth - 1,
         day: 1
       });
 
@@ -149,12 +150,12 @@ export const YearlyStatisticsView: React.FC = () => {
         }}
       >
         <BarChartComponent
-          rows={hourlyResponse?.rows ?? []}
+          rows={hourlyResponse?.rows}
           dataSetLabel={yearlyResponse?.channel ?? ""}
           chartTitle={"Hourly statistics"}
         />
         <BarChartComponent
-          rows={nickResponse?.rows ?? []}
+          rows={nickResponse?.rows}
           dataSetLabel={"Nick"}
           chartTitle={"Nick statistics"}
           onClick={handleUserClick}
@@ -169,7 +170,7 @@ export const YearlyStatisticsView: React.FC = () => {
         sx={{ maxHeight: { lg: "300px", xl: "50%" } }}
       >
         <BarChartComponent
-          rows={yearlyResponse?.rows ?? []}
+          rows={yearlyResponse?.rows}
           dataSetLabel={yearlyResponse?.channel ?? ""}
           chartTitle={"Monthly statistics"}
           showPointerOnHover
