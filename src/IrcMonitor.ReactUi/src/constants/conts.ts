@@ -1,9 +1,8 @@
 import moment from "moment";
 
-export const years: number[] = Array.from(
-  { length: moment().year() - 2009 + 1 },
-  (_, i) => 2024 - i
-);
+const currentYear = moment().year();
+export const years = Array.from({ length: currentYear - 2009 + 1 }, (_, i) => 2009 + i);
+
 interface PageConfig {
   pageContentMinHeight: string;
 }
