@@ -18,9 +18,7 @@ public class StatisticsService : IStatisticsService
     {
         _logger.LogInformation("Start populating channel statistics");
 
-        // Todo FIX?
-        await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ExecuteDeleteAsync(_context.TimeGroupedRows);
-
+        await _context.TimeGroupedRows.ExecuteDeleteAsync();
         var groupedQuery = _context.IrcRows.GroupBy(x => new { x.TimeStamp.Year, x.TimeStamp.Month, x.TimeStamp.Hour, x.ChannelId, x.Nick });
 
         await _context.TimeGroupedRows.AddRangeAsync(groupedQuery.Select(x => new TimeGroupedRow()
