@@ -20,23 +20,26 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
-          
+          dotnet-version: "8.0.x"
+
       # Install LocalDB
       - name: Install LocalDB
         uses: potatoqualitee/mssqlsuite@v1.8
         with:
           install: localdb
 
+      - name: Build with dotnet
+        run: dotnet build src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  --configuration Release
+
       - name: Build test projects
         run: |
-         dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
-         dotnet build tests/Application.UnitTests/Application.UnitTests.csproj  --configuration Release
-        
+          dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
+          dotnet build tests/Application.UnitTests/Application.UnitTests.csproj  --configuration Release
+
       - name: Test with the dotnet CLI
-        run: | 
-         dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
-         dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
+        run: |
+          dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
+          dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
 
       # Install deps
       - name: Install dependencies for React UI
@@ -48,19 +51,16 @@ jobs:
           REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
         run: |
           cd src/IrcMonitor.ReactUi
-          yarn build       
+          yarn build
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
         run: |
           cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
 
-      - name: Build with dotnet
-        run: dotnet build src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  --configuration Release
-
       - name: dotnet publish
         run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release --property:PublishDir=${{env.DOTNET_ROOT}}/myapp
-        
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -71,7 +71,7 @@ jobs:
     runs-on: windows-latest
     needs: build
     environment:
-      name: 'Production'
+      name: "Production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -84,7 +84,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'IrcMonitor'
-          slot-name: 'Production'
+          app-name: "IrcMonitor"
+          slot-name: "Production"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C18A791C34E945EB9FB49AFB6EE88B78 }}
           package: .
