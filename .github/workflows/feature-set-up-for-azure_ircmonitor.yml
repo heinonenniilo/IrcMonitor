@@ -29,7 +29,7 @@ jobs:
           install: localdb
 
       - name: Build with dotnet
-        run: dotnet build src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  --configuration Release
+        run: dotnet build --configuration Release
 
       - name: Build test projects
         run: |
