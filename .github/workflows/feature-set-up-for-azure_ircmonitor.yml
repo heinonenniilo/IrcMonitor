@@ -18,14 +18,13 @@ jobs:
 
       # Setup .NET
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '7.0.x'
-          include-prerelease: true
+          dotnet-version: '8.0.x'
           
       # Install LocalDB
       - name: Install LocalDB
-        uses: potatoqualitee/mssqlsuite@v1.7
+        uses: potatoqualitee/mssqlsuite@v1.8
         with:
           install: localdb
 
@@ -63,7 +62,7 @@ jobs:
         run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release --property:PublishDir=${{env.DOTNET_ROOT}}/myapp
         
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
