@@ -60,7 +60,7 @@ app.UseSwaggerUi3(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 */
-app.UseSwaggerUi3();
+app.UseSwaggerUi();
 app.UseRouting();
 
 app.UseOpenApi();
