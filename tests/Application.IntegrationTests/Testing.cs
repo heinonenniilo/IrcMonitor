@@ -11,9 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Respawn;
-using Respawn.Graph;
-using static System.Formats.Asn1.AsnWriter;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace IrcMonitor.Application.IntegrationTests;
 
@@ -23,11 +20,7 @@ public partial class Testing
     private static WebApplicationFactory<Program> _factory = null!;
     private static IConfiguration _configuration = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
-    // private static Respawn.c _checkpoint = null!;
-
     private static string? _currentUserId;
-
-
     private static Respawner _respawner;
 
     [OneTimeSetUp]
