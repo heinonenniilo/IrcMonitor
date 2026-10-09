@@ -52,15 +52,15 @@ jobs:
 
       # Install deps
       - name: Install dependencies for React UI
-        run: npm ci --prefix src/IrcMonitor.ReactUi
+        working-directory: src/IrcMonitor.ReactUi
+        run: npm ci
 
       # Build React UI
       - name: Build React UI
+        working-directory: src/IrcMonitor.ReactUi
         env:
           VITE_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
-        run: |
-          cd src/IrcMonitor.ReactUi
-          npm run build
+        run: npm run build
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
