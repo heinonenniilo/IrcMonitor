@@ -29,7 +29,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "10.0.x"
 
       # Install LocalDB
       - name: Install LocalDB
@@ -72,20 +72,53 @@ jobs:
         run: |
           cp -r src/IrcMonitor.ReactUi/dist/* src/IrcMonitor.WebUI/wwwroot/
 
-      - name: dotnet publish
-        run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release -o "${{env.DOTNET_ROOT}}/irc-monitor"
+      - name: Publish web Windows x64
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/web/win-x64
+
+      - name: Publish web Linux x64
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained true
+          --output artifacts/web/linux-x64
+
+      - name: Publish function Windows x64
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/function/win-x64
+
+      - name: Publish function Linux x64
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained true
+          --output artifacts/function/linux-x64
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/irc-monitor
+          path: artifacts/web/win-x64
 
-      - name: Zip published application
+      - name: Zip published applications
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path packages -Force | Out-Null
-          [System.IO.Compression.ZipFile]::CreateFromDirectory("$env:DOTNET_ROOT/irc-monitor", "$PWD/packages/ircmonitor.zip")
+          foreach ($component in @('web', 'function')) {
+            foreach ($runtime in @('win-x64', 'linux-x64')) {
+              [System.IO.Compression.ZipFile]::CreateFromDirectory("$PWD/artifacts/$component/$runtime", "$PWD/packages/irc-monitor-$component-$runtime.zip")
+            }
+          }
 
       - name: Log in to Azure using federation
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
@@ -114,7 +147,7 @@ jobs:
             --destination artifacts `
             --destination-path "$destinationPath" `
             --source packages `
-            --pattern "ircmonitor.zip" `
+            --pattern "irc-monitor-*.zip" `
             --auth-mode login `
             --overwrite true `
             --only-show-errors @tierArguments
