@@ -5,7 +5,7 @@ import { UserVm } from "api";
 import { MenuBar } from "framework/MenuBar";
 import { gapi } from "gapi-script";
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux/es/exports";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -40,7 +40,7 @@ export const App: React.FC<AppProps> = (props) => {
   useEffect(() => {
     function start() {
       gapi.client.init({
-        clientId: process.env.REACT_APP_GOOGLE_APP_ID,
+        clientId: import.meta.env.VITE_GOOGLE_APP_ID,
         scope: ""
       });
     }

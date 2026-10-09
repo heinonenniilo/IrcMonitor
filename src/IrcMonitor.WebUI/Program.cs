@@ -16,7 +16,7 @@ if (builder.Environment.IsDevelopment())
     {
         opts.AddPolicy("AllowAll", builder =>
         {
-            builder.WithOrigins("https://localhost:3000", "http://localhost:3000")
+            builder.WithOrigins("https://localhost:5173", "http://localhost:5173")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
             .AllowCredentials();

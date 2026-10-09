@@ -20,7 +20,7 @@ root.render(
   <Provider store={appStore}>
     <React.StrictMode>
       <BrowserRouter>
-        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_APP_ID}>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_APP_ID}>
           <App>
             <Routes>
               <Route path={routes.main} element={<HomeView />} />
@@ -43,6 +43,6 @@ root.render(
 reportWebVitals();
 
 /*
-<GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_APP_ID}>
+<GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_APP_ID}>
 </GoogleOAuthProvider>
 */

@@ -38,22 +38,27 @@ jobs:
           dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
           dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       # Install deps
       - name: Install dependencies for React UI
-        run: yarn install --cwd src/IrcMonitor.ReactUi
+        run: npm ci --prefix src/IrcMonitor.ReactUi
 
       # Build React UI
       - name: Build React UI
         env:
-          REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
+          VITE_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
         run: |
           cd src/IrcMonitor.ReactUi
-          yarn build
+          npm run build
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
         run: |
-          cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
+          cp -r src/IrcMonitor.ReactUi/dist/* src/IrcMonitor.WebUI/wwwroot/
 
       - name: dotnet publish
         run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release -o "${{env.DOTNET_ROOT}}/irc-monitor"
