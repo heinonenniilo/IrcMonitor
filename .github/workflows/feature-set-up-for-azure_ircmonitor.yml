@@ -16,6 +16,11 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: "Production"
 
     steps:
       - uses: actions/checkout@v2
@@ -76,31 +81,14 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/irc-monitor
 
-  deploy:
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      contents: read
-      id-token: write
-    environment:
-      name: "Production"
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-          path: app
-
       - name: Zip published application
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path packages -Force | Out-Null
-          [System.IO.Compression.ZipFile]::CreateFromDirectory("$PWD/app", "$PWD/packages/ircmonitor.zip")
+          [System.IO.Compression.ZipFile]::CreateFromDirectory("$env:DOTNET_ROOT/irc-monitor", "$PWD/packages/ircmonitor.zip")
 
       - name: Log in to Azure using federation
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -108,11 +96,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload application to Azure Blob Storage
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         shell: pwsh
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
         run: |
-          $sourceBranch = $env:GITHUB_REF_NAME
+          $sourceBranch = if ($env:GITHUB_HEAD_REF) { $env:GITHUB_HEAD_REF } else { $env:GITHUB_REF_NAME }
           $tierArguments = @()
           $destinationPath = if ($sourceBranch -eq 'main') {
             "ircmonitor/main/$env:GITHUB_RUN_ID"
@@ -129,6 +118,21 @@ jobs:
             --auth-mode login `
             --overwrite true `
             --only-show-errors @tierArguments
+
+  deploy:
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: "Production"
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+          path: app
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
