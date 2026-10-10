@@ -132,15 +132,20 @@ public static class ConfigureServices
 
     private static TokenCredential GetKeyVaultCredential(KeyVaultSettings settings)
     {
-        if (!string.IsNullOrEmpty(settings.ClientSecret))
+        var hasSecret = !string.IsNullOrEmpty(settings.ClientSecret);
+        Console.WriteLine($"KeyVault auth: ClientId={(string.IsNullOrEmpty(settings.ClientId) ? "<not set>" : settings.ClientId)}, TenantId={(string.IsNullOrEmpty(settings.TenantId) ? "<not set>" : settings.TenantId)}, ClientSecret={(hasSecret ? $"<set, length {settings.ClientSecret.Length}>" : "<not set>")}");
+
+        if (hasSecret)
         {
             if (string.IsNullOrEmpty(settings.TenantId) || string.IsNullOrEmpty(settings.ClientId))
             {
                 throw new InvalidOperationException("KeyVault TenantId and ClientId must be set when ClientSecret is used");
             }
+            Console.WriteLine("KeyVault auth: using ClientSecretCredential");
             return new ClientSecretCredential(settings.TenantId, settings.ClientId, settings.ClientSecret);
         }
 
+        Console.WriteLine("KeyVault auth: using DefaultAzureCredential");
         return new DefaultAzureCredential();
     }
 }
