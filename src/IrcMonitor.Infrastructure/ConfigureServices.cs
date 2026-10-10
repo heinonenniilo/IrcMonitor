@@ -13,11 +13,14 @@ using Microsoft.IdentityModel.Tokens;
 using Google.Apis.Auth;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
+using Azure.Core;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ConfigureServices
 {
+
+
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
@@ -70,7 +73,8 @@ public static class ConfigureServices
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
-        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), new DefaultAzureCredential()) : null;
+        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? 
+            new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), GetKeyVaultCredential(authSettings.KeyVault)) : null;
         services.AddSingleton(x =>
         {
             return keyClient;
@@ -125,5 +129,24 @@ public static class ConfigureServices
             });
 
         return services;
+    }
+
+    private static TokenCredential GetKeyVaultCredential(KeyVaultSettings settings)
+    {
+        var hasSecret = !string.IsNullOrEmpty(settings.ClientSecret);
+        Console.WriteLine($"KeyVault auth: ClientId={(string.IsNullOrEmpty(settings.ClientId) ? "<not set>" : settings.ClientId)}, TenantId={(string.IsNullOrEmpty(settings.TenantId) ? "<not set>" : settings.TenantId)}, ClientSecret={(hasSecret ? $"<set, length {settings.ClientSecret.Length}>" : "<not set>")}");
+
+        if (hasSecret)
+        {
+            if (string.IsNullOrEmpty(settings.TenantId) || string.IsNullOrEmpty(settings.ClientId))
+            {
+                throw new InvalidOperationException("KeyVault TenantId and ClientId must be set when ClientSecret is used");
+            }
+            Console.WriteLine("KeyVault auth: using ClientSecretCredential");
+            return new ClientSecretCredential(settings.TenantId, settings.ClientId, settings.ClientSecret);
+        }
+
+        Console.WriteLine("KeyVault auth: using DefaultAzureCredential");
+        return new DefaultAzureCredential();
     }
 }

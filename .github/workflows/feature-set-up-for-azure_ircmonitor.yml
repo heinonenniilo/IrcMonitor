@@ -4,11 +4,23 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: Deploy to Azure after a successful build
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: "Production"
 
     steps:
       - uses: actions/checkout@v2
@@ -17,7 +29,7 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "10.0.x"
 
       # Install LocalDB
       - name: Install LocalDB
@@ -38,33 +50,118 @@ jobs:
           dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
           dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       # Install deps
       - name: Install dependencies for React UI
-        run: yarn install --cwd src/IrcMonitor.ReactUi
+        working-directory: src/IrcMonitor.ReactUi
+        run: npm ci
 
       # Build React UI
       - name: Build React UI
+        working-directory: src/IrcMonitor.ReactUi
         env:
-          REACT_APP_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
-        run: |
-          cd src/IrcMonitor.ReactUi
-          yarn build
+          VITE_GOOGLE_APP_ID: ${{ secrets.GOOGLEAPPID }}
+        run: npm run build
 
       # Copy React build output to .NET's wwwroot
       - name: Copy React build to .NET wwwroot
         run: |
-          cp -r src/IrcMonitor.ReactUi/build/* src/IrcMonitor.WebUI/wwwroot/
+          cp -r src/IrcMonitor.ReactUi/dist/* src/IrcMonitor.WebUI/wwwroot/
 
-      - name: dotnet publish
-        run: dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj  -c Release -o "${{env.DOTNET_ROOT}}/irc-monitor"
+      - name: Publish web Windows x86
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime win-x86
+          --output artifacts/web/win-x86
+
+      - name: Publish web Windows x64
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime win-x64
+          --output artifacts/web/win-x64
+
+      - name: Publish web Linux x64
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime linux-x64
+          --output artifacts/web/linux-x64
+
+      - name: Publish function Windows x86
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime win-x86
+          --output artifacts/function/win-x86
+
+      - name: Publish function Windows x64
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime win-x64
+          --output artifacts/function/win-x64
+
+      - name: Publish function Linux x64
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime linux-x64
+          --output artifacts/function/linux-x64
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/irc-monitor
+          name: .net-app-win-x86
+          path: artifacts/web/win-x86
+
+      - name: Zip Linux x64 applications for Blob Storage
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path packages -Force | Out-Null
+          foreach ($component in @('web', 'function')) {
+            [System.IO.Compression.ZipFile]::CreateFromDirectory("$PWD/artifacts/$component/linux-x64", "$PWD/packages/irc-monitor-$component-linux-x64.zip")
+          }
+
+      - name: Log in to Azure using federation
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload application to Azure Blob Storage
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: pwsh
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+        run: |
+          $sourceBranch = if ($env:GITHUB_HEAD_REF) { $env:GITHUB_HEAD_REF } else { $env:GITHUB_REF_NAME }
+          $tierArguments = @()
+          $destinationPath = if ($sourceBranch -eq 'main') {
+            "ircmonitor/main/$env:GITHUB_RUN_ID"
+          } else {
+            $tierArguments = @('--tier', 'Hot')
+            "ircmonitor/branches/$sourceBranch/$env:GITHUB_RUN_ID"
+          }
+          az storage blob upload-batch `
+            --account-name "$env:AZURE_STORAGE_ACCOUNT" `
+            --destination artifacts `
+            --destination-path "$destinationPath" `
+            --source packages `
+            --pattern "irc-monitor-*-linux-x64.zip" `
+            --auth-mode login `
+            --overwrite true `
+            --only-show-errors @tierArguments
 
   deploy:
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
     runs-on: windows-latest
     needs: build
     environment:
@@ -75,13 +172,14 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: .net-app-win-x86
+          path: app
 
-      - name: Deploy to Azure Web App
+      - name: Deploy Windows x86 to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: "IrcMonitor"
           slot-name: "Production"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C18A791C34E945EB9FB49AFB6EE88B78 }}
-          package: .
+          package: app

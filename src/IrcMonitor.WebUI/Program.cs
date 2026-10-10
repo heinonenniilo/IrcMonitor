@@ -1,5 +1,6 @@
 using System;
 using IrcMonitor.Infrastructure.Persistence;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+});
 
 
 if (builder.Environment.IsDevelopment())
@@ -16,7 +22,7 @@ if (builder.Environment.IsDevelopment())
     {
         opts.AddPolicy("AllowAll", builder =>
         {
-            builder.WithOrigins("https://localhost:3000", "http://localhost:3000")
+            builder.WithOrigins("https://localhost:5173", "http://localhost:5173")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
             .AllowCredentials();
@@ -26,6 +32,8 @@ if (builder.Environment.IsDevelopment())
 
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -12,7 +12,7 @@ interface UseApiHook {
   authApi: AuthApi | undefined;
 }
 
-const isProduction = process.env!.NODE_ENV === "production";
+const isProduction = import.meta.env.PROD;
 const authApi = new AuthApi(
   new Configuration({
     basePath: isProduction ? "" : null,
@@ -89,7 +89,7 @@ export const useApiHook = (): UseApiHook => {
           new IrcApi(
             new Configuration({
               apiKey: `Bearer ${accessToken}`,
-              basePath: process.env!.NODE_ENV === "production" ? "" : null,
+              basePath: isProduction ? "" : null,
               middleware: [{ pre: preRequestHandler }],
               credentials: isProduction ? "same-origin" : "include"
             })
