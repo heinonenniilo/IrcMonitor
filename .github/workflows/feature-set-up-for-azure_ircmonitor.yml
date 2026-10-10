@@ -72,12 +72,18 @@ jobs:
         run: |
           cp -r src/IrcMonitor.ReactUi/dist/* src/IrcMonitor.WebUI/wwwroot/
 
+      - name: Publish web Windows x86
+        run: >-
+          dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
+          --configuration Release
+          --runtime win-x86
+          --output artifacts/web/win-x86
+
       - name: Publish web Windows x64
         run: >-
           dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
           --configuration Release
           --runtime win-x64
-          --self-contained true
           --output artifacts/web/win-x64
 
       - name: Publish web Linux x64
@@ -85,15 +91,20 @@ jobs:
           dotnet publish src/IrcMonitor.WebUI/IrcMonitor.WebUI.csproj
           --configuration Release
           --runtime linux-x64
-          --self-contained true
           --output artifacts/web/linux-x64
+
+      - name: Publish function Windows x86
+        run: >-
+          dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
+          --configuration Release
+          --runtime win-x86
+          --output artifacts/function/win-x86
 
       - name: Publish function Windows x64
         run: >-
           dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
           --configuration Release
           --runtime win-x64
-          --self-contained true
           --output artifacts/function/win-x64
 
       - name: Publish function Linux x64
@@ -101,23 +112,20 @@ jobs:
           dotnet publish src/IrcMonitor.RowInserterFunction/IrcMonitor.RowInserterFunction.csproj
           --configuration Release
           --runtime linux-x64
-          --self-contained true
           --output artifacts/function/linux-x64
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: artifacts/web/win-x64
+          name: .net-app-win-x86
+          path: artifacts/web/win-x86
 
-      - name: Zip published applications
+      - name: Zip Linux x64 applications for Blob Storage
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path packages -Force | Out-Null
           foreach ($component in @('web', 'function')) {
-            foreach ($runtime in @('win-x64', 'linux-x64')) {
-              [System.IO.Compression.ZipFile]::CreateFromDirectory("$PWD/artifacts/$component/$runtime", "$PWD/packages/irc-monitor-$component-$runtime.zip")
-            }
+            [System.IO.Compression.ZipFile]::CreateFromDirectory("$PWD/artifacts/$component/linux-x64", "$PWD/packages/irc-monitor-$component-linux-x64.zip")
           }
 
       - name: Log in to Azure using federation
@@ -147,7 +155,7 @@ jobs:
             --destination artifacts `
             --destination-path "$destinationPath" `
             --source packages `
-            --pattern "irc-monitor-*.zip" `
+            --pattern "irc-monitor-*-linux-x64.zip" `
             --auth-mode login `
             --overwrite true `
             --only-show-errors @tierArguments
@@ -164,10 +172,10 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
+          name: .net-app-win-x86
           path: app
 
-      - name: Deploy to Azure Web App
+      - name: Deploy Windows x86 to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
