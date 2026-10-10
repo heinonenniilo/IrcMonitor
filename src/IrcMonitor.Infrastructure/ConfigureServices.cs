@@ -73,7 +73,8 @@ public static class ConfigureServices
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
 
-        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), GetKeyVaultCredential(authSettings.KeyVault)) : null;
+        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? 
+            new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), GetKeyVaultCredential(authSettings.KeyVault)) : null;
         services.AddSingleton(x =>
         {
             return keyClient;
