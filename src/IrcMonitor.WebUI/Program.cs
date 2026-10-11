@@ -1,4 +1,6 @@
 using System;
+using Hangfire;
+using IrcMonitor.Domain.Models;
 using IrcMonitor.Infrastructure.Persistence;
 using Microsoft.AspNetCore.HttpOverrides;
 
@@ -79,6 +81,13 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
+
+var hangfireSettings = app.Services.GetRequiredService<HangfireSettings>();
+if (hangfireSettings.Enabled && hangfireSettings.EnableDashboard)
+{
+    app.UseHangfireDashboard("/hangfire");
+}
+app.Services.RegisterHangfireJobs();
 
 app.UseSpa(spa =>
 {

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2;
 using IrcMonitor.Application.Common.Interfaces;
@@ -14,6 +14,8 @@ using Google.Apis.Auth;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Core;
+using Hangfire;
+using IrcMonitor.Infrastructure.Jobs;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -72,6 +74,7 @@ public static class ConfigureServices
  
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
+        services.AddHangfireServices(configuration);
 
         KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? 
             new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), GetKeyVaultCredential(authSettings.KeyVault)) : null;
@@ -130,6 +133,44 @@ public static class ConfigureServices
 
         return services;
     }
+
+	private static IServiceCollection AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
+	{
+		var settings = configuration.GetSection(nameof(HangfireSettings)).Get<HangfireSettings>() ?? new HangfireSettings();
+		services.AddSingleton(settings);
+
+		if (!settings.Enabled)
+		{
+			return services;
+		}
+
+		services.AddScoped<IRowInsertService, RowInsertService>();
+		services.AddTransient<LogFileProcessorJob>();
+		services.AddHangfire(config => config
+			.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+			.UseSimpleAssemblyNameTypeSerializer()
+			.UseRecommendedSerializerSettings()
+			.UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection")));
+		services.AddHangfireServer();
+
+		return services;
+	}
+
+	public static IServiceProvider RegisterHangfireJobs(this IServiceProvider serviceProvider)
+	{
+		var settings = serviceProvider.GetRequiredService<HangfireSettings>();
+		if (!settings.Enabled)
+		{
+			return serviceProvider;
+		}
+
+		serviceProvider.GetRequiredService<IRecurringJobManager>().AddOrUpdate<LogFileProcessorJob>(
+			LogFileProcessorJob.JobId,
+			job => job.Run(CancellationToken.None),
+			settings.ProcessLogFilesCron);
+
+		return serviceProvider;
+	}
 
     private static TokenCredential GetKeyVaultCredential(KeyVaultSettings settings)
     {
