@@ -1,4 +1,6 @@
 import React from "react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
@@ -31,7 +33,9 @@ function renderView(role?: RoleNames) {
   if (role) store.dispatch(userActions.storeUserInfo({ roles: [role], email: "admin@example.com", accessToken: "token" }));
   render(<Provider store={store}>
     <AuthorizedComponent requiredRole={RoleNames.Admin}>
-      <ProcessedLogFilesView />
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <ProcessedLogFilesView />
+      </LocalizationProvider>
     </AuthorizedComponent>
   </Provider>);
 }

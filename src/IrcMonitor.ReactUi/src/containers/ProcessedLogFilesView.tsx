@@ -1,5 +1,6 @@
 import { Alert, Box, Button, MenuItem, TextField } from "@mui/material";
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid";
+import { DesktopDatePicker } from "@mui/x-date-pickers";
 import { GetProcessedLogFilesVm, ManagementGetProcessedLogFilesRequest } from "api";
 import { AppContentWrapper } from "framework/AppContentWrapper";
 import { useApiHook } from "hooks/useApiHook";
@@ -35,10 +36,11 @@ export const ProcessedLogFilesView: React.FC = () => {
   const [error, setError] = useState<string>();
   const [fileName, setFileName] = useState("");
   const [channelId, setChannelId] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [from, setFrom] = useState<moment.Moment | null>(null);
+  const [to, setTo] = useState<moment.Moment | null>(null);
   const [reload, setReload] = useState(0);
-  const invalidDates = Boolean(from && to && from > to);
+  const invalidDateRange = Boolean(from?.isValid() && to?.isValid() && from.isAfter(to, "day"));
+  const invalidDates = Boolean((from && !from.isValid()) || (to && !to.isValid()) || invalidDateRange);
 
   useEffect(() => {
     if (!managementApi) return;
@@ -89,11 +91,14 @@ export const ProcessedLogFilesView: React.FC = () => {
               <MenuItem key={channel.guid} value={channel.guid}>{channel.name}</MenuItem>
             ))}
           </TextField>
-          <TextField label="From" type="date" InputLabelProps={{ shrink: true }}
-            value={from} onChange={(event) => setFrom(event.target.value)} />
-          <TextField label="To" type="date" InputLabelProps={{ shrink: true }}
-            value={to} onChange={(event) => setTo(event.target.value)}
-            error={invalidDates} helperText={invalidDates ? "To must be on or after From." : undefined} />
+          <DesktopDatePicker label="From" inputFormat="DD.MM.YYYY"
+            value={from} onChange={(value) => setFrom(value)}
+            renderInput={(params) => <TextField {...params} />} />
+          <DesktopDatePicker label="To" inputFormat="DD.MM.YYYY"
+            value={to} onChange={(value) => setTo(value)}
+            renderInput={(params) => <TextField {...params}
+              error={params.error || invalidDateRange}
+              helperText={invalidDateRange ? "To must be on or after From." : params.helperText} />} />
           <Button type="submit" variant="outlined" disabled={invalidDates}>Search</Button>
         </Box>
       }
