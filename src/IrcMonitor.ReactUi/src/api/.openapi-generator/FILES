@@ -1,12 +1,14 @@
 .openapi-generator-ignore
 apis/AuthApi.ts
 apis/IrcApi.ts
+apis/ManagementApi.ts
 apis/index.ts
 index.ts
 models/BarCharDataSet.ts
 models/BarChartReturnModel.ts
 models/GetIrcChannelsVm.ts
 models/GetIrcRowsVm.ts
+models/GetProcessedLogFilesVm.ts
 models/HandleGoogleAuthorizationCodeCommand.ts
 models/HandleGoogleLoginCommand.ts
 models/HandleGoogleRefreshTokenCommand.ts
@@ -14,6 +16,7 @@ models/IrcChannelDto.ts
 models/IrcRowDto.ts
 models/OverviewStatisticsVm.ts
 models/OverviewStatisticsVmAllOf.ts
+models/ProcessedLogFileDto.ts
 models/StatisticsVmBase.ts
 models/UserVm.ts
 models/YearlyStatisticsVm.ts

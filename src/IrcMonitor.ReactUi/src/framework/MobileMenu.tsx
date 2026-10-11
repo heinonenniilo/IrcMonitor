@@ -1,6 +1,6 @@
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import React from "react";
-import { Menu as MenuIcon } from "@mui/icons-material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { getChannels, getIsReLogging, getUserInfo, getUserVm } from "reducers/userReducer";
 import { SelectChannel } from "../components/SelectChannel";
@@ -9,6 +9,8 @@ import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
 import { UserMenu } from "../components/UserMenu";
 import { appUiActions } from "actions/appUiActions";
 import { HeaderBrand } from "components/HeaderBrand";
+import { RoleNames } from "enums/RoleEnums";
+import { ManageMenu } from "components/ManageMenu";
 
 export interface MobileMenuProps {
   onNavigate: (route: string) => void;
@@ -85,6 +87,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
             Browse
           </MenuItem>
 
+          {user?.roles?.includes(RoleNames.Admin) && (
+            <ManageMenu onNavigate={(route) => {
+              handleClose();
+              onNavigate(route);
+            }} />
+          )}
           <MenuItem selected={false}>
             <SelectChannel
               channels={channels}

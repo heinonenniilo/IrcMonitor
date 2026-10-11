@@ -4,7 +4,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getLeftMenuIsOpen } from "reducers/appUiReducer";
 import styled from "styled-components";
-import { Menu as MenuIcon } from "@mui/icons-material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { AuthorizedComponent } from "./AuthorizedComponent";
 import { RoleNames } from "enums/RoleEnums";
 import { SelectChannel } from "components/SelectChannel";
@@ -12,6 +12,7 @@ import { UserMenu } from "components/UserMenu";
 import { getChannels, getIsReLogging, getUserInfo } from "reducers/userReducer";
 import { routes } from "utilities/routes";
 import { HeaderBrand } from "components/HeaderBrand";
+import { ManageMenu } from "components/ManageMenu";
 export interface DesktopMenuProps {
   onNavigate: (route: string) => void;
   onLogin: () => void;
@@ -89,6 +90,9 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
             >
               Browse
             </MenuItem>
+          </AuthorizedComponent>
+          <AuthorizedComponent requiredRole={RoleNames.Admin}>
+            <ManageMenu onNavigate={onNavigate} />
           </AuthorizedComponent>
         </MenuArea>
         <Box>

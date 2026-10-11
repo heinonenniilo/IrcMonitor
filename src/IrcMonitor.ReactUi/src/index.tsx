@@ -15,6 +15,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { NickOverviewStatistics } from "containers/NickStatisticsOverView";
 import { NickStatisticsYear } from "containers/NickStatisticsYear";
 import { AppThemeProvider } from "framework/AppThemeProvider";
+import { ProcessedLogFilesView } from "containers/ProcessedLogFilesView";
+import { AuthorizedComponent } from "framework/AuthorizedComponent";
+import { RoleNames } from "enums/RoleEnums";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
@@ -28,6 +31,11 @@ root.render(
                 <Route path={routes.main} element={<HomeView />} />
                 <Route path={routes.statistics} element={<OverViewStatisticsView />} />
                 <Route path={routes.browse} element={<BrowseView />} />
+                <Route path={routes.processedLogFiles} element={
+                  <AuthorizedComponent requiredRole={RoleNames.Admin}>
+                    <ProcessedLogFilesView />
+                  </AuthorizedComponent>
+                } />
                 <Route path={routes.nickOverView} element={<NickOverviewStatistics />} />
                 <Route path={routes.nickYearly} element={<NickStatisticsYear />} />
                 <Route path={routes.yearlyStatistics} element={<YearlyStatisticsView />} />
