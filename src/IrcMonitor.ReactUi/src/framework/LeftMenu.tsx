@@ -17,18 +17,23 @@ export const LeftMenu: React.FC<LeftMenuProps> = ({
   isOpen,
   onClose
 }) => {
-  const ref = useRef<HTMLElement | undefined | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const [menuWidth, setWidth] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    if (ref?.current.offsetWidth) {
-      setWidth(ref?.current.offsetWidth);
-    }
+    const element = ref.current;
+    if (!element) return;
+
+    const updateWidth = () => setWidth(element.offsetWidth);
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    setMenuWidth(menuWidth);
+    if (menuWidth !== undefined) setMenuWidth?.(menuWidth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menuWidth]);
 
@@ -43,7 +48,10 @@ export const LeftMenu: React.FC<LeftMenuProps> = ({
           flexDirection: "column",
           justifyContent: "space-between",
           height: "100%",
-          maxWidth: "150px"
+          width: "max-content",
+          minWidth: "260px",
+          maxWidth: "calc(100vw - 32px)",
+          boxSizing: "border-box"
         }}
         ref={ref}
       >
