@@ -7,12 +7,12 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
-  Colors
+  Legend
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
 import { Box, useTheme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { BarChartReturnModel } from "api";
 
 export interface BarCharComponentProps {
@@ -24,7 +24,7 @@ export interface BarCharComponentProps {
   maxHeight?: string;
 }
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const options = {
   responsive: true,
@@ -48,6 +48,14 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
   maxHeight
 }) => {
   const theme = useTheme();
+  const barColors = [
+    theme.palette.primary.main,
+    theme.palette.secondary.main,
+    theme.palette.info.main,
+    theme.palette.warning.main,
+    theme.palette.success.main,
+    theme.palette.error.main
+  ];
   const labels = rows?.labels ?? [];
   return (
     <Box flex={1} position={"relative"} maxHeight={maxHeight} height={"auto"} width={"auto"}>
@@ -87,15 +95,25 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
               text: chartTitle
             },
             colors: {
-              forceOverride: true
+              enabled: false
             }
           }
         }}
         data={{
           labels: labels,
           datasets: rows?.dataSets
-            ? rows.dataSets.map((d) => {
-                return { data: d.values, label: d.label };
+            ? rows.dataSets.map((d, index) => {
+                const color = barColors[index % barColors.length];
+                return {
+                  data: d.values,
+                  label: d.label,
+                  backgroundColor: alpha(color, 0.75),
+                  borderColor: color,
+                  borderWidth: 1,
+                  hoverBackgroundColor: color,
+                  hoverBorderColor: color,
+                  borderRadius: 4
+                };
               })
             : []
         }}
