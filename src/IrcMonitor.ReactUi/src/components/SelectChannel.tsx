@@ -15,7 +15,7 @@ export interface SelectChannelProps {
 const desktopStyles = makeStyles((theme?: any) => ({
   formControl: {
     minWidth: 120,
-    color: "white"
+    color: "inherit"
   },
   selectEmpty: {},
   divcontrol: {
@@ -25,11 +25,11 @@ const desktopStyles = makeStyles((theme?: any) => ({
     minWidth: "300px"
   },
   select: {
-    color: "white"
+    color: "inherit"
   },
   label: {
     display: "flex",
-    color: "white"
+    color: "inherit"
   },
   labelContainer: {
     paddingRight: 16
@@ -82,7 +82,7 @@ export const SelectChannel: React.FC<SelectChannelProps> = ({
           value={selectedChannel ?? ""}
           renderValue={(r) => {
             const match = channels.find((c) => c.guid === r);
-            return match.name ?? r;
+            return match?.name ?? r;
           }}
           className={classes.select}
         >

@@ -3,6 +3,7 @@ import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/materi
 import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
+import { ThemeModeSwitch } from "./ThemeModeSwitch";
 
 export interface UserMenuProps {
   handleGoogleAuthWithCode: () => void;
@@ -12,7 +13,14 @@ export interface UserMenuProps {
   isMobile?: boolean;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({
+export const UserMenu: React.FC<UserMenuProps> = (props) => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+    <ThemeModeSwitch />
+    <AccountMenu {...props} />
+  </Box>
+);
+
+const AccountMenu: React.FC<UserMenuProps> = ({
   user,
   showReLogIn,
   handleLogOut,
@@ -45,7 +53,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   } else if (user && user.loggedIn) {
     return (
       <Box sx={{ display: "flex", flexDirection: "row" }}>
-        <Typography variant={!isMobile ? "h6" : "body1"} marginTop={"auto"} marginBottom={"auto"}>
+        <Typography variant="body2" sx={{ display: isMobile ? "none" : "block", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }} marginTop={"auto"} marginBottom={"auto"}>
           {user.email}
         </Typography>
         <IconButton

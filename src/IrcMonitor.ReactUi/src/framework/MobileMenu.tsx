@@ -8,6 +8,7 @@ import { routes } from "utilities/routes";
 import { getHasLeftMenu, getLeftMenuIsOpen } from "reducers/appUiReducer";
 import { UserMenu } from "../components/UserMenu";
 import { appUiActions } from "actions/appUiActions";
+import { HeaderBrand } from "components/HeaderBrand";
 
 export interface MobileMenuProps {
   onNavigate: (route: string) => void;
@@ -112,7 +113,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 
   // TODO: Check the definition for paddingLeft
   return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "row" }}>
+    <Box sx={{ width: "100%", display: "flex", alignItems: "center", minHeight: 64, px: 1 }}>
+      <HeaderBrand compact onClick={() => onNavigate(routes.main)} />
       <Box sx={{ display: "flex", flexDirection: "row", pl: 1.5 }}>
         <IconButton
           size="large"

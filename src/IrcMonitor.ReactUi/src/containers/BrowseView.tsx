@@ -147,6 +147,11 @@ export const BrowseView: React.FC = () => {
       }
     >
       <DataGrid
+        sx={{
+          fontFamily: 'Consolas, "Liberation Mono", monospace',
+          '& .MuiDataGrid-cell[data-field="timeStamp"]': { color: "text.secondary" },
+          '& .MuiDataGrid-cell[data-field="nick"]': { color: "secondary.main" }
+        }}
         rows={rows}
         rowCount={response?.totalRows ?? 0}
         page={criteria?.criteriaPage ?? 0}

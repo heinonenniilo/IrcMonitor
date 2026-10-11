@@ -1,8 +1,10 @@
 import { Action } from "redux";
+import { PaletteMode } from "@mui/material";
 
 export enum AppUiActionTypes {
   StoreHasLeftMenu = "Ui/StoreIsLeftMenuOpen",
-  ToggleLeftMenu = "Ui/ToggleLeftMenu"
+  ToggleLeftMenu = "Ui/ToggleLeftMenu",
+  SetThemeMode = "Ui/SetThemeMode"
 }
 
 export interface StoreHasLeftMenu extends Action {
@@ -16,6 +18,10 @@ export interface ToggleLeftMenu extends Action {
 }
 
 export const appUiActions = {
+  setThemeMode: (mode: PaletteMode): SetThemeMode => ({
+    type: AppUiActionTypes.SetThemeMode,
+    mode
+  }),
   storeHasLeftMenu: (isOpen: boolean): StoreHasLeftMenu => ({
     type: AppUiActionTypes.StoreHasLeftMenu,
     isOpen
@@ -25,4 +31,9 @@ export const appUiActions = {
     isOpen
   })
 };
-export type AppUiActions = StoreHasLeftMenu | ToggleLeftMenu;
+export interface SetThemeMode extends Action {
+  type: AppUiActionTypes.SetThemeMode;
+  mode: PaletteMode;
+}
+
+export type AppUiActions = StoreHasLeftMenu | ToggleLeftMenu | SetThemeMode;
