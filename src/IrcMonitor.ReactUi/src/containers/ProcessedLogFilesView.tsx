@@ -1,4 +1,5 @@
 import { Alert, Box, Button, MenuItem, TextField } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid";
 import { DesktopDatePicker } from "@mui/x-date-pickers";
 import { GetProcessedLogFilesVm, ManagementGetProcessedLogFilesRequest } from "api";
@@ -108,6 +109,11 @@ export const ProcessedLogFilesView: React.FC = () => {
         {error}
       </Alert>}
       <DataGrid
+        sx={(theme) => ({
+          "& .MuiDataGrid-cell": {
+            borderBottom: `1px solid ${alpha(theme.palette.text.primary, 0.25)}`
+          }
+        })}
         rows={response?.rows ?? []}
         columns={columns}
         rowCount={response?.totalRows ?? 0}
