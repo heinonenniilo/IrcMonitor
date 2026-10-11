@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">IRC Monitor</title>
+  <path fill="#232323" d="M52 94h24v16H52z"/>
+  <rect x="33" y="108" width="62" height="12" rx="6" fill="#232323"/>
+  <path d="M43 114h42" stroke="#FFC107" stroke-width="4" stroke-linecap="round"/>
+  <rect x="8" y="12" width="112" height="84" rx="13" fill="#232323" stroke="#FFC107" stroke-width="8"/>
+  <g fill="none" stroke="#FFC107" stroke-width="10" stroke-linecap="round">
+    <path d="M51 35 41 73M73 35 63 73M34 47h47M30 62h47"/>
+  </g>
+  <rect x="91" y="62" width="7" height="17" rx="2" fill="#FFC107"/>
+</svg>

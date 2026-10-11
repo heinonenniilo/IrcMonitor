@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { BarChartReturnModel } from "api";
 
 export interface BarCharComponentProps {
@@ -47,11 +47,17 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
   showPointerOnHover,
   maxHeight
 }) => {
+  const theme = useTheme();
   const labels = rows?.labels ?? [];
   return (
     <Box flex={1} position={"relative"} maxHeight={maxHeight} height={"auto"} width={"auto"}>
       <Bar
         options={{
+          color: theme.palette.text.primary,
+          scales: {
+            x: { ticks: { color: theme.palette.text.secondary }, grid: { color: theme.palette.divider } },
+            y: { ticks: { color: theme.palette.text.secondary }, grid: { color: theme.palette.divider } }
+          },
           onClick: (event, elements) => {
             if (elements.length === 1 && onClick) {
               onClick(elements[0].index);
@@ -77,6 +83,7 @@ export const BarChartComponent: React.FC<BarCharComponentProps> = ({
             },
             title: {
               display: true,
+              color: theme.palette.text.primary,
               text: chartTitle
             },
             colors: {

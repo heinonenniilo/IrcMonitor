@@ -14,25 +14,28 @@ import { YearlyStatisticsView } from "containers/YearlyStatistics";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { NickOverviewStatistics } from "containers/NickStatisticsOverView";
 import { NickStatisticsYear } from "containers/NickStatisticsYear";
+import { AppThemeProvider } from "framework/AppThemeProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
   <Provider store={appStore}>
     <React.StrictMode>
-      <BrowserRouter>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_APP_ID}>
-          <App>
-            <Routes>
-              <Route path={routes.main} element={<HomeView />} />
-              <Route path={routes.statistics} element={<OverViewStatisticsView />} />
-              <Route path={routes.browse} element={<BrowseView />} />
-              <Route path={routes.nickOverView} element={<NickOverviewStatistics />} />
-              <Route path={routes.nickYearly} element={<NickStatisticsYear />} />
-              <Route path={routes.yearlyStatistics} element={<YearlyStatisticsView />} />
-            </Routes>
-          </App>
-        </GoogleOAuthProvider>
-      </BrowserRouter>
+      <AppThemeProvider>
+        <BrowserRouter>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_APP_ID}>
+            <App>
+              <Routes>
+                <Route path={routes.main} element={<HomeView />} />
+                <Route path={routes.statistics} element={<OverViewStatisticsView />} />
+                <Route path={routes.browse} element={<BrowseView />} />
+                <Route path={routes.nickOverView} element={<NickOverviewStatistics />} />
+                <Route path={routes.nickYearly} element={<NickStatisticsYear />} />
+                <Route path={routes.yearlyStatistics} element={<YearlyStatisticsView />} />
+              </Routes>
+            </App>
+          </GoogleOAuthProvider>
+        </BrowserRouter>
+      </AppThemeProvider>
     </React.StrictMode>
   </Provider>
 );

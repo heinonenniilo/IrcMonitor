@@ -11,6 +11,7 @@ import { SelectChannel } from "components/SelectChannel";
 import { UserMenu } from "components/UserMenu";
 import { getChannels, getIsReLogging, getUserInfo } from "reducers/userReducer";
 import { routes } from "utilities/routes";
+import { HeaderBrand } from "components/HeaderBrand";
 export interface DesktopMenuProps {
   onNavigate: (route: string) => void;
   onLogin: () => void;
@@ -21,6 +22,7 @@ export interface DesktopMenuProps {
 const MenuItemsContainer = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   width: 100%;
   max-width: 100%;
@@ -29,6 +31,8 @@ const MenuItemsContainer = styled.div`
 const MenuArea = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
+  min-height: 64px;
 `;
 
 export const DesktopMenu: React.FC<DesktopMenuProps> = ({
@@ -47,6 +51,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
     <Container maxWidth={"xl"}>
       <MenuItemsContainer>
         <MenuArea>
+          <HeaderBrand onClick={() => onNavigate(routes.main)} />
           <IconButton
             size="large"
             edge="start"
