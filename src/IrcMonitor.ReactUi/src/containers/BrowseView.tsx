@@ -16,6 +16,7 @@ import { useApiHook } from "hooks/useApiHook";
 import { useSearchParams } from "react-router-dom";
 import { dateFormat } from "utilities/dateUtils";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 
 const defaultPageSize = 100;
 const timeStampColumn = "timeStamp";
@@ -147,11 +148,14 @@ export const BrowseView: React.FC = () => {
       }
     >
       <DataGrid
-        sx={{
+        sx={(theme) => ({
           fontFamily: 'Consolas, "Liberation Mono", monospace',
+          '& .MuiDataGrid-cell': {
+            borderBottom: `1px solid ${alpha(theme.palette.text.primary, 0.25)}`
+          },
           '& .MuiDataGrid-cell[data-field="timeStamp"]': { color: "text.secondary" },
           '& .MuiDataGrid-cell[data-field="nick"]': { color: "secondary.main" }
-        }}
+        })}
         rows={rows}
         rowCount={response?.totalRows ?? 0}
         page={criteria?.criteriaPage ?? 0}

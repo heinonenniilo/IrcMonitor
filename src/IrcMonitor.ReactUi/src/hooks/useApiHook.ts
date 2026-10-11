@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import { IrcApi } from "./../api/apis/IrcApi";
 import { Configuration, FetchParams, RequestContext } from "api/runtime";
-import { AuthApi } from "api";
+import { AuthApi, ManagementApi } from "api";
 import { getTokenExpirationInformation } from "utilities/tokenUtils";
 import { userActions } from "actions/userActions";
 
 interface UseApiHook {
   ircApi: IrcApi | undefined;
   authApi: AuthApi | undefined;
+  managementApi: ManagementApi | undefined;
 }
 
 const isProduction = import.meta.env.PROD;
@@ -22,6 +23,7 @@ const authApi = new AuthApi(
 
 export const useApiHook = (): UseApiHook => {
   const [ircApi, setIrcApi] = useState<IrcApi | undefined>(undefined);
+  const [managementApi, setManagementApi] = useState<ManagementApi | undefined>(undefined);
 
   const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   const userVm = useSelector(getUserVm);
@@ -83,27 +85,28 @@ export const useApiHook = (): UseApiHook => {
     if (accessToken) {
       const tokenExpireInfo = getTokenExpirationInformation(accessToken);
       if (tokenExpireInfo.isExpiring) {
+        setIrcApi(undefined);
+        setManagementApi(undefined);
         setIsRefreshingToken(true);
       } else {
-        setIrcApi(
-          new IrcApi(
-            new Configuration({
-              apiKey: `Bearer ${accessToken}`,
-              basePath: isProduction ? "" : null,
-              middleware: [{ pre: preRequestHandler }],
-              credentials: isProduction ? "same-origin" : "include"
-            })
-          )
-        );
+        const configuration = new Configuration({
+          apiKey: `Bearer ${accessToken}`,
+          basePath: isProduction ? "" : null,
+          middleware: [{ pre: preRequestHandler }],
+          credentials: isProduction ? "same-origin" : "include"
+        });
+        setIrcApi(new IrcApi(configuration));
+        setManagementApi(new ManagementApi(configuration));
       }
     } else {
       setIrcApi(undefined);
+      setManagementApi(undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  }, [accessToken, preRequestHandler]);
 
   return {
     ircApi: ircApi,
-    authApi: authApi
+    authApi: authApi,
+    managementApi: managementApi
   };
 };
