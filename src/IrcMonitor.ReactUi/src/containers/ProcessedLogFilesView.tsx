@@ -111,6 +111,7 @@ export const ProcessedLogFilesView: React.FC = () => {
         rowsPerPageOptions={[30, 50, 100]}
         pagination paginationMode="server" sortingMode="server"
         sortModel={sortModel}
+        sortingOrder={["asc", "desc"]}
         onPageChange={(page) => setCriteria((current) => ({ ...current, criteriaPage: page }))}
         onPageSizeChange={(pageSize) => setCriteria((current) => ({
           ...current, criteriaPage: 0, criteriaPageSize: pageSize
