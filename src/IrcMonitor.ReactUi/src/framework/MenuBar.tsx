@@ -9,6 +9,7 @@ import { DesktopMenu } from "./DesktopMenu";
 import { ircActions } from "actions/ircActions";
 
 export interface MenuBarProps {
+  isLoggingOut?: boolean;
   handleLoginWithGoogleAuthCode: () => void;
   handleLogOut: () => void;
   handleNavigateTo: (route: string) => void;
@@ -17,6 +18,7 @@ export interface MenuBarProps {
 const selectedChannelLocalStorageKey = "selectedChannel";
 
 export const MenuBar: React.FC<MenuBarProps> = ({
+  isLoggingOut,
   handleLogOut,
   handleNavigateTo,
   handleLoginWithGoogleAuthCode
@@ -49,6 +51,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       {!drawDesktop ? (
         <MobileMenu
+          isLoggingOut={isLoggingOut}
           onNavigate={handleNavigateTo}
           onLogin={handleLoginWithGoogleAuthCode}
           onLogOut={handleLogOut}
@@ -56,6 +59,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         />
       ) : (
         <DesktopMenu
+          isLoggingOut={isLoggingOut}
           onNavigate={handleNavigateTo}
           onLogin={handleLoginWithGoogleAuthCode}
           onLogOut={handleLogOut}
