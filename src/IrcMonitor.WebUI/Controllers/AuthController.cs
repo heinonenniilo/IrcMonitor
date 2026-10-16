@@ -37,4 +37,11 @@ public class AuthController: ApiControllerBase
         var user = await Mediator.Send(new GetUserFromCookieQuery());
         return user is null ? NoContent() : user;
     }
+
+    [HttpPost(template: "logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await Mediator.Send(new LogoutCommand());
+        return NoContent();
+    }
 }
