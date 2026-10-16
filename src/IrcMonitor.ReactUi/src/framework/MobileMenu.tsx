@@ -13,6 +13,7 @@ import { RoleNames } from "enums/RoleEnums";
 import { ManageMenu } from "components/ManageMenu";
 
 export interface MobileMenuProps {
+  isLoggingOut?: boolean;
   onNavigate: (route: string) => void;
   onLogin: () => void;
   onLogOut: () => void;
@@ -20,6 +21,7 @@ export interface MobileMenuProps {
 }
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({
+  isLoggingOut,
   onNavigate,
   onLogin,
   onLogOut,
@@ -141,6 +143,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 
       <Box sx={{ marginLeft: "auto" }}>
         <UserMenu
+          isLoggingOut={isLoggingOut}
           user={user}
           handleGoogleAuthWithCode={onLogin}
           handleLogOut={onLogOut}

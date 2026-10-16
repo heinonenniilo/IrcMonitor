@@ -60,24 +60,29 @@ export const useApiHook = (): UseApiHook => {
 
   useEffect(() => {
     if (isRefreshingToken && userVm?.email) {
+      const controller = new AbortController();
       dispatch(userActions.setIsLoggingIn(true));
       authApi
         .authGoogleRefresh({
           handleGoogleRefreshTokenCommand: {
             email: userVm.email
           }
-        })
+        }, { signal: controller.signal })
         .then((res) => {
+          if (controller.signal.aborted) return;
           dispatch(userActions.storeUserInfo(res));
         })
         .catch((err) => {
+          if (controller.signal.aborted) return;
           console.error(err);
           dispatch(userActions.setIsReLoggingIn(true));
         })
         .finally(() => {
+          if (controller.signal.aborted) return;
           dispatch(userActions.setIsLoggingIn(false));
           setIsRefreshingToken(false);
         });
+      return () => controller.abort();
     }
   }, [isRefreshingToken, userVm?.email, dispatch]);
 
@@ -101,6 +106,7 @@ export const useApiHook = (): UseApiHook => {
     } else {
       setIrcApi(undefined);
       setManagementApi(undefined);
+      setIsRefreshingToken(false);
     }
   }, [accessToken, preRequestHandler]);
 

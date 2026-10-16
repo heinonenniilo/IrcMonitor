@@ -50,6 +50,34 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
+    async authGetUserRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserVm>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Auth/user`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserVmFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async authGetUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
+        const response = await this.authGetUserRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
     async authGoogleAuthRaw(requestParameters: AuthGoogleAuthRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserVm>> {
         if (requestParameters.handleGoogleLoginCommand === null || requestParameters.handleGoogleLoginCommand === undefined) {
             throw new runtime.RequiredError('handleGoogleLoginCommand','Required parameter requestParameters.handleGoogleLoginCommand was null or undefined when calling authGoogleAuth.');
@@ -150,6 +178,34 @@ export class AuthApi extends runtime.BaseAPI {
      */
     async authGoogleRefresh(requestParameters: AuthGoogleRefreshRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserVm> {
         const response = await this.authGoogleRefreshRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async authLogoutRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Authorization"] = this.configuration.apiKey("Authorization"); // JWT authentication
+        }
+
+        const response = await this.request({
+            path: `/api/Auth/logout`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.BlobApiResponse(response);
+    }
+
+    /**
+     */
+    async authLogout(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.authLogoutRaw(initOverrides);
         return await response.value();
     }
 
