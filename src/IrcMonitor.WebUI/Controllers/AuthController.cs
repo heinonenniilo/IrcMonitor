@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Google.Apis.Auth;
 using IrcMonitor.Application.Users.Commands;
+using IrcMonitor.Application.Users.Queries;
 
 namespace WebUI.Controllers;
 
@@ -28,5 +29,12 @@ public class AuthController: ApiControllerBase
     public async Task<UserVm> GoogleRefresh([FromBody] HandleGoogleRefreshTokenCommand command)
     {
         return await Mediator.Send(command);
+    }
+
+    [HttpGet(template: "user")]
+    public async Task<ActionResult<UserVm>> GetUser()
+    {
+        var user = await Mediator.Send(new GetUserFromCookieQuery());
+        return user is null ? NoContent() : user;
     }
 }

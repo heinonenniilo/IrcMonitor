@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Google.Apis.Auth;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
+using Azure.Security.KeyVault.Secrets;
 using Azure.Core;
 using Hangfire;
 using IrcMonitor.Infrastructure.Jobs;
@@ -70,18 +71,22 @@ public static class ConfigureServices
             return flow;
         });
 
+        services.AddScoped<IEncryptionService, EncryptionService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
  
         services.AddSingleton(authSettings);
         services.AddSingleton(configuration.GetRequiredSection(nameof(IrcStatisticsSettings)).Get<IrcStatisticsSettings>());
         services.AddHangfireServices(configuration);
 
-        KeyClient keyClient = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? 
-            new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), GetKeyVaultCredential(authSettings.KeyVault)) : null;
+        TokenCredential keyVaultCredential = !string.IsNullOrEmpty(authSettings.KeyVault.KeyVaultUrl) ? GetKeyVaultCredential(authSettings.KeyVault) : null;
+        KeyClient keyClient = keyVaultCredential != null ?
+            new KeyClient(new Uri(authSettings.KeyVault.KeyVaultUrl), keyVaultCredential) : null;
         services.AddSingleton(x =>
         {
             return keyClient;
         });
+
+        authSettings.CookieKeyBytes = LoadCookieKey(authSettings, keyVaultCredential);
 
         RsaSecurityKey signKey;
         if (authSettings.UseKeyFromKeyVault)
@@ -171,6 +176,36 @@ public static class ConfigureServices
 
 		return serviceProvider;
 	}
+
+    private static byte[] LoadCookieKey(AuthenticationSettings authSettings, TokenCredential keyVaultCredential)
+    {
+        string base64Key;
+        if (authSettings.UseCookieKeyFromKeyVault)
+        {
+            if (keyVaultCredential == null || string.IsNullOrEmpty(authSettings.KeyVault.CookieKeyName))
+            {
+                throw new InvalidOperationException("KeyVaultUrl and KeyVault:CookieKeyName must be set when UseCookieKeyFromKeyVault is true");
+            }
+            var secretClient = new SecretClient(new Uri(authSettings.KeyVault.KeyVaultUrl), keyVaultCredential);
+            base64Key = secretClient.GetSecret(authSettings.KeyVault.CookieKeyName).Value.Value;
+        }
+        else
+        {
+            base64Key = authSettings.CookieKey;
+        }
+
+        if (string.IsNullOrEmpty(base64Key))
+        {
+            throw new InvalidOperationException("Cookie encryption key is not configured");
+        }
+
+        var key = Convert.FromBase64String(base64Key);
+        if (key.Length != 32)
+        {
+            throw new InvalidOperationException("Cookie encryption key must be 32 bytes (256 bits), base64 encoded");
+        }
+        return key;
+    }
 
     private static TokenCredential GetKeyVaultCredential(KeyVaultSettings settings)
     {
