@@ -33,7 +33,7 @@ public class HandleGoogleRefreshTokenCommandHandler : IRequestHandler<HandleGoog
     {
         var res = await _googleAuthService.AuthorizeWithGoogleRefreshToken(request.Email, true, cancellationToken);
         var encryptedUser = await _encryptionService.Encrypt(JsonSerializer.Serialize(res), cancellationToken);
-        await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.UserCookieKey, encryptedUser, _authSettings.GoogleAuth.StoreRefreshTokenForDays);
+        await _cookieService.SetHttpOnlyCookie(_authSettings.UserCookieKey, encryptedUser, _authSettings.GoogleAuth.StoreRefreshTokenForDays);
         return res;
     }
 }

@@ -27,7 +27,7 @@ public class GetUserFromCookieQueryHandler : IRequestHandler<GetUserFromCookieQu
     {
         try
         {
-            var encryptedUser = await _cookieService.GetCookie(_authSettings.GoogleAuth.UserCookieKey);
+            var encryptedUser = await _cookieService.GetCookie(_authSettings.UserCookieKey);
             var json = await _encryptionService.Decrypt(encryptedUser, cancellationToken);
             return JsonSerializer.Deserialize<UserVm>(json);
         }

@@ -21,6 +21,6 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
     public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         await _cookieService.DeleteCookie(_authSettings.GoogleAuth.RefreshTokenKey);
-        await _cookieService.DeleteCookie(_authSettings.GoogleAuth.UserCookieKey);
+        await _cookieService.DeleteCookie(_authSettings.UserCookieKey);
     }
 }

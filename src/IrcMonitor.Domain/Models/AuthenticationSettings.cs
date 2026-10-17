@@ -7,7 +7,6 @@ public class GoogleAuth
     public string ClientId { get; set; }
     public string ClientSecret { get; set; }
     public string RefreshTokenKey { get; set; }
-    public string UserCookieKey { get; set; }
     public int StoreRefreshTokenForDays { get; set; }
 }
 
@@ -33,6 +32,7 @@ public class AuthenticationSettings
     public bool UseKeyFromKeyVault { get; set; }
     public bool UseCookieKeyFromKeyVault { get; set; }
     public string CookieKey { get; set; }
+    public string UserCookieKey { get; set; }
 
     public RSAParameters RsaPrivateParameters { get; set; }
     public byte[] CookieKeyBytes { get; set; }
