@@ -1,4 +1,4 @@
-name: Build and deploy - IrcMonitor
+name: Build and test - IrcMonitor
 
 on:
   push:
@@ -6,12 +6,6 @@ on:
       - main
   pull_request:
   workflow_dispatch:
-    inputs:
-      deploy:
-        description: Deploy to Azure after a successful build
-        type: boolean
-        required: false
-        default: false
 
 jobs:
   build:
@@ -45,10 +39,11 @@ jobs:
           dotnet build tests/Application.IntegrationTests/Application.IntegrationTests.csproj  --configuration Release
           dotnet build tests/Application.UnitTests/Application.UnitTests.csproj  --configuration Release
 
-      - name: Test with the dotnet CLI
-        run: |
-          dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
-          dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
+      - name: Run unit tests
+        run: dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
+
+      - name: Run integration tests
+        run: dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -114,12 +109,6 @@ jobs:
           --runtime linux-x64
           --output artifacts/function/linux-x64
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: .net-app-win-x86
-          path: artifacts/web/win-x86
-
       - name: Zip Linux x64 applications for Blob Storage
         shell: pwsh
         run: |
@@ -159,27 +148,3 @@ jobs:
             --auth-mode login `
             --overwrite true `
             --only-show-errors @tierArguments
-
-  deploy:
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy) }}
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: "Production"
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app-win-x86
-          path: app
-
-      - name: Deploy Windows x86 to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "IrcMonitor"
-          slot-name: "Production"
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C18A791C34E945EB9FB49AFB6EE88B78 }}
-          package: app

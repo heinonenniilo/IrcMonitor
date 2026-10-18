@@ -6,6 +6,7 @@ using IrcMonitor.Infrastructure.Constants;
 using IrcMonitor.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,10 @@ public partial class Testing
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
         _configuration = _factory.Services.GetRequiredService<IConfiguration>();
 
-        _respawner = await Respawner.CreateAsync(_configuration.GetConnectionString("DefaultConnection"), new RespawnerOptions
+        await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        await connection.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
             TablesToIgnore = ["__EFMigrationsHistory"],
             DbAdapter = DbAdapter.SqlServer
@@ -54,7 +58,10 @@ public partial class Testing
 
     public static async Task ResetState()
     {
-        await _respawner.ResetAsync(_configuration.GetConnectionString("DefaultConnection"));
+        await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+        await connection.OpenAsync();
+
+        await _respawner.ResetAsync(connection);
         _currentUserId = null;
     }
 
