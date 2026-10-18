@@ -14,6 +14,7 @@ import { routes } from "utilities/routes";
 import { HeaderBrand } from "components/HeaderBrand";
 import { ManageMenu } from "components/ManageMenu";
 export interface DesktopMenuProps {
+  isLoggingOut?: boolean;
   onNavigate: (route: string) => void;
   onLogin: () => void;
   onLogOut: () => void;
@@ -37,6 +38,7 @@ const MenuArea = styled.div`
 `;
 
 export const DesktopMenu: React.FC<DesktopMenuProps> = ({
+  isLoggingOut,
   onNavigate,
   onLogin,
   onLogOut,
@@ -104,6 +106,7 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
             </AuthorizedComponent>
 
             <UserMenu
+              isLoggingOut={isLoggingOut}
               user={user}
               handleLogOut={onLogOut}
               handleGoogleAuthWithCode={onLogin}

@@ -35,4 +35,16 @@ public class CookieService : ICookieService
 
         throw new InvalidOperationException("Cookie not found");
     }
+
+    public Task DeleteCookie(string key)
+    {
+        _contextAccessor?.HttpContext?.Response.Cookies.Delete(key, new CookieOptions()
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return Task.CompletedTask;
+    }
 }

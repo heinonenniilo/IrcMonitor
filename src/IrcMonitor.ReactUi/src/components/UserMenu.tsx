@@ -1,11 +1,11 @@
 import { AccountCircle } from "@mui/icons-material";
 import { Box, Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import { googleLogout } from "@react-oauth/google";
 import React from "react";
 import { User } from "reducers/userReducer";
 import { ThemeModeSwitch } from "./ThemeModeSwitch";
 
 export interface UserMenuProps {
+  isLoggingOut?: boolean;
   handleGoogleAuthWithCode: () => void;
   handleLogOut: () => void;
   user: User | undefined;
@@ -21,6 +21,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => (
 );
 
 const AccountMenu: React.FC<UserMenuProps> = ({
+  isLoggingOut = false,
   user,
   showReLogIn,
   handleLogOut,
@@ -84,10 +85,10 @@ const AccountMenu: React.FC<UserMenuProps> = ({
           <MenuItem>
             <Button
               color="inherit"
+              disabled={isLoggingOut}
               onClick={() => {
                 handleClose();
                 handleLogOut();
-                googleLogout();
               }}
             >
               Log out

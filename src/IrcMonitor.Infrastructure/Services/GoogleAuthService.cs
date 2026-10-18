@@ -1,7 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
-using Azure.Security.KeyVault.Keys;
-using Azure.Security.KeyVault.Keys.Cryptography;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2.Flows;
 using IrcMonitor.Application.Common.Interfaces;
@@ -15,15 +12,15 @@ public class GoogleAuthService : IGoogleAuthService
     private readonly AuthenticationSettings _authSettings;
     private readonly IJwtGenerator _jwtGenerator;
     private readonly ICookieService _cookieService;
-    private readonly KeyClient _keyClient;
+    private readonly IEncryptionService _encryptionService;
 
-    public GoogleAuthService(GoogleAuthorizationCodeFlow flow, AuthenticationSettings authSettings, IJwtGenerator jwtGenerator, ICookieService cookieService, KeyClient keyClient)
+    public GoogleAuthService(GoogleAuthorizationCodeFlow flow, AuthenticationSettings authSettings, IJwtGenerator jwtGenerator, ICookieService cookieService, IEncryptionService encryptionService)
     {
         _flow = flow;
         _authSettings = authSettings;
         _jwtGenerator = jwtGenerator;
         _cookieService = cookieService;
-        _keyClient = keyClient;
+        _encryptionService = encryptionService;
     }
     public async Task<UserVm> AuthorizeWithGoogleAuthenticationCode(string email, string key, bool writeRefreshTokenInCookie, CancellationToken cancellationToken)
     {
@@ -83,52 +80,15 @@ public class GoogleAuthService : IGoogleAuthService
             return;
         }
 
-        var encrypted = await EncryptRefreshToken(refreshToken);
+        var encrypted = await _encryptionService.Encrypt(refreshToken);
         await _cookieService.SetHttpOnlyCookie(_authSettings.GoogleAuth.RefreshTokenKey, encrypted, _authSettings.GoogleAuth.StoreRefreshTokenForDays);
-    }
-
-    private async Task<string> EncryptRefreshToken(string refreshToken, CancellationToken cancellationToken = default)
-    {
-        var plainBytes = Encoding.UTF8.GetBytes(refreshToken);
-        byte[] cipherBytes;
-
-        if (_authSettings.UseKeyFromKeyVault)
-        {
-            var cryptoClient = _keyClient.GetCryptographyClient(_authSettings.KeyVault.KeyName);
-            var result = await cryptoClient.EncryptAsync(EncryptionAlgorithm.RsaOaep256, plainBytes, cancellationToken);
-            cipherBytes = result.Ciphertext;
-        }
-        else
-        {
-            using var rsa = RSA.Create();
-            rsa.ImportParameters(_authSettings.RsaPrivateParameters);
-            cipherBytes = rsa.Encrypt(plainBytes, RSAEncryptionPadding.OaepSHA256);
-        }
-
-        return Microsoft.IdentityModel.Tokens.Base64UrlEncoder.Encode(cipherBytes);
     }
 
     private async Task<string> DecryptRefreshToken(string encryptedRefreshToken, CancellationToken cancellationToken)
     {
         try
         {
-            var cipherBytes = Microsoft.IdentityModel.Tokens.Base64UrlEncoder.DecodeBytes(encryptedRefreshToken);
-            byte[] plainBytes;
-
-            if (_authSettings.UseKeyFromKeyVault)
-            {
-                var cryptoClient = _keyClient.GetCryptographyClient(_authSettings.KeyVault.KeyName);
-                var result = await cryptoClient.DecryptAsync(EncryptionAlgorithm.RsaOaep256, cipherBytes, cancellationToken);
-                plainBytes = result.Plaintext;
-            }
-            else
-            {
-                using var rsa = RSA.Create();
-                rsa.ImportParameters(_authSettings.RsaPrivateParameters);
-                plainBytes = rsa.Decrypt(cipherBytes, RSAEncryptionPadding.OaepSHA256);
-            }
-
-            return Encoding.UTF8.GetString(plainBytes);
+            return await _encryptionService.Decrypt(encryptedRefreshToken, cancellationToken);
         }
         catch (Exception ex) when (ex is FormatException or ArgumentException or CryptographicException or Azure.RequestFailedException)
         {
