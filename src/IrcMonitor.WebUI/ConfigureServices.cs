@@ -2,7 +2,6 @@
 using IrcMonitor.Infrastructure.Persistence;
 using IrcMonitor.WebUI.Filters;
 using IrcMonitor.WebUI.Services;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -24,8 +23,7 @@ public static class ConfigureServices
             .AddDbContextCheck<ApplicationDbContext>();
 
         services.AddControllersWithViews(options =>
-            options.Filters.Add<ApiExceptionFilterAttribute>())
-                .AddFluentValidation(x => x.AutomaticValidationEnabled = false);
+            options.Filters.Add<ApiExceptionFilterAttribute>());
 
         services.AddRazorPages();
 
